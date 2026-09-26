@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080" role="img" aria-label="Placeholder foto cover undangan">
+  
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#d9c193"/>
+      <stop offset="50%"  stop-color="#b8964f"/>
+      <stop offset="100%" stop-color="#d9c193"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%"   stop-color="#68745d"/>
+      <stop offset="55%"  stop-color="#3f453b"/>
+      <stop offset="100%" stop-color="#2e332b"/>
+    </linearGradient>
+    <linearGradient id="softGrad" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%"   stop-color="#f7f3eb"/>
+      <stop offset="100%" stop-color="#eee9df"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx="50%" cy="45%" r="75%">
+      <stop offset="55%"  stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity=".28"/>
+    </radialGradient>
+  </defs>
+  <rect width="1920" height="1080" fill="url(#bgGrad)"/>
+  <rect width="1920" height="1080" fill="url(#vignette)"/>
+
+  
+  <rect x="54" y="54" width="1812" height="972"
+        rx="6" fill="none" stroke="url(#goldGrad)" stroke-width="2"/>
+  <rect x="62" y="62" width="1796" height="956"
+        rx="4" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity=".45"/>
+  
+  <g transform="translate(70,70) scale(1,1)" opacity=".75">
+    <path d="M0 0 C 0 17 17 34 34 34"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.6"/>
+    <path d="M0 11.899999999999999 C 10.2 13.600000000000001 13.600000000000001 10.2 15.3 0"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity=".8"/>
+    <circle cx="0" cy="0" r="2.6" fill="url(#goldGrad)"/>
+  </g>
+  
+  <g transform="translate(1850,70) scale(-1,1)" opacity=".75">
+    <path d="M0 0 C 0 17 17 34 34 34"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.6"/>
+    <path d="M0 11.899999999999999 C 10.2 13.600000000000001 13.600000000000001 10.2 15.3 0"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity=".8"/>
+    <circle cx="0" cy="0" r="2.6" fill="url(#goldGrad)"/>
+  </g>
+  
+  <g transform="translate(70,1010) scale(1,-1)" opacity=".75">
+    <path d="M0 0 C 0 17 17 34 34 34"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.6"/>
+    <path d="M0 11.899999999999999 C 10.2 13.600000000000001 13.600000000000001 10.2 15.3 0"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity=".8"/>
+    <circle cx="0" cy="0" r="2.6" fill="url(#goldGrad)"/>
+  </g>
+  
+  <g transform="translate(1850,1010) scale(-1,-1)" opacity=".75">
+    <path d="M0 0 C 0 17 17 34 34 34"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.6"/>
+    <path d="M0 11.899999999999999 C 10.2 13.600000000000001 13.600000000000001 10.2 15.3 0"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity=".8"/>
+    <circle cx="0" cy="0" r="2.6" fill="url(#goldGrad)"/>
+  </g>
+
+  <g text-anchor="middle">
+    <text x="960" y="432" font-family="'Montserrat','Helvetica Neue',Arial,sans-serif" font-size="20" letter-spacing="11"
+          fill="#d9c193" opacity=".9">PLACEHOLDER</text>
+    <line x1="790" y1="466" x2="1130" y2="466" stroke="url(#goldGrad)" stroke-width="1.5"/>
+    <text x="960" y="576" font-family="'Parisienne','Brush Script MT',cursive" font-size="128" fill="#f7f3eb">Foto Cover</text>
+    <text x="960" y="642" font-family="'Cormorant Garamond',Georgia,serif" font-style="italic" font-size="40"
+          fill="#d9c193">Ganti dengan foto landscape pasangan</text>
+    <text x="960" y="700" font-family="'Montserrat','Helvetica Neue',Arial,sans-serif" font-size="22" letter-spacing="3"
+          fill="#eee9df" opacity=".72">1920 &#215; 1080 px &#183; minimal 1600 px &#183; format JPG</text>
+  </g>
+</svg>

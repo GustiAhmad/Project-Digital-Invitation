@@ -1,1384 +1,334 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Wedding of Uswatun Hasanah & Muhammad</title>
-
-<style>
-    /* Foto pengantin di halaman cover */
-.foto-cover {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin: 25px 0;
-}
-
-.foto-cover img {
-    width: 130px;
-    height: 170px;
-    object-fit: cover;
-    border-radius: 65px 65px 10px 10px;
-    border: 3px solid white;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-}
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&family=Parisienne&display=swap');
-
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    font-family: 'Montserrat', sans-serif;
-    background: #eee9df;
-    color: #4d5147;
-    line-height: 1.7;
-}
-
-section {
-    padding: 80px 20px;
-}
-
-.container {
-    width: 100%;
-    max-width: 900px;
-    margin: auto;
-}
-
-h1, h2, h3 {
-    font-family: 'Cormorant Garamond', serif;
-    font-weight: 500;
-    font-style: italic;
-}
-
-.script {
-    font-family: 'Parisienne', cursive;
-}
-
-.center {
-    text-align: center;
-}
-
-.small-title {
-    letter-spacing: 4px;
-    text-transform: uppercase;
-    font-size: 12px;
-    margin-bottom: 12px;
-}
-
-.title {
-    font-size: 42px;
-    margin-bottom: 20px;
-}
-
-.text {
-    max-width: 650px;
-    margin: auto;
-    font-size: 14px;
-}
-
-/* =========================
-   COVER
-========================= */
-
-#cover {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-
-    background:
-        linear-gradient(rgba(50,50,40,.25), rgba(50,50,40,.45)),
-        url("foto-cover.jpg") center/cover no-repeat;
-
-    color: white;
-}
-
-.cover-content {
-    padding: 30px;
-}
-
-.cover-content h1 {
-    font-size: 70px;
-    line-height: 1;
-}
-
-.cover-content h2 {
-    font-size: 22px;
-    letter-spacing: 4px;
-    margin-bottom: 25px;
-}
-
-.cover-date {
-    margin: 25px 0;
-}
-
-.btn {
-    display: inline-block;
-    padding: 13px 28px;
-    border-radius: 30px;
-    border: none;
-    background: #68745d;
-    color: white;
-    text-decoration: none;
-    cursor: pointer;
-    font-family: inherit;
-    transition: .3s;
-}
-
-.btn:hover {
-    transform: translateY(-2px);
-    opacity: .9;
-}
-
-/* =========================
-   INTRO
-========================= */
-
-.intro {
-    background: #f7f3eb;
-    text-align: center;
-}
-
-.intro .script {
-    font-size: 55px;
-    margin: 20px 0;
-}
-
-/* =========================
-   COUNTDOWN
-========================= */
-
-.countdown {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    flex-wrap: wrap;
-    margin-top: 35px;
-}
-
-.count-box {
-    width: 80px;
-    padding: 15px 5px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 5px 20px rgba(0,0,0,.08);
-}
-
-.count-box strong {
-    display: block;
-    font-size: 25px;
-    font-family: 'Cormorant Garamond', serif;
-}
-
-.count-box span {
-    font-size: 10px;
-    text-transform: uppercase;
-}
-
-/* =========================
-   MEMPELAI
-========================= */
-
-.couple {
-    background: #eee9df;
-}
-
-.couple-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 35px;
-    margin-top: 40px;
-}
-
-.person {
-    text-align: center;
-}
-
-.person img {
-    width: 220px;
-    height: 280px;
-    object-fit: cover;
-    border-radius: 100px 100px 20px 20px;
-    margin-bottom: 20px;
-}
-
-.person h3 {
-    font-size: 32px;
-}
-
-.parent {
-    font-size: 12px;
-    margin-top: 8px;
-}
-
-/* =========================
-   ACARA
-========================= */
-
-.events {
-    background: #f7f3eb;
-}
-
-.event-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-    margin-top: 40px;
-}
-
-.event-card {
-    background: white;
-    padding: 35px 25px;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,.06);
-}
-
-.event-icon {
-    font-size: 30px;
-    margin-bottom: 10px;
-}
-
-.event-card h3 {
-    font-size: 28px;
-    margin-bottom: 15px;
-}
-
-.event-card p {
-    font-size: 13px;
-    margin: 5px 0;
-}
-
-/* =========================
-   MAP
-========================= */
-
-.location {
-    background: #eee9df;
-    text-align: center;
-}
-
-.map-box {
-    margin-top: 35px;
-    overflow: hidden;
-    border-radius: 20px;
-    height: 350px;
-}
-
-.map-box iframe {
-    width: 100%;
-    height: 100%;
-    border: 0;
-}
-
-/* =========================
-   GALLERY
-========================= */
-
-.gallery {
-    background: #f7f3eb;
-}
-
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-top: 35px;
-}
-
-.gallery-grid img {
-    width: 100%;
-    height: 220px;
-    object-fit: cover;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: .3s;
-}
-
-.gallery-grid img:hover {
-    transform: scale(1.03);
-}
-
-
-/* =========================
-   STORY
-========================= */
-
-.story {
-    background: #f7f3eb;
-}
-
-.story-box {
-    max-width: 650px;
-    margin: 35px auto 0;
-    padding: 35px;
-    background: white;
-    border-radius: 20px;
-}
-
-/* =========================
-   UCAPAN
-========================= */
-
-.wishes {
-    background: #eee9df;
-}
-
-.wish-form {
-    max-width: 600px;
-    margin: 30px auto;
-}
-
-input,
-textarea,
-select {
-    width: 100%;
-    padding: 14px;
-    border: 1px solid #d9d3c8;
-    border-radius: 10px;
-    margin-bottom: 12px;
-    font-family: inherit;
-    background: white;
-}
-
-textarea {
-    min-height: 120px;
-    resize: vertical;
-}
-
-.wish-list {
-    max-width: 650px;
-    margin: 30px auto;
-}
-
-.wish {
-    background: white;
-    padding: 20px;
-    border-radius: 15px;
-    margin-bottom: 12px;
-}
-
-.wish strong {
-    display: block;
-    margin-bottom: 5px;
-}
-
-/* =========================
-   RSVP
-========================= */
-
-.rsvp {
-    background: #f7f3eb;
-}
-
-.rsvp-form {
-    max-width: 600px;
-    margin: 35px auto;
-}
-
-/* =========================
-   KADO
-========================= */
-
-.gift {
-    background: #eee9df;
-}
-
-.bank-card {
-    background: white;
-    max-width: 450px;
-    margin: 30px auto;
-    padding: 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.07);
-}
-
-.bank-card h3 {
-    font-size: 30px;
-}
-
-/* =========================
-   QR
-========================= */
-
-.qr {
-    text-align: center;
-    background: #f7f3eb;
-}
-
-.qr img {
-    width: 180px;
-    margin: 25px auto;
-    display: block;
-}
-
-/* =========================
-   MUSIC
-========================= */
-
-.music-btn {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    border: none;
-    background: #68745d;
-    color: white;
-    z-index: 999;
-    cursor: pointer;
-}
-
-/* =========================
-   FOOTER
-========================= */
-
-footer {
-    padding: 70px 20px;
-    text-align: center;
-    background: #3f453b;
-    color: white;
-}
-
-footer .script {
-    font-size: 45px;
-}
-
-/* =========================
-   RESPONSIVE
-========================= */
-
-@media(max-width:700px) {
-
-    .cover-content h1 {
-        font-size: 52px;
-    }
-
-    .title {
-        font-size: 35px;
-    }
-
-    .couple-grid,
-    .event-grid,
-    .video-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .gallery-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .gallery-grid img {
-        height: 180px;
-    }
-
-    section {
-        padding: 65px 18px;
-    }
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#3f453b">
+
+  <title>The Wedding of Uswatun Hasanah &amp; Muhammad</title>
+  <meta name="description" content="Undangan pernikahan Uswatun Hasanah &amp; Muhammad. Save the date.">
+
+  <!-- ============ PREVIEW SAAT LINK DI-SHARE (WhatsApp/IG/Facebook) ============ -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Wedding of Uswatun Hasanah &amp; Muhammad">
+  <meta property="og:description" content="Undangan pernikahan digital. Save the date.">
+  <meta property="og:image" content="./og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- ============ FAVICON ============ -->
+  <link rel="icon" type="image/svg+xml" href="./icons/favicon.svg">
+  <link rel="apple-touch-icon" href="./icons/favicon.svg">
+
+  <!-- ============ FONT ============
+       Dipakai <link>, bukan @import di dalam CSS.
+       Alasannya: @import setelah aturan CSS tidak valid menurut spesifikasi
+       dan hanya收起 "delay render" (Flash of Unstyled Text).
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600&family=Parisienne&display=swap">
+  <link rel="stylesheet" href="./src/styles/main.css">
 </head>
-
 
 <body>
 
-<!-- =================================
-     COVER
-================================= -->
-
-<section id="cover">
-
+  <!-- ============ COVER ============ -->
+  <section id="cover">
     <div class="cover-content">
-
-        <p class="small-title">
-            The Wedding Of
-        </p>
-
-        <h1>
-            Uswatun Hasanah
-            <br>
-            <span class="script">&</span>
-            Muhammad
-        </h1>
-
-        <p class="cover-date">
-            Kamis, 20 November 2026
-        </p>
-
-       <a href="#intro" onclick="mulaiMusik()">
-            Buka Undangan →
-</a>
-
+      <p class="small-title">The Wedding Of</p>
+      <h1>
+        Uswatun Hasanah
+        <br>
+        <span class="amp">&amp;</span>
+        Muhammad
+      </h1>
+      <p class="cover-date">Kamis, 20 November 2026</p>
+      <a href="#intro" class="btn" id="openInvitation">Buka Undangan &rarr;</a>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     INTRO
-================================= -->
-
-<section id="intro" class="intro">
-
+  <!-- ============ INTRO ============ -->
+  <section id="intro" class="intro">
     <div class="container">
+      <p class="small-title">Assalamu'alaikum Wr. Wb.</p>
+      <p class="text">
+        Dengan penuh rasa bahagia, kami mengundang Bapak/Ibu/Saudara/i
+        untuk hadir dalam acara pernikahan kami.
+      </p>
+      <div class="script">Uswatun Hasanah &amp; Muhammad</div>
+      <p>Kamis, 20 November 2026</p>
 
-        <p class="small-title">
-            Assalamu'alaikum Wr. Wb.
-        </p>
-
-        <p class="text">
-            Dengan penuh rasa bahagia, kami mengundang
-            Bapak/Ibu/Saudara/i untuk hadir dalam acara
-            pernikahan kami.
-        </p>
-
-        <div class="script">
-            Uswatun Hasanah & Muhammad
-        </div>
-
-        <p>
-            Kamis, 20 November 2026
-        </p>
-
-        <div class="countdown">
-
-            <div class="count-box">
-                <strong id="days">00</strong>
-                <span>Hari</span>
-            </div>
-
-            <div class="count-box">
-                <strong id="hours">00</strong>
-                <span>Jam</span>
-            </div>
-
-            <div class="count-box">
-                <strong id="minutes">00</strong>
-                <span>Menit</span>
-            </div>
-
-            <div class="count-box">
-                <strong id="seconds">00</strong>
-                <span>Detik</span>
-            </div>
-
-        </div>
-
+      <div class="countdown" id="countdown" aria-live="off">
+        <div class="count-box"><strong id="days">00</strong><span>Hari</span></div>
+        <div class="count-box"><strong id="hours">00</strong><span>Jam</span></div>
+        <div class="count-box"><strong id="minutes">00</strong><span>Menit</span></div>
+        <div class="count-box"><strong id="seconds">00</strong><span>Detik</span></div>
+      </div>
+      <p class="countdown-note" id="countdownNote" hidden></p>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     MEMPELAI
-================================= -->
-
-<section class="couple">
-
+  <!-- ============ MEMPELAI ============ -->
+  <section class="couple">
     <div class="container center">
+      <p class="small-title">Mempelai</p>
+      <h2 class="title">Dengan penuh cinta</h2>
+      <p class="text">
+        Maha suci Allah yang telah menciptakan makhluk-Nya
+        berpasang-pasangan.
+      </p>
 
-        <p class="small-title">
-            Mempelai
-        </p>
-
-        <h2 class="title">
-            Dengan penuh cinta
-        </h2>
-
-        <p class="text">
-            Maha suci Allah yang telah menciptakan
-            makhluk-Nya berpasang-pasangan.
-        </p>
-
-
-        <div class="couple-grid">
-
-            <div class="person">
-
-                <img src="uswatun.jpg" alt="Uswatun">
-
-                <h3>
-                    Uswatun Hasanah
-                </h3>
-
-                <p>
-                    Putri dari
-                    <br>
-                    Bapak... & Ibu...
-                </p>
-
-            </div>
-
-
-            <div class="person">
-
-                <img src="Muhammad.jpg" alt="Muhammad">
-
-                <h3>
-                    Muhammad ....
-                </h3>
-
-                <p>
-                    Putra dari
-                    <br>
-                    Bapak ... & Ibu ....
-                </p>
-
-            </div>
-
+      <div class="couple-grid">
+        <div class="person">
+          <img src="./img/couple-bride.jpg" alt="Uswatun Hasanah" width="640" height="850" loading="lazy" decoding="async">
+          <h3>Uswatun Hasanah</h3>
+          <p>Putri dari<br>Bapak&hellip; &amp; Ibu&hellip;</p>
         </div>
-
+        <div class="person">
+          <img src="./img/couple-groom.jpg" alt="Muhammad" width="640" height="850" loading="lazy" decoding="async">
+          <h3>Muhammad &hellip;</h3>
+          <p>Putra dari<br>Bapak &hellip; &amp; Ibu &hellip;</p>
+        </div>
+      </div>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     ACARA
-================================= -->
-
-<section class="events">
-
+  <!-- ============ ACARA ============ -->
+  <section class="events">
     <div class="container center">
+      <p class="small-title">Save The Date</p>
+      <h2 class="title">Detail Acara</h2>
 
-        <p class="small-title">
-            Save The Date
-        </p>
-
-        <h2 class="title">
-            Detail Acara
-        </h2>
-
-
-        <div class="event-grid">
-
-            <div class="event-card">
-
-                <div class="event-icon">
-                    💍
-                </div>
-
-                <h3>
-                    Akad Nikah
-                </h3>
-
-                <p>
-                    📅 Kamis, 20 November 2026
-                </p>
-
-                <p>
-                    🕐 08.00 - 10.00 WITA
-                </p>
-
-                <p>
-                    📍 Masjid Al-Muttaqin
-                </p>
-
-                <p>
-                    Jl. Melati No.12
-                </p>
-
-                <br>
-
-                <a href="#location" class="btn">
-                    Lihat Lokasi
-                </a>
-
-            </div>
-
-
-            <div class="event-card">
-
-                <div class="event-icon">
-                    🥂
-                </div>
-
-                <h3>
-                    Resepsi
-                </h3>
-
-                <p>
-                    📅 Kamis, 20 November 2026
-                </p>
-
-                <p>
-                    🕐 11.00 - 15.00 WITA
-                </p>
-
-                <p>
-                    📍 Gedung Serbaguna Harmoni
-                </p>
-
-                <p>
-                    Jl. Sudirman No.45
-                </p>
-
-                <br>
-
-                <a href="#location" class="btn">
-                    Lihat Lokasi
-                </a>
-
-            </div>
-
+      <div class="event-grid">
+        <div class="event-card">
+          <div class="event-icon" data-icon="rings" aria-hidden="true"></div>
+          <h3>Akad Nikah</h3>
+          <p>Kamis, 20 November 2026</p>
+          <p>08.00 &ndash; 10.00 WITA</p>
+          <p>Masjid Al-Muttaqin</p>
+          <p>Jl. Melati No.12</p>
+          <br>
+          <a href="#location" class="btn">Lihat Lokasi</a>
         </div>
 
+        <div class="event-card">
+          <div class="event-icon" data-icon="glass" aria-hidden="true"></div>
+          <h3>Resepsi</h3>
+          <p>Kamis, 20 November 2026</p>
+          <p>11.00 &ndash; 15.00 WITA</p>
+          <p>Gedung Serbaguna Harmoni</p>
+          <p>Jl. Sudirman No.45</p>
+          <br>
+          <a href="#location" class="btn">Lihat Lokasi</a>
+        </div>
+      </div>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     LOKASI
-================================= -->
-
-<section id="location" class="location">
-
+  <!-- ============ LOKASI ============ -->
+  <section id="location" class="location">
     <div class="container">
+      <div class="center">
+        <p class="small-title">Lokasi</p>
+        <h2 class="title">Tempat Acara</h2>
+        <p>Masjid Al-Muttaqin</p>
+        <p>Jl. Melati No.12, Banjarmasin</p>
+      </div>
 
-        <div class="center">
+      <div class="map-box">
+        <iframe
+          title="Peta lokasi Masjid Al-Muttaqin"
+          src="https://www.google.com/maps?q=Banjarmasin&output=embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          allowfullscreen></iframe>
+      </div>
 
-            <p class="small-title">
-                Lokasi
-            </p>
-
-            <h2 class="title">
-                Tempat Acara
-            </h2>
-
-            <p>
-                Masjid Al-Muttaqin
-            </p>
-
-            <p>
-                Jl. Melati No.12, Banjarmasin
-            </p>
-
-        </div>
-
-
-        <div class="map-box">
-
-            <!-- GANTI DENGAN EMBED GOOGLE MAP KAMU -->
-
-            <iframe
-                src="https://www.google.com/maps?q=Banjarmasin&output=embed">
-            </iframe>
-
-        </div>
-
-
-        <div class="center" style="margin-top:25px;">
-
-            <a
-                href="https://maps.google.com/?q=Banjarmasin"
-                target="_blank"
-                class="btn">
-
-                📍 Buka di Google Maps
-
-            </a>
-
-        </div>
-
+      <div class="center map-actions">
+        <a href="https://maps.google.com/?q=Banjarmasin" target="_blank" rel="noopener noreferrer" class="btn">
+          Buka di Google Maps
+        </a>
+      </div>
     </div>
+  </section>
 
-</section>
-
-<!-- =================================
-     GALERI FOTO
-================================= -->
-
-<section class="gallery">
-
+  <!-- ============ GALERI ============ -->
+  <section class="gallery">
     <div class="container center">
+      <p class="small-title">Memories</p>
+      <h2 class="title">Galeri Foto</h2>
+      <p class="text">
+        Beberapa momen indah dalam perjalanan kami menuju hari istimewa ini.
+      </p>
 
-        <p class="small-title">
-            Memories
-        </p>
-
-        <h2 class="title">
-            Galeri Foto
-        </h2>
-
-        <p class="text">
-            Beberapa momen indah dalam perjalanan kami
-            menuju hari istimewa ini.
-        </p>
-
-        <div class="gallery-grid">
-
-            <img src="foto1.jpg" alt="Foto 1">
-            <img src="foto2.jpg" alt="Foto 2">
-            <img src="foto3.jpg" alt="Foto 3">
-            <img src="foto4.jpg" alt="Foto 4">
-
-        </div>
-
+      <div class="gallery-grid" id="galleryGrid">
+        <img src="./img/gallery-1.svg" alt="Placeholder foto galeri 1" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-2.svg" alt="Placeholder foto galeri 2" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-3.svg" alt="Placeholder foto galeri 3" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-4.svg" alt="Placeholder foto galeri 4" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-5.svg" alt="Placeholder foto galeri 5" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-6.svg" alt="Placeholder foto galeri 6" width="1200" height="1500" loading="lazy" decoding="async">
+      </div>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     CERITA
-================================= -->
-
-<section class="story">
-
+  <!-- ============ CERITA ============ -->
+  <section class="story">
     <div class="container center">
+      <p class="small-title">Our Story</p>
+      <h2 class="title">Kisah Kami</h2>
 
-        <p class="small-title">
-            Our Story
+      <div class="story-box">
+        <h3>Pertemuan</h3>
+        <p>
+          Setiap kisah memiliki awal. Begitu juga dengan kisah kami.
+          Dari sebuah pertemuan sederhana, perlahan tumbuh
+          menjadi sebuah perjalanan yang berarti.
         </p>
-
-        <h2 class="title">
-            Kisah Kami
-        </h2>
-
-
-        <div class="story-box">
-
-            <h3>
-                Pertemuan
-            </h3>
-
-            <p>
-                Setiap kisah memiliki awal.
-                Begitu juga dengan kisah kami.
-                Dari sebuah pertemuan sederhana,
-                perlahan tumbuh menjadi sebuah
-                perjalanan yang berarti.
-            </p>
-
-            <br>
-
-            <h3>
-                Perjalanan
-            </h3>
-
-            <p>
-                Kami belajar untuk saling memahami,
-                saling mendukung dan tumbuh bersama.
-            </p>
-
-            <br>
-
-            <h3>
-                Hari Istimewa
-            </h3>
-
-            <p>
-                Dengan memohon ridha Allah SWT,
-                kami melangkah menuju kehidupan
-                baru bersama.
-            </p>
-
-        </div>
-
+        <br>
+        <h3>Perjalanan</h3>
+        <p>
+          Kami belajar untuk saling memahami, saling mendukung
+          dan tumbuh bersama.
+        </p>
+        <br>
+        <h3>Hari Istimewa</h3>
+        <p>
+          Dengan memohon ridha Allah SWT, kami melangkah menuju
+          kehidupan baru bersama.
+        </p>
+      </div>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     RSVP
-================================= -->
-
-<section class="rsvp">
-
+  <!-- ============ RSVP ============ -->
+  <section class="rsvp">
     <div class="container center">
+      <p class="small-title">RSVP</p>
+      <h2 class="title">Konfirmasi Kehadiran</h2>
+      <p class="text">
+        Mohon konfirmasi kehadiran Anda untuk membantu kami
+        mempersiapkan acara.
+      </p>
 
-        <p class="small-title">
-            RSVP
-        </p>
+      <form class="rsvp-form" id="rsvpForm" novalidate>
+        <label class="sr-only" for="rsvpName">Nama lengkap</label>
+        <input id="rsvpName" name="name" type="text" placeholder="Nama Lengkap"
+               autocomplete="name" required maxlength="80">
 
-        <h2 class="title">
-            Konfirmasi Kehadiran
-        </h2>
+        <label class="sr-only" for="rsvpStatus">Konfirmasi kehadiran</label>
+        <select id="rsvpStatus" name="status" required>
+          <option value="" selected disabled>Pilih konfirmasi</option>
+          <option value="hadir">Hadir</option>
+          <option value="tidak_hadir">Tidak Hadir</option>
+        </select>
 
-        <p class="text">
-            Mohon konfirmasi kehadiran Anda
-            untuk membantu kami mempersiapkan acara.
-        </p>
+        <label class="sr-only" for="rsvpGuest">Jumlah tamu</label>
+        <input id="rsvpGuest" name="guest_count" type="number" min="1" max="10"
+               value="1" placeholder="Jumlah Tamu" inputmode="numeric" required>
 
-
-        <form class="rsvp-form">
-
-            <input
-                type="text"
-                placeholder="Nama">
-
-            <select>
-
-                <option>
-                    Konfirmasi Kehadiran
-                </option>
-
-                <option>
-                    Hadir
-                </option>
-
-                <option>
-                    Tidak Hadir
-                </option>
-
-            </select>
-
-
-            <input
-                type="number"
-                min="1"
-                placeholder="Jumlah Tamu">
-
-
-            <button
-                type="button"
-                class="btn"
-                onclick="kirimRSVP()">
-
-                Kirim Konfirmasi
-
-            </button>
-
-        </form>
-
+        <button type="submit" class="btn btn-block">Kirim Konfirmasi</button>
+      </form>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     UCAPAN
-================================= -->
-
-<section class="wishes">
-
+  <!-- ============ UCAPAN ============ -->
+  <section class="wishes">
     <div class="container center">
+      <p class="small-title">Wishes</p>
+      <h2 class="title">Ucapan &amp; Doa</h2>
 
-        <p class="small-title">
-            Wishes
-        </p>
+      <form class="wish-form" id="wishForm" novalidate>
+        <label class="sr-only" for="namaUcapan">Nama</label>
+        <input id="namaUcapan" name="name" type="text" placeholder="Nama"
+               autocomplete="name" required maxlength="60">
 
-        <h2 class="title">
-            Ucapan & Doa
-        </h2>
+        <label class="sr-only" for="isiUcapan">Ucapan dan doa</label>
+        <textarea id="isiUcapan" name="message" placeholder="Tulis ucapan dan doa..."
+                  required maxlength="500"></textarea>
 
+        <button type="submit" class="btn btn-block">Kirim Ucapan</button>
+      </form>
 
-        <form
-            class="wish-form"
-            onsubmit="tambahUcapan(event)">
-
-            <input
-                id="namaUcapan"
-                type="text"
-                placeholder="Nama"
-                required>
-
-            <textarea
-                id="isiUcapan"
-                placeholder="Tulis ucapan dan doa..."
-                required></textarea>
-
-            <button
-                class="btn"
-                type="submit">
-
-                Kirim Ucapan
-
-            </button>
-
-        </form>
-
-
-        <div id="wishList" class="wish-list">
-
-            <div class="wish">
-
-                <strong>
-                    Aisyah
-                </strong>
-
-                <p>
-                    Semoga menjadi keluarga yang
-                    sakinah, mawaddah, warahmah.
-                    Aamiin.
-                </p>
-
-            </div>
-
-
-            <div class="wish">
-
-                <strong>
-                    Rani
-                </strong>
-
-                <p>
-                    Selamat menempuh hidup baru.
-                    Semoga selalu diberikan kebahagiaan.
-                </p>
-
-            </div>
-
+      <div id="wishList" class="wish-list" aria-live="polite">
+        <div class="wish">
+          <strong>Aisyah</strong>
+          <p>Semoga menjadi keluarga yang sakinah, mawaddah, warahmah. Aamiin.</p>
         </div>
-
+        <div class="wish">
+          <strong>Rani</strong>
+          <p>Selamat menempuh hidup baru. Semoga selalu diberikan kebahagiaan.</p>
+        </div>
+      </div>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     KADO
-================================= -->
-
-<section class="gift">
-
+  <!-- ============ KADO ============ -->
+  <section class="gift">
     <div class="container center">
+      <p class="small-title">Wedding Gift</p>
+      <h2 class="title">Kado Pernikahan</h2>
+      <p class="text">
+        Bagi keluarga dan sahabat yang ingin memberikan tanda kasih,
+        dapat melalui rekening atau dompet digital berikut.
+      </p>
 
-        <p class="small-title">
-            Wedding Gift
-        </p>
+      <div class="bank-card">
+        <h3>BRIMO</h3>
+        <p class="bank-number" id="bankBrimo">1234 5678 9012</p>
+        <p>a.n. Uswatun Hasanah</p>
+        <br>
+        <button class="btn" data-copy="123456789012" data-copy-label="Nomor BRIMO">
+          Salin Nomor Rekening
+        </button>
+      </div>
 
-        <h2 class="title">
-            Kado Pernikahan
-        </h2>
-
-        <p class="text">
-            Bagi keluarga dan sahabat yang ingin
-            memberikan tanda kasih, dapat melalui
-            rekening atau dompet digital berikut.
-        </p>
-
-
-        <div class="bank-card">
-
-            <h3>
-                🏦 BRIMO
-            </h3>
-
-            <p>
-                1234 5678 9012
-            </p>
-
-            <p>
-                a.n. Uswatun Hasanah
-            </p>
-
-            <br>
-
-            <button
-                class="btn"
-                onclick="copyRekening()">
-
-                Salin Nomor Rekening
-
-            </button>
-
-        </div>
-
-
-        <div class="bank-card">
-
-            <h3>
-                💙 DANA
-            </h3>
-
-            <p>
-                0822 5311 2508
-            </p>
-
-            <p>
-                a.n. Uswatun Hasanah
-            </p>
-
-            <br>
-
-            <button
-                class="btn"
-                onclick="copyDana()">
-
-                Salin Nomor DANA
-
-            </button>
-
-        </div>
-
+      <div class="bank-card">
+        <h3>DANA</h3>
+        <p class="bank-number" id="bankDana">0822 5311 2508</p>
+        <p>a.n. Uswatun Hasanah</p>
+        <br>
+        <button class="btn" data-copy="082253112508" data-copy-label="Nomor DANA">
+          Salin Nomor DANA
+        </button>
+      </div>
     </div>
+  </section>
 
-</section>
-
-
-<!-- =================================
-     LINK + QR
-================================= -->
-
-<section class="qr">
-
+  <!-- ============ SHARE + QR ============ -->
+  <section class="qr">
     <div class="container">
-
-        <p class="small-title">
-            Digital Invitation
-        </p>
-
-        <h2 class="title">
-            Bagikan Undangan
-        </h2>
-
-        <p>
-            https://wevitation.com/uswatun-muhammad
-        </p>
-
-
-        <!--
-        Untuk QR asli:
-        upload QR kamu lalu ganti qr-code.png
-        -->
-
-        <img
-            src="qr-code.png"
-            alt="QR Code">
-
-
-        <p>
-            Scan QR Code untuk membuka undangan.
-        </p>
-
+      <p class="small-title">Digital Invitation</p>
+      <h2 class="title">Bagikan Undangan</h2>
+      <p class="share-url" id="shareUrl">undangan-contoh.vercel.app</p>
+      <img class="qr-image" src="./img/qr-placeholder.svg"
+           alt="Placeholder QR code undangan" width="400" height="400"
+           loading="lazy" decoding="async">
+      <p>Scan QR Code untuk membuka undangan.</p>
     </div>
-
-</section>
-
-
-<!-- =================================
-     FOOTER
-================================= -->
-
-<footer>
-
-    <p>
-        Terima kasih atas doa
-        dan kehadirannya.
-    </p>
-
-    <div class="script">
-        Uswatun Hasanah & Muhammad
-    </div>
-
-    <p>
-        © 2026
-    </p>
-
-</footer>
-
-
-<!-- =================================
-     MUSIC BUTTON
-================================= -->
-
-<audio id="music" loop preload="auto">
-    <source src="./lagu.mp3" type="audio/mpeg">
-</audio>
-
-
-<button
-    class="music-btn"
-    onclick="toggleMusic()"
-    id="musicButton">
-
-    🎵
-
-</button>
-
-
-<script>
-
-/* =========================
-   COUNTDOWN
-========================= */
-
-const weddingDate =
-new Date("November 20, 2026 08:00:00").getTime();
-
-
-setInterval(function() {
-
-    const now = new Date().getTime();
-
-    const distance =
-    weddingDate - now;
-
-
-    const days =
-    Math.floor(
-        distance /
-        (1000 * 60 * 60 * 24)
-    );
-
-    const hours =
-    Math.floor(
-        (distance %
-        (1000 * 60 * 60 * 24)) /
-        (1000 * 60 * 60)
-    );
-
-    const minutes =
-    Math.floor(
-        (distance %
-        (1000 * 60 * 60)) /
-        (1000 * 60)
-    );
-
-    const seconds =
-    Math.floor(
-        (distance %
-        (1000 * 60)) /
-        1000
-    );
-
-
-    document.getElementById("days")
-        .innerText =
-        Math.max(days, 0);
-
-    document.getElementById("hours")
-        .innerText =
-        Math.max(hours, 0);
-
-    document.getElementById("minutes")
-        .innerText =
-        Math.max(minutes, 0);
-
-    document.getElementById("seconds")
-        .innerText =
-        Math.max(seconds, 0);
-
-}, 1000);
-
-
-/* =========================
-   MUSIC
-========================= */
-
-const music = document.getElementById("music");
-
-let playing = false;
-
-function mulaiMusik() {
-    const music = document.getElementById("music");
-
-    music.play()
-        .then(() => {
-            playing = true;
-        })
-        .catch(() => {
-            alert("Musik belum bisa diputar.");
-        });
-}
-/* =========================
-   RSVP
-========================= */
-
-function kirimRSVP() {
-
-    alert(
-        "Terima kasih! Konfirmasi kehadiran berhasil."
-    );
-
-}
-
-
-/* =========================
-   UCAPAN
-========================= */
-
-function tambahUcapan(event) {
-
-    event.preventDefault();
-
-
-    const nama =
-    document.getElementById(
-        "namaUcapan"
-    ).value;
-
-    const ucapan =
-    document.getElementById(
-        "isiUcapan"
-    ).value;
-
-
-    const div =
-    document.createElement("div");
-
-    div.className = "wish";
-
-
-    div.innerHTML = `
-        <strong>${nama}</strong>
-        <p>${ucapan}</p>
-    `;
-
-
-    document
-    .getElementById("wishList")
-    .prepend(div);
-
-
-    document
-    .getElementById("namaUcapan")
-    .value = "";
-
-    document
-    .getElementById("isiUcapan")
-    .value = "";
-
-}
-
-
-/* =========================
-   COPY REKENING
-========================= */
-
-function copyRekening() {
-
-    navigator.clipboard.writeText(
-        "123456789012"
-    );
-
-    alert(
-        "Nomor rekening berhasil disalin."
-    );
-
-}
-
-
-/* =========================
-   COPY DANA
-========================= */
-
-function copyDana() {
-
-    navigator.clipboard.writeText(
-        "081234567890"
-    );
-
-    alert(
-        "Nomor DANA berhasil disalin."
-    );
-
-}
-
-</script>
-
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer>
+    <p>Terima kasih atas doa dan kehadirannya.</p>
+    <div class="script">Uswatun Hasanah &amp; Muhammad</div>
+    <p>&copy; 2026</p>
+  </footer>
+
+  <!-- ============ AUDIO ============ -->
+  <audio id="music" loop preload="metadata">
+    <source src="./audio/lagu.mp3" type="audio/mpeg">
+  </audio>
+
+  <button class="music-btn" id="musicButton" type="button"
+          aria-label="Putar musik" aria-pressed="false">
+    <span class="music-icon" aria-hidden="true"></span>
+  </button>
+
+  <!-- ============ SCRIPT ============ -->
+  <script type="module" src="./src/main.js"></script>
 </body>
 </html>

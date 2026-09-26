@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 1500" width="1200" height="1500" role="img" aria-label="Placeholder foto galeri 1">
+  
+  <defs>
+    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%"   stop-color="#d9c193"/>
+      <stop offset="50%"  stop-color="#b8964f"/>
+      <stop offset="100%" stop-color="#d9c193"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.6" y2="1">
+      <stop offset="0%"   stop-color="#68745d"/>
+      <stop offset="55%"  stop-color="#3f453b"/>
+      <stop offset="100%" stop-color="#2e332b"/>
+    </linearGradient>
+    <linearGradient id="softGrad" x1="0" y1="0" x2="0.7" y2="1">
+      <stop offset="0%"   stop-color="#f7f3eb"/>
+      <stop offset="100%" stop-color="#eee9df"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx="50%" cy="45%" r="75%">
+      <stop offset="55%"  stop-color="#000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000" stop-opacity=".28"/>
+    </radialGradient>
+  </defs>
+  <linearGradient id="g1" x1="0" y1="0" x2="0.5" y2="1">
+    <stop offset="0%"   stop-color="#e8e2d6"/>
+    <stop offset="100%" stop-color="#d9cfbb"/>
+  </linearGradient>
+
+  <rect width="1200" height="1500" fill="url(#g1)"/>
+
+  <!-- siluet daun sebagai ornamen -->
+  <g opacity=".16" fill="#68745d">
+    <path d="M120 1320 C 40 1180 90 1020 250 960 C 300 1090 250 1240 120 1320 Z"/>
+    <path d="M1080 200 C 1160 340 1110 500 950 560 C 900 430 950 280 1080 200 Z"/>
+  </g>
+
+  
+  <rect x="44" y="44" width="1112" height="1412"
+        rx="6" fill="none" stroke="url(#goldGrad)" stroke-width="2"/>
+  <rect x="52" y="52" width="1096" height="1396"
+        rx="4" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity=".45"/>
+  
+  <g transform="translate(62,62) scale(1,1)" opacity=".75">
+    <path d="M0 0 C 0 15 15 30 30 30"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.6"/>
+    <path d="M0 10.5 C 9 12 12 9 13.5 0"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity=".8"/>
+    <circle cx="0" cy="0" r="2.6" fill="url(#goldGrad)"/>
+  </g>
+  
+  <g transform="translate(1138,62) scale(-1,1)" opacity=".75">
+    <path d="M0 0 C 0 15 15 30 30 30"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.6"/>
+    <path d="M0 10.5 C 9 12 12 9 13.5 0"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity=".8"/>
+    <circle cx="0" cy="0" r="2.6" fill="url(#goldGrad)"/>
+  </g>
+  
+  <g transform="translate(62,1438) scale(1,-1)" opacity=".75">
+    <path d="M0 0 C 0 15 15 30 30 30"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.6"/>
+    <path d="M0 10.5 C 9 12 12 9 13.5 0"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity=".8"/>
+    <circle cx="0" cy="0" r="2.6" fill="url(#goldGrad)"/>
+  </g>
+  
+  <g transform="translate(1138,1438) scale(-1,-1)" opacity=".75">
+    <path d="M0 0 C 0 15 15 30 30 30"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.6"/>
+    <path d="M0 10.5 C 9 12 12 9 13.5 0"
+          fill="none" stroke="url(#goldGrad)" stroke-width="1.2" opacity=".8"/>
+    <circle cx="0" cy="0" r="2.6" fill="url(#goldGrad)"/>
+  </g>
+
+  <g text-anchor="middle">
+    <circle cx="600" cy="672" r="86" fill="none" stroke="url(#goldGrad)" stroke-width="2"/>
+    <circle cx="600" cy="672" r="66" fill="none" stroke="url(#goldGrad)" stroke-width="1" opacity=".5"/>
+    <text x="600" y="706" font-family="'Cormorant Garamond',Georgia,serif" font-size="86" font-style="italic"
+          fill="#68745d" opacity=".85">1</text>
+
+    <text x="600" y="852" font-family="'Montserrat','Helvetica Neue',Arial,sans-serif" font-size="19" letter-spacing="9"
+          fill="#68745d" opacity=".85">GALERI 1</text>
+    <line x1="480" y1="886" x2="720" y2="886" stroke="url(#goldGrad)" stroke-width="1.4"/>
+    <text x="600" y="946" font-family="'Montserrat','Helvetica Neue',Arial,sans-serif" font-size="19" letter-spacing="2.5"
+          fill="#68745d" opacity=".7">Foto Pre-Wedding &#8212; Placeholder</text>
+    <text x="600" y="986" font-family="'Montserrat','Helvetica Neue',Arial,sans-serif" font-size="16" letter-spacing="2"
+          fill="#68745d" opacity=".55">1200 &#215; 1500 px &#183; minimal 1200 px</text>
+  </g>
+</svg>

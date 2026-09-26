@@ -1,0 +1,21 @@
+{
+  "name": "undangan-pernikahan-digital",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Web undangan pernikahan digital - mobile-first, real-time, tanpa biaya hosting",
+  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "dev:host": "vite --host --port 5173",
+    "build": "vite build",
+    "preview": "vite preview",
+    "preview:host": "vite preview --host --port 4173",
+    "placeholders": "node tools/make-placeholders.mjs"
+  },
+  "devDependencies": {
+    "vite": "^8.3.1"
+  }
+}
