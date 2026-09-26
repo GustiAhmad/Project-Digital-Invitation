@@ -66,10 +66,15 @@ const OUT_DIR = join(ROOT, 'public', 'img');
    ------------------------------------------------------------------ */
 const WIDTHS = [480, 640, 768, 1200, 1800];
 
-// Lebar untuk file JPEG fallback (browser lama tanpa WebP, 2017 ke
-// bawah). 1200 px cukup; browser yang sedemiu tua tidak akan
-// membedakan.
-const FALLBACK_WIDTH = 1200;
+// Lebar untuk file JPEG fallback (browser tanpa WebP).
+//
+// Dipilih 768, bukan 1200. Fallback tidak perlu ukuran besar
+// untuk lightbox, karena semua browser yang punya lightbox sudah
+// pasti mendukung WebP. Menjaga fallback di 768 juga mencegah
+// file fallback jadi lebih berat dari file aslinya (186 KB),
+// yang justru merugikan pengguna browser lama yang koneksinya
+// lambat.
+const FALLBACK_WIDTH = 768;
 
 /* ---------- Pengaturan kualitas ----------
    WebP q76 masih indistinguishable dari aslinya pada ukuran tampil
