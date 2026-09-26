@@ -14,12 +14,17 @@
     "preview": "vite preview",
     "preview:host": "vite preview --host --port 4173",
     "placeholders": "node tools/make-placeholders.mjs && node tools/make-og-image.mjs",
-    "check": "node tools/check-content.mjs && node tools/check-placeholders.mjs",
+    "optimize": "node tools/optimize-images.mjs",
+    "og": "node tools/make-og-image.mjs",
+    "check": "node tools/check-content.mjs && node tools/check-images.mjs && node tools/check-placeholders.mjs",
     "check:content": "node tools/check-content.mjs",
+    "check:images": "node tools/check-images.mjs",
     "check:placeholders": "node tools/check-placeholders.mjs",
-    "verify": "npm run check && npm run build"
+    "verify": "npm run check && npm run build",
+    "assets": "npm run placeholders && npm run optimize && npm run og"
   },
   "devDependencies": {
+    "sharp": "^0.35.4",
     "vite": "^8.3.1"
   }
 }

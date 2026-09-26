@@ -5,7 +5,7 @@
  *
  * Tujuannya: tidak ada yang luput. Sebelum hari-H, daftar ini
  * harus kosong. Jalankan `npm run check:placeholders` kapan saja
- * untuk melihat progresrz.
+ * untuk melihat progres.
  * ---------------------------------------------------------------
  */
 
@@ -68,6 +68,55 @@ if (nullCoords === 0) console.log('        - Semua koordinat sudah diisi.');
 
 console.log(`\n  [${++group}] Tanggal acara  (${date || 'tidak ditemukan'})`);
 console.log(`        - Perlu konfirmasi klien. Nilai sekarang masih asumsi.`);
+/* ---------- 6. Musik latar ---------- */
+// Lagu pengantin sungguhan berdurasi 3-5 menit. File uji atau sampel
+// library gratis biasanya di bawah 1 menit. Kalau durasinya mencurigakan
+// pendek, hampir pasti itu belum lagu pilihan klien.
+const audioPath = join(ROOT, 'public', 'audio', 'lagu.mp3');
+let audioPending = 0;
+
+if (existsSync(audioPath)) {
+  const buf = readFileSync(audioPath);
+  let audioStart = 0;
+
+  if (buf.slice(0, 3).toString('latin1') === 'ID3') {
+    // Ukuran synchsafe ID3v2: 7 bit per byte, 4 byte terakhir.
+    audioStart = 10 + ((buf[6] << 21) | (buf[7] << 14) | (buf[8] << 7) | buf[9]);
+  }
+
+  // Cari frame MPEG pertama untuk membaca bitrate.
+  const BITRATE = [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0];
+  let bitrate = 0;
+  for (let i = audioStart; i < Math.min(buf.length - 4, audioStart + 200000); i++) {
+    if (buf[i] === 0xff && (buf[i + 1] & 0xe0) === 0xe0) {
+      const layer = (buf[i + 1] >> 1) & 0x03;
+      const idx = (buf[i + 2] >> 4) & 0x0f;
+      if (layer === 1 && idx !== 0 && idx !== 15) { bitrate = BITRATE[idx] * 1000; break; }
+    }
+  }
+
+  if (bitrate) {
+    const seconds = (buf.length - audioStart) / (bitrate / 8);
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.round(seconds % 60);
+    const tooShort = seconds < 120;
+    if (tooShort) audioPending = 1;
+
+    console.log(`\n  [${++group}] Musik latar  (${mins}m ${secs}d, ${bitrate / 1000} kbps, ${(buf.length / 1024).toFixed(0)} KB)`);
+    if (tooShort) {
+      console.log('        - Terlalu pendek untuk lagu pengantin (butuh >= 2 menit).');
+      console.log('          Hampir pasti file uji - minta lagu asli dari klien.');
+    } else {
+      console.log('        - Durasi wajar. Pastikan ini lagu pilihan klien.');
+    }
+    console.log('        - 128 kbps sudah cukup untuk musik latar. Jangan re-encode');
+    console.log('          ke bawah: kualitas turun tapi penghematannya sedikit.');
+  }
+} else {
+  audioPending = 1;
+  console.log(`\n  [${++group}] Musik latar  (TIDAK ADA)`);
+  console.log('        ! public/audio/lagu.mp3 tidak ditemukan.');
+}
 
 if (missingAssets.length) {
   console.log('\n  PERINGATAN: aset placeholder hilang dari disk:');
@@ -76,7 +125,7 @@ if (missingAssets.length) {
 
 console.log('\n  ' + '='.repeat(58));
 
-const total = todos.length + stillPlaceholder.length + nullCoords;
+const total = todos.length + stillPlaceholder.length + nullCoords + audioPending;
 if (total === 0) {
   console.log('  SEMUA DATA SUDAH LENGKAP. Siap produksi.\n');
 } else {

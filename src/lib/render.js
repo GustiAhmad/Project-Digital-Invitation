@@ -20,6 +20,7 @@
 import { CONFIG } from '../config.js';
 import { $, $$, el } from './dom.js';
 import { icon } from './icons.js';
+import { applyResponsive } from './responsive.js';
 import {
   formatDateLong, formatDateMedium, formatDatePlain,
   formatTimeRange, toDateAttr,
@@ -41,7 +42,15 @@ function bindText() {
   $$('[data-attr]').forEach((node) => {
     const [attr, path] = node.dataset.attr.split('|');
     const value = resolve(path);
-    if (value) node.setAttribute(attr, value);
+    if (!value) return;
+    node.setAttribute(attr, value);
+
+    // Foto yang sumbernya diambil dari config ikut mendapat srcset,
+    // supaya HP tidak mengunduh file 1600px cuma untuk thumbnail.
+    if (attr === 'src' && node.tagName === 'IMG') {
+      const sizeKey = node.dataset.responsive || 'couple';
+      applyResponsive(node, value, sizeKey);
+    }
   });
 }
 
@@ -208,15 +217,18 @@ function renderGallery() {
 
   host.textContent = '';
   CONFIG.gallery.photos.forEach((photo, i) => {
-    host.append(el('img', {
+    const img = el('img', {
       src: photo.src,
       alt: photo.alt,
       width: photo.width,
       height: photo.height,
       loading: 'lazy',
-      decoding: 'async',
       dataset: { index: String(i) },
-    }));
+    });
+    // srcset + sizes disusun dari konvensi nama file, lihat
+    // lib/responsive.js. Foto placeholder SVG dilewati otomatis.
+    applyResponsive(img, photo.src, 'gallery');
+    host.append(img);
   });
 }
 
