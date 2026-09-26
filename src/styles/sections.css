@@ -1,0 +1,548 @@
+/* =========================================================
+   src/styles/sections.css
+   ---------------------------------------------------------------
+   Gaya per section. Diurutkan sesuai urutan di halaman.
+   ========================================================= */
+
+/* =========================================================
+   1. COVER
+   ========================================================= */
+#cover {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh; /* lebih akurat di HP dengan address bar */
+  padding: var(--sp-8) var(--sp-5);
+  text-align: center;
+  color: var(--white);
+
+  /* Warna solid sebagai jaring pengaman: kalau file gambar gagal
+     dimuat, teks putih tetap terbaca di atas latar gelap. */
+  background-color: var(--forest-deep);
+  background-image:
+    linear-gradient(rgba(30, 32, 26, .55), rgba(30, 32, 26, .72)),
+    url('../assets/cover-placeholder.svg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.cover-content {
+  max-width: 720px;
+  animation: fade-up .9s cubic-bezier(.2, .7, .3, 1) both;
+}
+
+.cover-content h1 {
+  font-size: var(--fs-h1);
+  text-shadow: 0 2px 28px rgba(0, 0, 0, .5);
+}
+
+.cover-content .small-title {
+  color: var(--gold-light);
+  letter-spacing: var(--tracking-widest);
+}
+
+.cover-date {
+  margin-block: var(--sp-6);
+  font-size: var(--fs-md);
+  letter-spacing: 2px;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, .55);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   2. INTRO
+   ========================================================= */
+.intro { background: var(--bg-alt); text-align: center; }
+
+.intro .script {
+  font-size: var(--fs-script);
+  margin-block: var(--sp-5);
+  color: var(--forest);
+}
+
+/* ---------- COUNTDOWN ---------- */
+.countdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(6px, 2.5vw, 14px);
+  margin-top: var(--sp-8);
+}
+
+.count-box {
+  /* flex-basis, bukan width tetap: mencegah luapan di layar 320px */
+  flex: 1 1 76px;
+  min-width: 0;
+  max-width: 96px;
+  padding: var(--sp-3) 2px;
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-xs);
+}
+
+.count-box strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-style: normal;
+  font-size: clamp(1.25rem, 6vw, 1.5625rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--forest);
+}
+
+.count-box span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.countdown.is-finished { opacity: .55; }
+
+.countdown-note {
+  margin-top: var(--sp-5);
+  font-family: var(--font-script);
+  font-size: var(--fs-script-sm);
+  color: var(--olive);
+}
+
+/* =========================================================
+   3. MEMPELAI
+   ========================================================= */
+.couple { background: var(--bg-page); }
+
+.couple-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(24px, 6vw, 40px);
+  margin-top: var(--sp-10);
+}
+
+.person { text-align: center; }
+
+.person img {
+  width: min(220px, 58vw);
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 110px 110px 20px 20px;
+  background: var(--bg-alt);
+  box-shadow: var(--sh-sm);
+  margin-bottom: var(--sp-5);
+}
+
+.person h3 { font-size: var(--fs-2xl); }
+
+.person__parents {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   4. ACARA
+   ========================================================= */
+.events { background: var(--bg-alt); }
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-6);
+  margin-top: var(--sp-10);
+}
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(24px, 5vw, 36px) var(--sp-5);
+}
+
+.event-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--sp-3);
+}
+
+.event-card h3 {
+  font-size: var(--fs-2xl);
+  margin-bottom: var(--sp-4);
+}
+
+.event-card p {
+  font-size: var(--fs-sm);
+  margin-bottom: var(--sp-2);
+  color: var(--text-body);
+}
+
+.event-line {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.event-line__icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--gold);
+  flex: 0 0 auto;
+}
+
+.event-address { color: var(--text-muted) !important; }
+
+.event-card__cta {
+  margin-top: var(--sp-5);
+}
+
+.event-card__cta svg { transition: transform var(--t-base); }
+.event-card__cta:hover svg { transform: translateX(3px); }
+
+/* =========================================================
+   5. LOKASI
+   ========================================================= */
+.location { background: var(--bg-page); text-align: center; }
+
+.venue-list {
+  display: grid;
+  gap: var(--sp-3);
+  max-width: 520px;
+  margin: var(--sp-6) auto 0;
+  text-align: left;
+}
+
+.venue {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-xs);
+}
+
+.venue__icon {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(104, 116, 93, .1);
+  color: var(--olive);
+}
+
+.venue strong {
+  display: block;
+  font-size: var(--fs-base);
+  font-weight: 600;
+}
+
+.venue span:not(.venue__icon) {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.map-box {
+  margin-top: var(--sp-8);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  height: clamp(260px, 46vh, 350px);
+  background: var(--bg-alt);
+  box-shadow: var(--sh-sm);
+}
+
+.map-box iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  justify-content: center;
+  margin-top: var(--sp-6);
+}
+
+/* =========================================================
+   6. GALERI
+   (masih grid di Tahap 1 -> carousel + lightbox di Tahap 4)
+   ========================================================= */
+.gallery { background: var(--bg-alt); }
+
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+  margin-top: var(--sp-8);
+}
+
+.gallery-grid img {
+  width: 100%;
+  height: 220px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  background: var(--bg-page);
+  cursor: zoom-in;
+  transition: transform var(--t-base), box-shadow var(--t-base);
+}
+
+.gallery-grid img:hover {
+  transform: scale(1.03);
+  box-shadow: var(--sh-md);
+}
+
+/* =========================================================
+   7. CERITA
+   Latar berbeda dari galeri agar tidak menyatu jadi satu blok.
+   ========================================================= */
+.story { background: var(--bg-page); }
+
+.story-box {
+  max-width: var(--container-narrow);
+  margin: var(--sp-8) auto 0;
+  padding: clamp(24px, 6vw, 40px);
+  background: var(--bg-card);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-sm);
+  text-align: left;
+}
+
+.story-box h3 {
+  margin-top: var(--sp-6);
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-xl);
+  color: var(--olive);
+}
+
+.story-box h3:first-child { margin-top: 0; }
+
+.story-box p { color: var(--text-body); }
+
+.story-box > h3 + p { margin-bottom: var(--sp-2); }
+
+/* =========================================================
+   8. RSVP
+   ========================================================= */
+.rsvp { background: var(--bg-alt); }
+
+.rsvp-form,
+.wish-form {
+  max-width: var(--container-form);
+  margin: var(--sp-8) auto 0;
+  text-align: left;
+}
+
+/* =========================================================
+   9. UCAPAN
+   ========================================================= */
+.wishes { background: var(--bg-page); }
+
+.wish-list {
+  max-width: var(--container-narrow);
+  margin: var(--sp-8) auto 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.wish {
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--bg-card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-xs);
+  text-align: left;
+  animation: wish-in .4s cubic-bezier(.2, .7, .3, 1) both;
+}
+
+@keyframes wish-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+.wish__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
+.wish__avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--olive), var(--forest));
+  color: var(--cream);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: .5px;
+}
+
+.wish__meta { min-width: 0; }
+
+.wish__name {
+  display: block;
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--forest);
+  overflow-wrap: anywhere;
+}
+
+.wish__time {
+  display: block;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.wish__message {
+  font-size: var(--fs-base);
+  line-height: 1.65;
+  color: var(--text-body);
+  white-space: pre-wrap; /* pertahankan baris baru dari pengguna */
+  overflow-wrap: anywhere;
+}
+
+.wish-list__empty {
+  padding: var(--sp-8) var(--sp-4);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   10. KADO
+   ========================================================= */
+.gift { background: var(--bg-page); }
+
+.bank-card {
+  max-width: 420px;
+  margin: var(--sp-5) auto;
+  padding: clamp(22px, 5vw, 32px);
+}
+
+.bank-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.bank-card__head h3 {
+  font-size: var(--fs-2xl);
+  color: var(--olive);
+}
+
+.bank-card__icon { color: var(--gold); }
+
+.bank-number {
+  font-size: clamp(1.05rem, 5vw, 1.375rem);
+  font-weight: 600;
+  letter-spacing: 2px;
+  font-variant-numeric: tabular-nums;
+  color: var(--forest);
+  margin-bottom: var(--sp-2);
+  /* Nomor rekening tidak boleh terpotong di layar sempit */
+  overflow-wrap: anywhere;
+}
+
+.bank-holder {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-5);
+}
+
+/* =========================================================
+   11. BAGIKAN + QR
+   ========================================================= */
+.qr { background: var(--bg-alt); text-align: center; }
+
+.share-url {
+  display: inline-block;
+  margin: var(--sp-4) auto var(--sp-6);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--bg-card);
+  border-radius: var(--r-pill);
+  font-size: var(--fs-sm);
+  color: var(--olive);
+  word-break: break-all;
+}
+
+.qr-image {
+  display: block;
+  width: 190px;
+  height: 190px;
+  margin: 0 auto var(--sp-5);
+  border-radius: var(--r-md);
+  background: var(--white);
+  padding: var(--sp-2);
+  box-shadow: var(--sh-sm);
+}
+
+.qr__caption {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   12. FOOTER
+   ========================================================= */
+footer {
+  padding: var(--sp-16) var(--sp-5);
+  text-align: center;
+  background: var(--forest);
+  color: var(--cream);
+}
+
+footer .script {
+  font-size: var(--fs-script);
+  margin-block: var(--sp-4);
+  color: var(--cream);
+}
+
+footer p { font-size: var(--fs-sm); opacity: .8; }
+
+/* =========================================================
+   RESPONSIVE
+   ------------------------------------------------------------
+   Mobile-first: gaya dasar sudah untuk layar kecil, query di
+   bawah ini hanya MENAMBAH ukuran untuk layar yang lebih lebar.
+   ========================================================= */
+@media (min-width: 380px) {
+  .count-box { flex-basis: 82px; }
+}
+
+@media (max-width: 700px) {
+  :root { --section-py: 60px; --section-px: var(--sp-4); }
+
+  .couple-grid,
+  .event-grid { grid-template-columns: 1fr; }
+
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .gallery-grid img { height: 180px; }
+
+  .map-actions .btn { width: 100%; }
+}
+
+@media (min-width: 700px) {
+  .event-card--offset { margin-top: 0; }
+}
+
+/* Layar sangat kecil (iPhone SE generasi 1 = 320px) */
+@media (max-width: 360px) {
+  .countdown { gap: 5px; }
+  .count-box { flex-basis: 70px; padding: 10px 1px; }
+  .count-box span { font-size: 8px; letter-spacing: 0; }
+  .bank-number { letter-spacing: 1px; }
+}

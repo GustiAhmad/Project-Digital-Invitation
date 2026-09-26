@@ -4,53 +4,68 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#3f453b">
+  <meta name="color-scheme" content="light">
 
+  <!--
+    CATATAN PENTING:
+    Tag <title>, meta description, dan OG di bawah SENGAJA ditulis
+    langsung di HTML, TIDAK di-generate dari JS.
+
+    Alasannya: crawler WhatsApp / Facebook / Instagram TIDAK
+    menjalankan JavaScript. Kalau teks ini hanya ada di config.js,
+    saat link di-share ke grup WhatsApp akan muncul TANPA nama pengantin
+    dan TANPA foto - hanya teks biru polos.
+
+    src/config.js tetap jadi sumber kebenaran; tools/check-content.mjs
+    akan gagal kalau isi di sini berbeda dengan config.js.
+  -->
   <title>The Wedding of Uswatun Hasanah &amp; Muhammad</title>
-  <meta name="description" content="Undangan pernikahan Uswatun Hasanah &amp; Muhammad. Save the date.">
+  <meta name="description" content="Undangan pernikahan digital Uswatun Hasanah &amp; Muhammad. Kami menanti kehadiran Bapak/Ibu/Saudara/i.">
 
-  <!-- ============ PREVIEW SAAT LINK DI-SHARE (WhatsApp/IG/Facebook) ============ -->
   <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Digital Invitation">
   <meta property="og:title" content="The Wedding of Uswatun Hasanah &amp; Muhammad">
-  <meta property="og:description" content="Undangan pernikahan digital. Save the date.">
+  <meta property="og:description" content="Undangan pernikahan digital. Kami menanti kehadiran Bapak/Ibu/Saudara/i.">
   <meta property="og:image" content="./og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Undangan pernikahan Uswatun Hasanah &amp; Muhammad">
   <meta name="twitter:card" content="summary_large_image">
 
-  <!-- ============ FAVICON ============ -->
   <link rel="icon" type="image/svg+xml" href="./icons/favicon.svg">
   <link rel="apple-touch-icon" href="./icons/favicon.svg">
 
-  <!-- ============ FONT ============
-       Dipakai <link>, bukan @import di dalam CSS.
-       Alasannya: @import setelah aturan CSS tidak valid menurut spesifikasi
-       dan hanya收起 "delay render" (Flash of Unstyled Text).
-  -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600&family=Parisienne&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Montserrat:wght@300;400;500;600&family=Parisienne&display=swap">
+
   <link rel="stylesheet" href="./src/styles/main.css">
 </head>
 
 <body>
 
-  <!-- ============ COVER ============ -->
+<a class="skip-link" href="#main">Lompat ke konten utama</a>
+
+<main id="main">
+
+  <!-- ============ 1. COVER ============ -->
   <section id="cover">
     <div class="cover-content">
       <p class="small-title">The Wedding Of</p>
       <h1>
         Uswatun Hasanah
         <br>
-        <span class="amp">&amp;</span>
+        <span class="amp" aria-hidden="true">&amp;</span><span class="sr-only">dan</span>
         Muhammad
       </h1>
-      <p class="cover-date">Kamis, 20 November 2026</p>
-      <a href="#intro" class="btn" id="openInvitation">Buka Undangan &rarr;</a>
+      <p class="cover-date">
+        <time datetime="2026-11-20T08:00:00+08:00">Jumat, 20 November 2026</time>
+      </p>
+      <a href="#intro" class="btn" id="openInvitation">Buka Undangan</a>
     </div>
   </section>
 
-  <!-- ============ INTRO ============ -->
+  <!-- ============ 2. INTRO + COUNTDOWN ============ -->
   <section id="intro" class="intro">
     <div class="container">
       <p class="small-title">Assalamu'alaikum Wr. Wb.</p>
@@ -58,277 +73,337 @@
         Dengan penuh rasa bahagia, kami mengundang Bapak/Ibu/Saudara/i
         untuk hadir dalam acara pernikahan kami.
       </p>
-      <div class="script">Uswatun Hasanah &amp; Muhammad</div>
-      <p>Kamis, 20 November 2026</p>
+      <p class="script" data-bind="couple-names-script">Uswatun Hasanah &amp; Muhammad</p>
+      <p>
+        <time datetime="2026-11-20T08:00:00+08:00">Jumat, 20 November 2026</time>
+      </p>
 
-      <div class="countdown" id="countdown" aria-live="off">
-        <div class="count-box"><strong id="days">00</strong><span>Hari</span></div>
-        <div class="count-box"><strong id="hours">00</strong><span>Jam</span></div>
-        <div class="count-box"><strong id="minutes">00</strong><span>Menit</span></div>
-        <div class="count-box"><strong id="seconds">00</strong><span>Detik</span></div>
+      <div class="countdown" id="countdown">
+        <div class="count-box"><strong id="days">--</strong><span>Hari</span></div>
+        <div class="count-box"><strong id="hours">--</strong><span>Jam</span></div>
+        <div class="count-box"><strong id="minutes">--</strong><span>Menit</span></div>
+        <div class="count-box"><strong id="seconds">--</strong><span>Detik</span></div>
       </div>
       <p class="countdown-note" id="countdownNote" hidden></p>
     </div>
   </section>
 
-  <!-- ============ MEMPELAI ============ -->
-  <section class="couple">
+  <!-- ============ 3. MEMPELAI ============ -->
+  <section class="couple" aria-labelledby="couple-title">
     <div class="container center">
       <p class="small-title">Mempelai</p>
-      <h2 class="title">Dengan penuh cinta</h2>
+      <h2 class="title" id="couple-title">Dengan penuh cinta</h2>
       <p class="text">
-        Maha suci Allah yang telah menciptakan makhluk-Nya
-        berpasang-pasangan.
+        Maha suci Allah yang telah menciptakan makhluk-Nya berpasang-pasangan.
       </p>
 
       <div class="couple-grid">
         <div class="person">
-          <img src="./img/couple-bride.jpg" alt="Uswatun Hasanah" width="640" height="850" loading="lazy" decoding="async">
-          <h3>Uswatun Hasanah</h3>
-          <p>Putri dari<br>Bapak&hellip; &amp; Ibu&hellip;</p>
+          <img src="./img/couple-bride.jpg" alt="Foto Uswatun Hasanah"
+               width="640" height="850" loading="lazy" decoding="async">
+          <h3 data-text="couple.bride.name">Uswatun Hasanah</h3>
+          <p class="person__parents">
+            <span data-text="couple.bride.parentLabel">Putri dari</span><br>
+            <span data-text="couple.bride.parents.0">Bapak  &hellip;</span>
+            &amp;
+            <span data-text="couple.bride.parents.1">Ibu  &hellip;</span>
+          </p>
         </div>
+
         <div class="person">
-          <img src="./img/couple-groom.jpg" alt="Muhammad" width="640" height="850" loading="lazy" decoding="async">
-          <h3>Muhammad &hellip;</h3>
-          <p>Putra dari<br>Bapak &hellip; &amp; Ibu &hellip;</p>
+          <img src="./img/couple-groom.jpg" alt="Foto Muhammad"
+               width="640" height="850" loading="lazy" decoding="async">
+          <h3 data-text="couple.groom.name">Muhammad  &hellip;</h3>
+          <p class="person__parents">
+            <span data-text="couple.groom.parentLabel">Putra dari</span><br>
+            <span data-text="couple.groom.parents.0">Bapak  &hellip;</span>
+            &amp;
+            <span data-text="couple.groom.parents.1">Ibu  &hellip;</span>
+          </p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ ACARA ============ -->
-  <section class="events">
+  <!-- ============ 4. ACARA ============ -->
+  <section class="events" aria-labelledby="events-title">
     <div class="container center">
       <p class="small-title">Save The Date</p>
-      <h2 class="title">Detail Acara</h2>
-
-      <div class="event-grid">
+      <h2 class="title" id="events-title">Detail Acara</h2>
+      <div class="event-grid" data-render="events">
+        <!-- Fallback bila JS tidak aktif. tools/check-content.mjs
+             membandingkannya dengan src/config.js. -->
         <div class="event-card">
-          <div class="event-icon" data-icon="rings" aria-hidden="true"></div>
+          <div class="event-icon" data-icon="rings" data-size="34" aria-hidden="true"></div>
           <h3>Akad Nikah</h3>
-          <p>Kamis, 20 November 2026</p>
+          <p>Jumat, 20 November 2026</p>
           <p>08.00 &ndash; 10.00 WITA</p>
           <p>Masjid Al-Muttaqin</p>
-          <p>Jl. Melati No.12</p>
-          <br>
-          <a href="#location" class="btn">Lihat Lokasi</a>
+          <p>Jl. Melati No.12, Banjarmasin</p>
+          <a href="#location" class="btn btn--sm event-card__cta">Lihat Lokasi</a>
         </div>
-
         <div class="event-card">
-          <div class="event-icon" data-icon="glass" aria-hidden="true"></div>
+          <div class="event-icon" data-icon="glass" data-size="34" aria-hidden="true"></div>
           <h3>Resepsi</h3>
-          <p>Kamis, 20 November 2026</p>
+          <p>Jumat, 20 November 2026</p>
           <p>11.00 &ndash; 15.00 WITA</p>
           <p>Gedung Serbaguna Harmoni</p>
-          <p>Jl. Sudirman No.45</p>
-          <br>
-          <a href="#location" class="btn">Lihat Lokasi</a>
+          <p>Jl. Sudirman No.45, Banjarmasin</p>
+          <a href="#location" class="btn btn--sm event-card__cta">Lihat Lokasi</a>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ LOKASI ============ -->
-  <section id="location" class="location">
+  <!-- ============ 5. LOKASI ============ -->
+  <section id="location" class="location" aria-labelledby="location-title">
     <div class="container">
       <div class="center">
         <p class="small-title">Lokasi</p>
-        <h2 class="title">Tempat Acara</h2>
-        <p>Masjid Al-Muttaqin</p>
-        <p>Jl. Melati No.12, Banjarmasin</p>
+        <h2 class="title" id="location-title">Tempat Acara</h2>
+      </div>
+
+      <div class="venue-list" data-render="venue-list">
+        <div class="venue">
+          <span class="venue__icon" data-icon="pin" aria-hidden="true"></span>
+          <div>
+            <strong>Akad Nikah &mdash; Masjid Al-Muttaqin</strong>
+            <span>Jl. Melati No.12, Banjarmasin</span>
+          </div>
+        </div>
+        <div class="venue">
+          <span class="venue__icon" data-icon="pin" aria-hidden="true"></span>
+          <div>
+            <strong>Resepsi &mdash; Gedung Serbaguna Harmoni</strong>
+            <span>Jl. Sudirman No.45, Banjarmasin</span>
+          </div>
+        </div>
       </div>
 
       <div class="map-box">
         <iframe
-          title="Peta lokasi Masjid Al-Muttaqin"
-          src="https://www.google.com/maps?q=Banjarmasin&output=embed"
+          data-map-frame
+          title="Peta lokasi acara"
+          src="https://www.google.com/maps?q=Masjid%20Al-Muttaqin%2C%20Banjarmasin&z=17&output=embed"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
           allowfullscreen></iframe>
       </div>
 
-      <div class="center map-actions">
-        <a href="https://maps.google.com/?q=Banjarmasin" target="_blank" rel="noopener noreferrer" class="btn">
-          Buka di Google Maps
+      <div class="map-actions">
+        <a class="btn" data-nav-maps data-event-id="akad"
+           href="https://www.google.com/maps/dir/?api=1&destination=Masjid%20Al-Muttaqin%2C%20Banjarmasin&travelmode=driving"
+           target="_blank" rel="noopener noreferrer">
+          <span data-icon="pin" aria-hidden="true"></span>
+          Navigasi ke Lokasi
         </a>
       </div>
     </div>
   </section>
 
-  <!-- ============ GALERI ============ -->
-  <section class="gallery">
+  <!-- ============ 6. GALERI ============ -->
+  <section class="gallery" aria-labelledby="gallery-title">
     <div class="container center">
       <p class="small-title">Memories</p>
-      <h2 class="title">Galeri Foto</h2>
+      <h2 class="title" id="gallery-title">Galeri Foto</h2>
       <p class="text">
         Beberapa momen indah dalam perjalanan kami menuju hari istimewa ini.
       </p>
 
-      <div class="gallery-grid" id="galleryGrid">
-        <img src="./img/gallery-1.svg" alt="Placeholder foto galeri 1" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-2.svg" alt="Placeholder foto galeri 2" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-3.svg" alt="Placeholder foto galeri 3" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-4.svg" alt="Placeholder foto galeri 4" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-5.svg" alt="Placeholder foto galeri 5" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-6.svg" alt="Placeholder foto galeri 6" width="1200" height="1500" loading="lazy" decoding="async">
+      <div class="gallery-grid" data-render="gallery">
+        <img src="./img/gallery-1.svg" alt="Foto pre-wedding 1" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-2.svg" alt="Foto pre-wedding 2" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-3.svg" alt="Foto pre-wedding 3" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-4.svg" alt="Foto pre-wedding 4" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-5.svg" alt="Foto pre-wedding 5" width="1200" height="1500" loading="lazy" decoding="async">
+        <img src="./img/gallery-6.svg" alt="Foto pre-wedding 6" width="1200" height="1500" loading="lazy" decoding="async">
       </div>
     </div>
   </section>
 
-  <!-- ============ CERITA ============ -->
-  <section class="story">
+  <!-- ============ 7. CERITA ============ -->
+  <section class="story" aria-labelledby="story-title">
     <div class="container center">
       <p class="small-title">Our Story</p>
-      <h2 class="title">Kisah Kami</h2>
+      <h2 class="title" id="story-title">Kisah Kami</h2>
 
-      <div class="story-box">
+      <div class="story-box" data-render="story">
         <h3>Pertemuan</h3>
-        <p>
-          Setiap kisah memiliki awal. Begitu juga dengan kisah kami.
-          Dari sebuah pertemuan sederhana, perlahan tumbuh
-          menjadi sebuah perjalanan yang berarti.
-        </p>
-        <br>
+        <p>Setiap kisah memiliki awal. Begitu juga dengan kisah kami. Dari sebuah pertemuan sederhana, perlahan tumbuh menjadi sebuah perjalanan yang berarti.</p>
         <h3>Perjalanan</h3>
-        <p>
-          Kami belajar untuk saling memahami, saling mendukung
-          dan tumbuh bersama.
-        </p>
-        <br>
+        <p>Kami belajar untuk saling memahami, saling mendukung dan tumbuh bersama.</p>
         <h3>Hari Istimewa</h3>
-        <p>
-          Dengan memohon ridha Allah SWT, kami melangkah menuju
-          kehidupan baru bersama.
-        </p>
+        <p>Dengan memohon ridha Allah SWT, kami melangkah menuju kehidupan baru bersama.</p>
       </div>
     </div>
   </section>
 
-  <!-- ============ RSVP ============ -->
-  <section class="rsvp">
+  <!-- ============ 8. RSVP ============ -->
+  <section class="rsvp" id="rsvp" aria-labelledby="rsvp-title">
     <div class="container center">
       <p class="small-title">RSVP</p>
-      <h2 class="title">Konfirmasi Kehadiran</h2>
+      <h2 class="title" id="rsvp-title">Konfirmasi Kehadiran</h2>
       <p class="text">
-        Mohon konfirmasi kehadiran Anda untuk membantu kami
-        mempersiapkan acara.
+        Mohon konfirmasi kehadiran Anda untuk membantu kami mempersiapkan acara.
       </p>
 
       <form class="rsvp-form" id="rsvpForm" novalidate>
-        <label class="sr-only" for="rsvpName">Nama lengkap</label>
-        <input id="rsvpName" name="name" type="text" placeholder="Nama Lengkap"
-               autocomplete="name" required maxlength="80">
+        <div class="field">
+          <label class="field__label" for="rsvpName">Nama Lengkap</label>
+          <input id="rsvpName" name="name" type="text" placeholder="Nama Lengkap"
+                 autocomplete="name" maxlength="80" required>
+        </div>
 
-        <label class="sr-only" for="rsvpStatus">Konfirmasi kehadiran</label>
-        <select id="rsvpStatus" name="status" required>
-          <option value="" selected disabled>Pilih konfirmasi</option>
-          <option value="hadir">Hadir</option>
-          <option value="tidak_hadir">Tidak Hadir</option>
-        </select>
+        <div class="field">
+          <label class="field__label" for="rsvpStatus">Konfirmasi Kehadiran</label>
+          <select id="rsvpStatus" name="status" required>
+            <option value="" selected disabled>Pilih konfirmasi</option>
+            <option value="hadir">Hadir</option>
+            <option value="tidak_hadir">Tidak Hadir</option>
+          </select>
+        </div>
 
-        <label class="sr-only" for="rsvpGuest">Jumlah tamu</label>
-        <input id="rsvpGuest" name="guest_count" type="number" min="1" max="10"
-               value="1" placeholder="Jumlah Tamu" inputmode="numeric" required>
+        <div class="field">
+          <label class="field__label" for="rsvpGuest">Jumlah Tamu</label>
+          <input id="rsvpGuest" name="guest_count" type="number"
+                 min="1" max="10" value="1" inputmode="numeric" required>
+          <span class="field__hint">Termasuk Anda sendiri. Maksimal 10 orang.</span>
+        </div>
 
-        <button type="submit" class="btn btn-block">Kirim Konfirmasi</button>
+        <button type="submit" class="btn btn--block">Kirim Konfirmasi</button>
+
+        <p class="form-note" id="rsvpNote" hidden></p>
       </form>
     </div>
   </section>
 
-  <!-- ============ UCAPAN ============ -->
-  <section class="wishes">
+  <!-- ============ 9. UCAPAN ============ -->
+  <section class="wishes" id="wishes" aria-labelledby="wishes-title">
     <div class="container center">
       <p class="small-title">Wishes</p>
-      <h2 class="title">Ucapan &amp; Doa</h2>
+      <h2 class="title" id="wishes-title">Ucapan &amp; Doa</h2>
 
       <form class="wish-form" id="wishForm" novalidate>
-        <label class="sr-only" for="namaUcapan">Nama</label>
-        <input id="namaUcapan" name="name" type="text" placeholder="Nama"
-               autocomplete="name" required maxlength="60">
+        <div class="field">
+          <label class="field__label" for="namaUcapan">Nama</label>
+          <input id="namaUcapan" name="name" type="text" placeholder="Nama"
+                 autocomplete="name" maxlength="60" required>
+        </div>
 
-        <label class="sr-only" for="isiUcapan">Ucapan dan doa</label>
-        <textarea id="isiUcapan" name="message" placeholder="Tulis ucapan dan doa..."
-                  required maxlength="500"></textarea>
+        <div class="field">
+          <label class="field__label" for="isiUcapan">Ucapan dan Doa</label>
+          <textarea id="isiUcapan" name="message" rows="4"
+                    placeholder="Tulis ucapan dan doa..." maxlength="500" required></textarea>
+          <span class="field__hint">
+            <span id="wishCount">0</span>/500 karakter
+          </span>
+        </div>
 
-        <button type="submit" class="btn btn-block">Kirim Ucapan</button>
+        <button type="submit" class="btn btn--block">
+          <span data-icon="send" aria-hidden="true"></span>
+          Kirim Ucapan
+        </button>
       </form>
 
-      <div id="wishList" class="wish-list" aria-live="polite">
+      <div class="wish-list" id="wishList" aria-live="polite">
         <div class="wish">
-          <strong>Aisyah</strong>
-          <p>Semoga menjadi keluarga yang sakinah, mawaddah, warahmah. Aamiin.</p>
+          <header class="wish__head">
+            <span class="wish__avatar" aria-hidden="true">AI</span>
+            <div class="wish__meta">
+              <strong class="wish__name">Aisyah</strong>
+              <span class="wish__time">contoh</span>
+            </div>
+          </header>
+          <p class="wish__message">Semoga menjadi keluarga yang sakinah, mawaddah, warahmah. Aamiin.</p>
         </div>
         <div class="wish">
-          <strong>Rani</strong>
-          <p>Selamat menempuh hidup baru. Semoga selalu diberikan kebahagiaan.</p>
+          <header class="wish__head">
+            <span class="wish__avatar" aria-hidden="true">RA</span>
+            <div class="wish__meta">
+              <strong class="wish__name">Rani</strong>
+              <span class="wish__time">contoh</span>
+            </div>
+          </header>
+          <p class="wish__message">Selamat menempuh hidup baru. Semoga selalu diberikan kebahagiaan.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ KADO ============ -->
-  <section class="gift">
+  <!-- ============ 10. KADO ============ -->
+  <section class="gift" aria-labelledby="gift-title">
     <div class="container center">
       <p class="small-title">Wedding Gift</p>
-      <h2 class="title">Kado Pernikahan</h2>
+      <h2 class="title" id="gift-title">Kado Pernikahan</h2>
       <p class="text">
         Bagi keluarga dan sahabat yang ingin memberikan tanda kasih,
         dapat melalui rekening atau dompet digital berikut.
       </p>
 
-      <div class="bank-card">
-        <h3>BRIMO</h3>
-        <p class="bank-number" id="bankBrimo">1234 5678 9012</p>
-        <p>a.n. Uswatun Hasanah</p>
-        <br>
-        <button class="btn" data-copy="123456789012" data-copy-label="Nomor BRIMO">
-          Salin Nomor Rekening
-        </button>
-      </div>
-
-      <div class="bank-card">
-        <h3>DANA</h3>
-        <p class="bank-number" id="bankDana">0822 5311 2508</p>
-        <p>a.n. Uswatun Hasanah</p>
-        <br>
-        <button class="btn" data-copy="082253112508" data-copy-label="Nomor DANA">
-          Salin Nomor DANA
-        </button>
+      <div data-render="banks">
+        <div class="bank-card">
+          <div class="bank-card__head">
+            <span class="bank-card__icon" data-icon="landmark" aria-hidden="true"></span>
+            <h3>BRIMO</h3>
+          </div>
+          <p class="bank-number">1234 5678 9012</p>
+          <p class="bank-holder">a.n. Uswatun Hasanah</p>
+          <button class="btn btn--sm" type="button" data-copy="123456789012" data-copy-label="Nomor BRIMO">Salin Nomor</button>
+        </div>
+        <div class="bank-card">
+          <div class="bank-card__head">
+            <span class="bank-card__icon" data-icon="smartphone" aria-hidden="true"></span>
+            <h3>DANA</h3>
+          </div>
+          <p class="bank-number">0822 5311 2508</p>
+          <p class="bank-holder">a.n. Uswatun Hasanah</p>
+          <button class="btn btn--sm" type="button" data-copy="082253112508" data-copy-label="Nomor DANA">Salin Nomor</button>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- ============ SHARE + QR ============ -->
-  <section class="qr">
-    <div class="container">
+  <!-- ============ 11. BAGIKAN + QR ============ -->
+  <section class="qr" aria-labelledby="qr-title">
+    <div class="container center">
       <p class="small-title">Digital Invitation</p>
-      <h2 class="title">Bagikan Undangan</h2>
-      <p class="share-url" id="shareUrl">undangan-contoh.vercel.app</p>
-      <img class="qr-image" src="./img/qr-placeholder.svg"
-           alt="Placeholder QR code undangan" width="400" height="400"
-           loading="lazy" decoding="async">
-      <p>Scan QR Code untuk membuka undangan.</p>
+      <h2 class="title" id="qr-title">Bagikan Undangan</h2>
+
+      <p class="share-url" data-render="share-url">undangan-contoh.vercel.app</p>
+
+      <img class="qr-image" data-render="qr" src="./img/qr-placeholder.svg"
+           alt="QR Code undangan" width="400" height="400" loading="lazy" decoding="async">
+
+      <p class="qr__caption">Scan QR Code untuk membuka undangan.</p>
+
+      <div class="map-actions">
+        <button class="btn btn--ghost" type="button" data-share>
+          <span data-icon="share" aria-hidden="true"></span>
+          Bagikan Undangan
+        </button>
+      </div>
     </div>
   </section>
 
-  <!-- ============ FOOTER ============ -->
-  <footer>
-    <p>Terima kasih atas doa dan kehadirannya.</p>
-    <div class="script">Uswatun Hasanah &amp; Muhammad</div>
-    <p>&copy; 2026</p>
-  </footer>
+</main>
 
-  <!-- ============ AUDIO ============ -->
-  <audio id="music" loop preload="metadata">
-    <source src="./audio/lagu.mp3" type="audio/mpeg">
-  </audio>
+<!-- ============ FOOTER ============ -->
+<footer>
+  <p>Terima kasih atas doa dan kehadirannya.</p>
+  <p class="script" data-bind="couple-names-script">Uswatun Hasanah &amp; Muhammad</p>
+  <p>&copy; 2026</p>
+</footer>
 
-  <button class="music-btn" id="musicButton" type="button"
-          aria-label="Putar musik" aria-pressed="false">
-    <span class="music-icon" aria-hidden="true"></span>
-  </button>
+<!-- ============ AUDIO ============ -->
+<audio id="music" loop preload="metadata">
+  <source src="./audio/lagu.mp3" type="audio/mpeg">
+</audio>
 
-  <!-- ============ SCRIPT ============ -->
-  <script type="module" src="./src/main.js"></script>
+<button class="music-btn" id="musicButton" type="button"
+        aria-label="Putar musik" aria-pressed="false">
+  <span class="music-btn__icon" aria-hidden="true"></span>
+</button>
+
+<script type="module" src="./src/main.js"></script>
 </body>
 </html>

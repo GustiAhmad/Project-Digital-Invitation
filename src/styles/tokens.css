@@ -1,0 +1,124 @@
+/* =========================================================
+   src/styles/tokens.css
+   ---------------------------------------------------------------
+   DESIGN TOKENS - satu-satunya tempat nilai warna, font, dan
+   ukuran didefinisikan. Mengubah tema = mengubah file ini saja.
+
+   Palet diambil dari desain asli (dipakai di Undangan_prev).
+   ========================================================= */
+
+:root {
+  /* ---------- WARNA ---------- */
+  --cream: #f7f3eb;
+  --sand: #eee9df;
+  --olive: #68745d;
+  --olive-dark: #5a6650;
+  --forest: #3f453b;
+  --forest-deep: #2e332b;
+  --ink: #4d5147;
+  --ink-soft: #6f736a;
+  --muted: #8b8d84;
+  --line: #d9d3c8;
+  --line-soft: #e8e2d6;
+  --white: #ffffff;
+
+  --gold: #b8964f;
+  --gold-light: #d9c193;
+  --gold-soft: rgba(184, 150, 79, .28);
+
+  --danger: #a4553f;
+  --success: #5a7a52;
+
+  /* ---------- SEMANTIK (pola yang benar, bukan warna langsung) ---------- */
+  --bg-page: var(--sand);
+  --bg-alt: var(--cream);
+  --bg-card: var(--white);
+  --bg-raised: var(--white);
+  --text-strong: var(--ink);
+  --text-body: var(--ink);
+  --text-muted: var(--muted);
+  --accent: var(--olive);
+  --accent-hover: var(--olive-dark);
+  --focus-ring: var(--olive);
+
+  /* ---------- TIPOGRAFI ---------- */
+  --font-sans: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI',
+               Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-serif: 'Cormorant Garamond', 'Palatino Linotype', Palatino,
+                Georgia, 'Times New Roman', serif;
+  --font-script: 'Parisienne', 'Segoe Script', 'Brush Script MT', cursive;
+
+  --fs-xs: 11px;
+  --fs-sm: 12px;
+  --fs-base: 14px;
+  --fs-md: 16px;
+  --fs-lg: 18px;
+  --fs-xl: 22px;
+  --fs-2xl: 28px;
+  --fs-3xl: 36px;
+  --fs-4xl: 44px;
+
+  /* Skala fluid: mengikuti lebar layar, tidak ada nilai mati */
+  --fs-title: clamp(1.85rem, 6.2vw, 2.625rem);
+  --fs-h1: clamp(2.4rem, 10.5vw, 4.375rem);
+  --fs-script: clamp(2.1rem, 8.5vw, 3.4375rem);
+  --fs-script-sm: clamp(1.6rem, 6vw, 2.2rem);
+
+  --tracking-wide: 4px;
+  --tracking-wider: 6px;
+  --tracking-widest: 9px;
+
+  /* ---------- SPACING (skala 4px) ---------- */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+  --sp-20: 80px;
+
+  --section-py: var(--sp-20);
+  --section-px: var(--sp-5);
+
+  /* ---------- RADIOUS ---------- */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-xl: 20px;
+  --r-pill: 999px;
+
+  /* ---------- SHADOW ---------- */
+  --sh-xs: 0 2px 8px rgba(63, 69, 59, .06);
+  --sh-sm: 0 4px 16px rgba(63, 69, 59, .06);
+  --sh-md: 0 10px 30px rgba(63, 69, 59, .07);
+  --sh-lg: 0 18px 48px rgba(63, 69, 59, .10);
+  --sh-float: 0 6px 20px rgba(0, 0, 0, .22);
+
+  /* ---------- UKURAN ---------- */
+  --container-max: 900px;
+  --container-narrow: 650px;
+  --container-form: 600px;
+  --btn-height: 44px;
+  --touch-target: 44px; /* minimal area sentuh yang direkomendasikan */
+
+  /* ---------- TRANSISI ---------- */
+  --t-fast: .18s cubic-bezier(.4, 0, .2, 1);
+  --t-base: .3s cubic-bezier(.4, 0, .2, 1);
+  --t-slow: .6s cubic-bezier(.4, 0, .2, 1);
+
+  /* ---------- Z-INDEX ---------- */
+  --z-toast: 9000;
+  --z-float: 999;
+  --z-nav: 100;
+}
+
+/* Titik henti */
+:root {
+  --bp-sm: 380px;
+  --bp-md: 700px;
+  --bp-lg: 1024px;
+}

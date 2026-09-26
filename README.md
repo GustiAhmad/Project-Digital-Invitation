@@ -39,6 +39,21 @@ npm run preview
 #   -> buka http://localhost:4173
 ```
 
+### Perintah lain
+
+| Perintah | Fungsi |
+|---|---|
+| `npm run dev:host` | Dev server yang bisa diakses dari **HP** di WiFi yang sama |
+| `npm run check` | **Cek konsistensi konten** - pastikan HTML & `config.js` tidak berbeda |
+| `npm run check:placeholders` | Lihat daftar data yang **masih menunggu klien** |
+| `npm run verify` | `check` + `build` (jalankan sebelum deploy) |
+| `npm run placeholders` | Buat ulang gambar placeholder |
+
+> **Penting:** selalu jalankan `npm run check` setiap kali mengubah
+> `src/config.js`. Script ini menangkap kasus "klien ganti tanggal di
+> config, tapi HTML masih tanggal lama" - yang akan membuat preview
+> di WhatsApp menampilkan tanggal yang salah.
+
 ### Kendala umum
 
 | Gejala | Penyebab & Solusi |
@@ -47,7 +62,8 @@ npm run preview
 | Port 5173 sudah dipakai | Vite otomatis pindah ke 5174. Lihat output terminal. |
 | Halaman kosong, error di console | Tekan `F12` -> tab Console, baca pesan errornya. |
 | Audio tidak berbunyi | Wajib klik dulu (kebijakan autoplay browser). Ada tombol musik. |
-| `.env` tidak terbaca | Pastikan file bernama persis `.env` (bukan `.env.txt`) di root project. |
+      | `.env` tidak terbaca | Pastikan file bernama persis `.env` (bukan `.env.txt`) di root project. |
+| Tanggal / nama hari di preview WhatsApp berbeda | Jalankan `npm run check` - akan menunjukkan letak masalahnya. |
 
 ---
 
@@ -69,29 +85,37 @@ npm run preview
 |   `-- manifest.webmanifest
 |
 |-- src/
-|   |-- config.js           # <<< SEMUA KONTEN DI SINI
-|   |-- main.js             # Entry JS
+|   |-- config.js           # <<< SATU-SATUNYA SUMBER KONTEN
+|   |-- main.js             # Entry JS - hanya merakit modul
+|   |-- assets/             # Aset yang diproses Vite (mis. foto cover)
 |   |-- styles/
+|   |   |-- main.css        # Hanya meng-import 4 file di bawahnya
 |   |   |-- tokens.css      # Design tokens (warna, font, spacing)
-|   |   |-- base.css        # Reset + elemen dasar
-|   |   |-- components.css  # Tombol, form, card, toast
+|   |   |-- base.css        # Reset, aksesibilitas, toast
+|   |   |-- components.css  # Tombol, form, card
 |   |   `-- sections.css    # Style per section
+|   |-- lib/
+|   |   |-- dom.js          # Helper DOM aman (anti-XSS)
+|   |   |-- format.js       # Format tanggal/wAngka (anti salah hari)
+|   |   |-- icons.js        # Ikon SVG inline
+|   |   |-- render.js       # Isi halaman dari config.js
+|   |   `-- toast.js        # Notifikasi (pengganti alert)
 |   |-- modules/
 |   |   |-- countdown.js
 |   |   |-- music.js
-|   |   |-- gallery.js
-|   |   |-- calendar.js
-|   |   |-- maps.js
 |   |   |-- clipboard.js
 |   |   |-- wishes.js
-|   |   `-- rsvp.js
-|   `-- lib/
-|       |-- supabase.js
-|       |-- toast.js
-|       `-- validation.js
+|   |   |-- rsvp.js
+|   |   `-- share.js
+|   `-- lib/supabase.js     # (Tahap 3)
 |
 |-- admin/
 |   `-- index.html          # Panel moderasi (butuh login)
+|
+|-- tools/
+|   |-- make-placeholders.mjs
+|   |-- check-content.mjs   # Pemeriksa konsistensi HTML vs config
+|   `-- check-placeholders.mjs
 |
 `-- assets-src/             # Foto master resolusi penuh (di-ignore Git)
 ```
@@ -105,30 +129,60 @@ npm run preview
 Di file itu tersimpan: nama pengantin, nama orang tua, tanggal & jam acara,
 alamat & koordinat venue, nomor rekening, cerita, dan daftar foto galeri.
 
-Contoh:
-
 ```js
 export const CONFIG = {
   couple: {
-    bride: 'Uswatun Hasanah',
-    groom: 'Muhammad'
+    bride: { name: 'Uswatun Hasanah', photo: './img/couple-bride.jpg' },
+    groom: { name: 'Muhammad',        photo: './img/couple-groom.jpg' }
   },
   events: [{
     title: 'Akad Nikah',
-    date: '2026-11-20',      // format YYYY-MM-DD
+    date: '2026-11-20',      // WAJIB format YYYY-MM-DD
     startTime: '08:00',
     endTime: '10:00',
-    timezone: '+08:00',      // WAJIB. WITA = +08:00
+    timezone: 'Asia/Makassar',   // WITA
     venue: 'Masjid Al-Muttaqin',
-    address: 'Jl. Melati No.12, Banjarmasin',
-    lat: -3.4382,
+    address: 'Jl. Melati No.12',
+    city: 'Banjarmasin',
+    lat: -3.4382,               // null = pakai pencarian teks
     lng: 114.8603
   }]
 };
 ```
 
-Tombol **Google Calendar**, **peta**, dan ** navigasi** otomatis menyesuaikan
-karena semuanya dibaca dari `config.js`. Tidak perlu edit HTML.
+### Kenapa nama hari tidak ditulis manual
+
+Jangan tulis `"Kamis, 20 November 2026"` di config. Cukup tulis
+`date: '2026-11-20'`, dan nama hari akan dihitung otomatis memakai
+zona waktu `Asia/Makassar`.
+
+Alasannya: pada 20 November 2026, hari sebenarnya adalah **Jumat**.
+Teks "Kamis" muncul karena kode lama memakai
+`new Date("November 20, 2026")` yang dibaca sebagai waktu lokal
+perangkat - di perangkat WIB hasilnya bergeser sehari. Dengan
+`Intl.DateTimeFormat` + timezone eksplisit, kesalahan ini mustahil
+terjadi lagi.
+
+### Setelah mengubah config
+
+```bash
+npm run check     # pastikan HTML & config tetap sinkron
+```
+
+### Tombol calendar, peta, dan navigasi
+
+Semua ini di-generate dari `config.js`, jadi **otomatis ikut berubah**.
+Tidak perlu edit HTML.
+
+### Mendapatkan koordinat venue (lat/lng)
+
+1. Buka [Google Maps](https://maps.google.com)
+2. Klik kanan tepat pada lokasi venue
+3. Pilih angka di sisi paling atas - itu koordinatnya
+4. Salin, lalu tempel ke `lat` dan `lng` di `config.js`
+
+Kalau `lat`/`lng` masih `null`, situs otomatis memakai pencarian
+berdasarkan nama. Begitu diisi, peta berubah menjadi titik pin presisi.
 
 ---
 

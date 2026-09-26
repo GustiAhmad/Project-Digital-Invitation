@@ -1,0 +1,247 @@
+/* =========================================================
+   src/styles/components.css
+   ---------------------------------------------------------------
+   Komponen yang dipakai lebih dari satu section:
+   tombol, form, card, toast, ikon.
+   ========================================================= */
+
+/* =========================================================
+   TOMBOL
+   ========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--btn-height);
+  padding: 12px 28px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--white);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+
+  transition: transform var(--t-base), background var(--t-base), opacity var(--t-base);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+.btn:active { transform: translateY(0); }
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn--sm {
+  min-height: 38px;
+  padding: 9px 20px;
+  font-size: var(--fs-sm);
+}
+
+.btn--block { display: flex; width: 100%; }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--olive);
+  box-shadow: inset 0 0 0 1px var(--olive);
+}
+
+.btn--ghost:hover {
+  background: rgba(104, 116, 93, .08);
+  color: var(--olive-dark);
+}
+
+.btn__icon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
+.field { margin-bottom: var(--sp-3); }
+
+.field__label {
+  display: block;
+  margin-bottom: var(--sp-1);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: .5px;
+  color: var(--ink-soft);
+}
+
+.field__hint {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.field__error {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--danger);
+}
+
+input,
+textarea,
+select {
+  display: block;
+  width: 100%;
+  min-height: var(--btn-height);
+  padding: 12px var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-card);
+  color: var(--text-strong);
+  font-family: var(--font-sans);
+  /* Minimal 16px: di bawah itu iOS auto-zoom saat field difokus
+     sehingga halaman ikut ter-zoom dan sulit dikembalikan. */
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  appearance: none;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder { color: var(--muted); }
+
+input:hover,
+textarea:hover,
+select:hover { border-color: var(--gold); }
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--olive);
+  box-shadow: 0 0 0 3px var(--gold-soft);
+}
+
+input[aria-invalid='true'],
+textarea[aria-invalid='true'],
+select[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2368745d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--sp-4) center;
+  padding-right: 42px;
+}
+
+.form-note {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: rgba(184, 150, 79, .1);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+
+.form-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--olive);
+}
+
+/* =========================================================
+   IKON
+   ========================================================= */
+.event-icon,
+.bank-card__icon,
+.venue__icon {
+  display: grid;
+  place-items: center;
+  color: var(--olive);
+}
+
+/* =========================================================
+   TOMBOL MUSIK (mengambang)
+   ========================================================= */
+.music-btn {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--white);
+  box-shadow: var(--sh-float);
+  cursor: pointer;
+  z-index: var(--z-float);
+  transition: transform var(--t-base), background var(--t-base);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.music-btn:hover {
+  background: var(--accent-hover);
+  transform: scale(1.06);
+}
+
+.music-btn:active { transform: scale(.96); }
+
+.music-btn.is-playing {
+  background: var(--forest);
+  animation: music-pulse 2.4s ease-in-out infinite;
+}
+
+.music-btn__icon {
+  display: grid;
+  place-items: center;
+}
+
+@keyframes music-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(104, 116, 93, .45); }
+  50%      { box-shadow: 0 0 0 10px rgba(104, 116, 93, 0); }
+}
+
+/* Jangan berdenyut untuk pengguna yang mengurangi animasi */
+@media (prefers-reduced-motion: reduce) {
+  .music-btn.is-playing { animation: none; }
+}
+
+/* =========================================================
+   SECTION CARD
+   ========================================================= */
+.event-card,
+.bank-card {
+  background: var(--bg-card);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-sm);
+  text-align: center;
+}

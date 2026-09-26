@@ -13,7 +13,11 @@
     "build": "vite build",
     "preview": "vite preview",
     "preview:host": "vite preview --host --port 4173",
-    "placeholders": "node tools/make-placeholders.mjs"
+    "placeholders": "node tools/make-placeholders.mjs",
+    "check": "node tools/check-content.mjs && node tools/check-placeholders.mjs",
+    "check:content": "node tools/check-content.mjs",
+    "check:placeholders": "node tools/check-placeholders.mjs",
+    "verify": "npm run check && npm run build"
   },
   "devDependencies": {
     "vite": "^8.3.1"
