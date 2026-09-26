@@ -1,0 +1,24 @@
+# Normalisasi line ending agar konsisten antar-platform.
+# Developer di Windows & CI di Linux tidak lagi menghasilkan diff sia-sia.
+
+* text=auto eol=lf
+
+# Binary: jangan pernah di-normalisasi
+*.jpg   binary
+*.jpeg  binary
+*.png   binary
+*.webp  binary
+*.avif  binary
+*.gif   binary
+*.ico   binary
+*.svg   text eol=lf
+*.mp3   binary
+*.mp4   binary
+*.m4a   binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.pdf   binary
+
+# Lockfile:commit persis, jangan diubah baris akhir
+package-lock.json -diff

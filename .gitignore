@@ -1,0 +1,133 @@
+# ==========================================
+#  UNDANGAN PERNIKAHAN DIGITAL
+#  .gitignore
+#  ATURAN #1 TIDAK BOLEH DILEWATI: .env TIDAK PERNAH BOLEH DI-COMMIT
+# ==========================================
+
+
+# ---------- ENVIRONMENT (WAJIB / KRITIS) ----------
+# Berisi kunci API Supabase. JANGAN pernah di-commit.
+# Kalau bocor, history Git tidak bisa dihapus ->
+# kunci HARUS di-rotate (regenerate) di dashboard Supabase.
+.env
+.env.local
+.env.development.local
+.env.production.local
+.env.*.local
+
+# ...
+# PENTING: yang例外 HANYA file contoh (placeholder nilai, tanpa rahasia).
+# Ini justru HARUS di-commit supaya semua orang tahu variabel mana
+# yang perlu diisi.
+!.env.example
+
+
+# ---------- DEPENDENCY ----------
+node_modules/
+jspm_packages/
+.pnp/
+.pnp.js
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+
+# ---------- BUILD OUTPUT ----------
+# Hasil build Vite. Tidak perlu di-commit, bisa diregenerate.
+dist/
+build/
+.vite/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+logs/
+*.log
+lerna-debug.log*
+
+
+# ---------- TESTING / COVERAGE ----------
+coverage/
+.nyc_output/
+
+
+# ---------- ASSET SUMBER (RAW) ----------
+# Aset master resolusi tinggi (4MB+). Sengaja TIDAK di-commit karena:
+#  - ukurannya besar
+#  - bisa diregenerate dari arsip klien
+# File hasil OPTIMASI (webp/avif) di public/img/ TETAP di-commit.
+assets-src/
+*-raw.*
+*-original.*
+*-psd.*
+*.psd
+*.ai
+*.sketch
+*.fig
+
+
+# ---------- PLACEHOLDER (TIDAK PERLU DI-COMMIT) ----------
+# Gambar/video dummy yang kita buat untuk preview tahap-awal.
+# Cukup di-regenerate, tidak perlu masuk history.
+_tmp/
+tmp/
+temp/
+draft/
+_preview-assets/
+
+
+# ---------- EDITOR ----------
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+!.vscode/launch.json
+.idea/
+*.swp
+*.swo
+*~
+*.sublime-workspace
+
+
+# ---------- SISTEM OPERASI ----------
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+
+# ---------- DEPLOYMENT ----------
+.vercel/
+.netlify/
+.firebase/
+.wrangler/
+
+
+# ---------- CREDENTIALS LAIN (KEAMANAN) ----------
+*.pem
+*.key
+*.p12
+*.pfx
+*.keystore
+credentials.json
+service-account*.json
+.netrc
+.npmrc        # bisa berisi token auth
+
+
+# ---------- CACHE TOOLING ----------
+.eslintcache
+.stylelintcache
+.cache/
+.parcel-cache/
+.swc/
