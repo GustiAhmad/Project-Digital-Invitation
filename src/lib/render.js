@@ -17,7 +17,7 @@
    Tidak ada satu pun innerHTML untuk data dari config.
    ========================================================= */
 
-import { CONFIG, PRIMARY_EVENT } from '../config.js';
+import { CONFIG } from '../config.js';
 import { $, $$, el } from './dom.js';
 import { icon } from './icons.js';
 import {
@@ -91,9 +91,12 @@ function renderEvents() {
 
       el('p', { class: 'event-address', text: `${event.address}, ${event.city}` }),
 
+      // Langsung ke kartu venue milik acara ini, bukan ke section
+      // "#location" generik - supaya pengunjung tidak harus menebak
+      // peta mana yang benar.
       el('a', {
         class: 'btn btn--sm event-card__cta',
-        href: '#location',
+        href: `#venue-${event.id}`,
         dataset: { eventId: event.id },
       }, [
         el('span', { text: 'Lihat Lokasi' }),
@@ -106,21 +109,18 @@ function renderEvents() {
 }
 
 /* ---------- LOKASI ---------- */
+
+/**
+ * Satu venue = satu peta.
+ *
+ * Kenapa tidak satu peta untuk semua? Karena akad nikah dan resepsi
+ * bisa di lokasi yang BERBEDA. Kalau cuma ada satu peta, pengunjung
+ * yang mau menuju resepsi bisa salah klik dan arrive di masjid.
+ * Satu kartu per acara membuat tiap tombol navigasi jelas milik
+ * acara yang mana.
+ */
 function renderLocation() {
-  const event = PRIMARY_EVENT;
-  const frame = $('[data-map-frame]');
-
-  if (frame) {
-    // Tanpa koordinat -> pakai pencarian teks. Begitu klien memberi
-    // koordinat, kode ini otomatis berubah jadi titik pin yang tepat.
-    const q = (event.lat != null && event.lng != null)
-      ? `${event.lat},${event.lng}`
-      : event.mapsQuery;
-    frame.src = `https://www.google.com/maps?q=${encodeURIComponent(q)}&z=17&output=embed`;
-  }
-
-  // Daftar venue (punya 2 lokasi, dan masing-masing punya peta sendiri
-  // di Tahap 7)
+  // Ringkasan alamat (tanpa iframe) - ini yang dibaca crawler.
   const list = $('[data-render="venue-list"]');
   if (list) {
     list.textContent = '';
@@ -136,6 +136,69 @@ function renderLocation() {
       );
     });
   }
+
+  // Kartu peta, satu per acara.
+  const mapList = $('[data-render="map-list"]');
+  if (!mapList) return;
+
+  mapList.textContent = '';
+  CONFIG.events.forEach((ev) => {
+    const frame = el('iframe', {
+      // src diisi setelah elemen masuk DOM (lihat catatan di bawah)
+      title: `Peta lokasi ${ev.title} di ${ev.venue}`,
+      loading: 'lazy',
+      referrerpolicy: 'no-referrer-when-downgrade',
+      allowfullscreen: true,
+    });
+
+    mapList.append(el('article', { class: 'map-card', id: `venue-${ev.id}` }, [
+      el('header', { class: 'map-card__head' }, [
+        el('h3', { text: ev.title }),
+        el('p', { text: ev.venue }),
+        el('p', { class: 'map-card__address', text: `${ev.address}, ${ev.city}` }),
+      ]),
+      el('div', { class: 'map-box' }, frame),
+      el('div', { class: 'map-actions' }, [
+        el('a', {
+          class: 'btn',
+          href: mapsDirectionsUrl(ev),
+          target: '_blank',
+          rel: 'noopener noreferrer',
+          dataset: { navMaps: '', eventId: ev.id },
+        }, [
+          el('span', { class: 'btn__icon' }, icon('pin', { size: 16 })),
+          el('span', { text: `Navigasi ke ${ev.venue}` }),
+        ]),
+      ]),
+    ]));
+
+    // src diisi setelah append: Google Maps embed butuh kontainer yang
+    // sudah punya layout. Kalau src diisi sebelum masuk DOM, browser
+    // bisa menghitung ukuran 0x0 dan peta tampil dengan zoom salah.
+    frame.src = mapsEmbedUrl(ev);
+  });
+}
+
+/**
+ * URL peta tertanam (read-only, tanpa tombol).
+ * - Punya lat/lng  -> titik pin presisi di koordinat yang benar.
+ * - Belum punya     -> pencarian berdasarkan nama venue.
+ * Begitu klien mengisi koordinat, kode ini otomatis berubah tanpa
+ * perlu disentuh.
+ */
+function mapsEmbedUrl(ev) {
+  const q = (ev.lat != null && ev.lng != null)
+    ? `${ev.lat},${ev.lng}`
+    : `${ev.venue}, ${ev.address}, ${ev.city}`;
+  return `https://www.google.com/maps?q=${encodeURIComponent(q)}&z=17&output=embed`;
+}
+
+/** URL navigasi/petunjuk arah (membuka aplikasi peta di HP). */
+function mapsDirectionsUrl(ev) {
+  const dest = (ev.lat != null && ev.lng != null)
+    ? `${ev.lat},${ev.lng}`
+    : `${ev.venue}, ${ev.address}, ${ev.city}`;
+  return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=driving`;
 }
 
 /* ---------- GALERI (masih grid; carousel di Tahap 4) ---------- */

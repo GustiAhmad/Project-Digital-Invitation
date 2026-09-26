@@ -163,6 +163,10 @@
         <h2 class="title" id="location-title">Tempat Acara</h2>
       </div>
 
+      <!-- Ringkasan alamat. Sengaja TIDAK berisi <iframe> supaya:
+             1. crawler (Google, WhatsApp) tetap membaca alamat,
+             2. halaman tidak memuat 2 peta berat sekaligus.
+           Peta di-build oleh JS dari src/config.js di bawah. -->
       <div class="venue-list" data-render="venue-list">
         <div class="venue">
           <span class="venue__icon" data-icon="pin" aria-hidden="true"></span>
@@ -180,23 +184,49 @@
         </div>
       </div>
 
-      <div class="map-box">
-        <iframe
-          data-map-frame
-          title="Peta lokasi acara"
-          src="https://www.google.com/maps?q=Masjid%20Al-Muttaqin%2C%20Banjarmasin&z=17&output=embed"
-          loading="lazy"
-          referrerpolicy="no-referrer-when-downgrade"
-          allowfullscreen></iframe>
-      </div>
+      <!-- Satu kartu lokasi (= satu peta) untuk tiap acara di config.js.
+           Placeholder HTML ini hanya untuk kasus JS gagal; isinya
+           dibangun ulang oleh renderLocation(). -->
+      <div class="map-list" data-render="map-list">
+        <article class="map-card" id="venue-akad">
+          <header class="map-card__head">
+            <h3>Akad Nikah</h3>
+            <p>Masjid Al-Muttaqin</p>
+          </header>
+          <div class="map-box">
+            <iframe data-map-frame="akad" title="Peta lokasi Akad Nikah"
+              src="https://www.google.com/maps?q=Masjid%20Al-Muttaqin%2C%20Banjarmasin&z=17&output=embed"
+              loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          </div>
+          <div class="map-actions">
+            <a class="btn" data-nav-maps data-event-id="akad"
+               href="https://www.google.com/maps/dir/?api=1&destination=Masjid%20Al-Muttaqin%2C%20Banjarmasin&travelmode=driving"
+               target="_blank" rel="noopener noreferrer">
+              <span data-icon="pin" aria-hidden="true"></span>
+              Navigasi ke Masjid Al-Muttaqin
+            </a>
+          </div>
+        </article>
 
-      <div class="map-actions">
-        <a class="btn" data-nav-maps data-event-id="akad"
-           href="https://www.google.com/maps/dir/?api=1&destination=Masjid%20Al-Muttaqin%2C%20Banjarmasin&travelmode=driving"
-           target="_blank" rel="noopener noreferrer">
-          <span data-icon="pin" aria-hidden="true"></span>
-          Navigasi ke Lokasi
-        </a>
+        <article class="map-card" id="venue-resepsi">
+          <header class="map-card__head">
+            <h3>Resepsi</h3>
+            <p>Gedung Serbaguna Harmoni</p>
+          </header>
+          <div class="map-box">
+            <iframe data-map-frame="resepsi" title="Peta lokasi Resepsi"
+              src="https://www.google.com/maps?q=Gedung%20Serbaguna%20Harmoni%2C%20Banjarmasin&z=17&output=embed"
+              loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          </div>
+          <div class="map-actions">
+            <a class="btn" data-nav-maps data-event-id="resepsi"
+               href="https://www.google.com/maps/dir/?api=1&destination=Gedung%20Serbaguna%20Harmoni%2C%20Banjarmasin&travelmode=driving"
+               target="_blank" rel="noopener noreferrer">
+              <span data-icon="pin" aria-hidden="true"></span>
+              Navigasi ke Gedung Serbaguna Harmoni
+            </a>
+          </div>
+        </article>
       </div>
     </div>
   </section>

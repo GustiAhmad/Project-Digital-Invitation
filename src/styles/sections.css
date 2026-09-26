@@ -250,7 +250,6 @@
 }
 
 .map-box {
-  margin-top: var(--sp-8);
   border-radius: var(--r-xl);
   overflow: hidden;
   height: clamp(260px, 46vh, 350px);
@@ -270,7 +269,53 @@
   flex-wrap: wrap;
   gap: var(--sp-3);
   justify-content: center;
-  margin-top: var(--sp-6);
+  margin-top: var(--sp-4);
+}
+
+/* =========================================================
+   KARTU PETA (satu per acara)
+   =========================================================
+   Akad nikah dan resepsi bisa di tempat berbeda, jadi tiap
+   acara punya kartu + peta + tombol navigasinya sendiri.
+   ========================================================= */
+.map-list {
+  display: grid;
+  gap: var(--sp-6);
+  margin-top: var(--sp-8);
+}
+
+.map-card {
+  background: var(--bg-card);
+  border-radius: var(--r-xl);
+  padding: var(--sp-4);
+  box-shadow: var(--sh-sm);
+  /* Kalau pengunjung tombol "Lihat Lokasi" di kartu acara, kartu
+     ini tidak boleh tertutup header fixed. */
+  scroll-margin-top: 90px;
+}
+
+.map-card__head {
+  text-align: center;
+  margin-bottom: var(--sp-4);
+}
+
+.map-card__head h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.35rem, 5.5vw, 1.75rem);
+  font-weight: 600;
+  color: var(--forest);
+  line-height: 1.2;
+}
+
+.map-card__head p {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.map-card__address {
+  font-size: var(--fs-xs) !important;
+  letter-spacing: .04em;
 }
 
 /* =========================================================

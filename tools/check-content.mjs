@@ -164,6 +164,58 @@ for (const [i, [, venue, address]] of venues.entries()) {
   }
 }
 
+/* ---------- 4b. Tiap acara punya peta & navigasi sendiri ----------
+   Akad nikah dan resepsi bisa berbeda lokasi. Kalau keduanya memakai
+   satu peta yang sama, tamu bisa salah datang. Jadi jumlah <iframe>,
+   kartu venue, dan tombol navigasi HARUS sama dengan jumlah event.
+   --------------------------------------------------------------- */
+
+// Ambil blok `events: [ ... ]` supaya event tidak tertukar dengan
+// bank atau story yang juga punya field `id`.
+const eventsBlock = (() => {
+  const start = configSrc.indexOf('events: [');
+  if (start === -1) return '';
+  const open = configSrc.indexOf('[', start);
+  const close = configSrc.indexOf('\n  ],', open);
+  return configSrc.slice(open, close === -1 ? undefined : close);
+})();
+
+const eventCount = (eventsBlock.match(/\bid:\s*'/g) || []).length;
+
+// Komentar HTML ikut memuat kata "<iframe>". Kalau tidak dibuang,
+// hitungan peta jadi keliru dan check ini selalu gagal.
+const htmlNoComment = html.replace(/<!--[\s\S]*?-->/g, '');
+
+const mapFrames = (htmlNoComment.match(/<iframe[\s>]/g) || []).length;
+const navLinks = (htmlNoComment.match(/data-nav-maps/g) || []).length;
+const mapCards = (htmlNoComment.match(/class="map-card"/g) || []).length;
+
+if (eventCount === 0) {
+  add('Jumlah acara terbaca', false, 'Blok "events: [" tidak ditemukan di config.js');
+} else {
+  if (mapFrames === eventCount) {
+    add('Satu peta per acara', true, `${mapFrames} peta untuk ${eventCount} acara`);
+  } else {
+    add('Satu peta per acara', false,
+      `Config punya ${eventCount} acara, tapi HTML hanya punya ${mapFrames} peta. `
+      + 'Tamu yang menuju resepsi bisa salah datang ke masjid.');
+  }
+
+  if (mapCards === eventCount) {
+    add('Satu kartu venue per acara', true, `${mapCards} kartu`);
+  } else {
+    add('Satu kartu venue per acara', false,
+      `Diharapkan ${eventCount} .map-card, ditemukan ${mapCards}.`);
+  }
+
+  if (navLinks === eventCount) {
+    add('Satu tombol navigasi per acara', true, `${navLinks} tombol`);
+  } else {
+    add('Satu tombol navigasi per acara', false,
+      `Harus ada ${eventCount} tombol navigasi, ditemukan ${navLinks}.`);
+  }
+}
+
 /* ---------- 5. Galeri: jumlah & sumber gambar ---------- */
 const gallerySrc = [...configSrc.matchAll(/src:\s*'(\.\/img\/gallery-[^']+)'/g)].map((m) => m[1]);
 const missing = gallerySrc.filter((src) => !html.includes(src));

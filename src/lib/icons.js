@@ -114,11 +114,32 @@ export function icon(name, { size = 24, stroke = 1.6, className = '' } = {}) {
   node.setAttribute('aria-hidden', 'true');
   node.setAttribute('focusable', 'false');
 
-  // Path di bawah berasal dari konstanta di file ini, bukan input
-  // pengguna, jadi aman diparsing sebagai markup.
-  const holder = document.createElement('div');
-  holder.innerHTML = path.trim();
-  while (holder.firstChild) node.append(holder.firstChild);
+  // ---- Bangun isi ikon -----------------------------------------
+  // PENTING: parse lewat DOMParser dengan 'image/svg+xml',
+  // JANGAN lewat innerHTML pada <div>.
+  //
+  // Alasannya: kalau div.innerHTML = '<rect .../>', parser HTML tidak
+  // tahu dia sedang berada di konteks SVG, sehingga yang dibuat adalah
+  // HTMLUnknownElement pada namespace HTML. Elemen seperti itu di
+  // dalam <svg> TIDAK tergambar - getBBox() mengembalikan 0 x 0,
+  // dan ikonnya hanya berupa ruang kosong.
+  //
+  // parseFromString dengan 'image/svg+xml' membuat parser beralih ke
+  // mode SVG, sehingga setiap path/rect/circle mendapat namespace
+  // yang benar.
+  const doc = new DOMParser().parseFromString(
+    `<svg xmlns="${NS}">${path.trim()}</svg>`,
+    'image/svg+xml',
+  );
+  const parsed = doc.documentElement;
+
+  // Kalau parse gagal, jangan diam-diam menghasilkan ikon kosong.
+  if (!parsed || parsed.nodeName === 'parsererror') {
+    console.warn(`[icons] Gagal membuat SVG untuk ikon "${name}"`);
+    return document.createTextNode('');
+  }
+
+  while (parsed.firstChild) node.append(parsed.firstChild);
 
   return node;
 }
