@@ -14,9 +14,10 @@
 .env.development.local
 .env.production.local
 .env.*.local
+.env.server
 
 # ...
-# PENTING: yang例外 HANYA file contoh (placeholder nilai, tanpa rahasia).
+# PENTING: yang dikecualikan HANYA file contoh (placeholder nilai, tanpa rahasia).
 # Ini justru HARUS di-commit supaya semua orang tahu variabel mana
 # yang perlu diisi.
 !.env.example

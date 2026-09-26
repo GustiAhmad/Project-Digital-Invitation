@@ -19,7 +19,6 @@
    ========================================================= */
 
 import { $, el, timeAgo } from '../lib/dom.js';
-import { iconMarkup } from '../lib/icons.js';
 import { toastSuccess, toastError } from '../lib/toast.js';
 import { CONFIG } from '../config.js';
 

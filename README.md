@@ -9,7 +9,7 @@ Mobile-first, real-time, dan gratis selamanya (free tier).
 
 | Bagian | Teknologi | Biaya |
 |---|---|---|
-| Build | Vite 6 | Gratis |
+| Build | Vite 8 | Gratis |
 | Frontend | Vanilla JS (ES modules) + CSS Custom Properties | Gratis |
 | Backend / DB | Supabase (Postgres + Realtime + Auth + RLS) | Gratis |
 | Hosting | Vercel / Netlify / GitHub Pages | Gratis |
@@ -81,7 +81,7 @@ npm run preview
 |   |-- audio/              # lagu.mp3
 |   |-- img/                # Foto (sudah dioptimasi)
 |   |-- icons/              # Favicon, PWA icons
-|   |-- og-image.jpg        # Preview saat link di-share
+|   |-- og-image.png        # Preview saat link di-share (1200x630)
 |   `-- manifest.webmanifest
 |
 |-- src/
@@ -114,7 +114,8 @@ npm run preview
 |
 |-- tools/
 |   |-- make-placeholders.mjs
-|   |-- check-content.mjs   # Pemeriksa konsistensi HTML vs config
+|   |-- make-og-image.mjs    # Render ulang preview WhatsApp (1200x630)
+|   |-- check-content.mjs    # Pemeriksa konsistensi HTML vs config
 |   `-- check-placeholders.mjs
 |
 `-- assets-src/             # Foto master resolusi penuh (di-ignore Git)

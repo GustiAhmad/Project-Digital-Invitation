@@ -17,7 +17,7 @@
    ========================================================= */
 
 import { $ } from '../lib/dom.js';
-import { iconMarkup } from '../lib/icons.js';
+import { icon } from '../lib/icons.js';
 
 const DEFAULT_VOLUME = 0.45;
 
@@ -30,9 +30,10 @@ export function initMusic() {
   let userStopped = false; // tamu sengaja mematikan -> jangan hidupkan lagi
 
   function paint() {
-    const icon = btn.querySelector('.music-btn__icon');
-    if (icon) {
-      icon.innerHTML = iconMarkup(playing ? 'pause' : 'music', { size: 20, stroke: 1.8 });
+    const iconBox = btn.querySelector('.music-btn__icon');
+    if (iconBox) {
+      iconBox.textContent = '';
+      iconBox.append(icon(playing ? 'pause' : 'music', { size: 20, stroke: 1.8 }));
     }
     btn.setAttribute('aria-pressed', String(playing));
     btn.setAttribute('aria-label', playing ? 'Jeda musik' : 'Putar musik');

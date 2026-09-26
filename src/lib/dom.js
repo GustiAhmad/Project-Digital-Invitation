@@ -59,24 +59,6 @@ function appendChildren(node, children) {
   node.append(document.createTextNode(String(children)));
 }
 
-/** Buat elemen <svg> dari string path (path ini dari icons.js, bukan input user). */
-export function svg(pathData, { size = 24, stroke = 2, fill = 'none' } = {}) {
-  const NS = 'http://www.w3.org/2000/svg';
-  const node = document.createElementNS(NS, 'svg');
-  node.setAttribute('viewBox', '0 0 24 24');
-  node.setAttribute('width', size);
-  node.setAttribute('height', size);
-  node.setAttribute('fill', fill);
-  node.setAttribute('stroke', 'currentColor');
-  node.setAttribute('stroke-width', stroke);
-  node.setAttribute('stroke-linecap', 'round');
-  node.setAttribute('stroke-linejoin', 'round');
-  node.setAttribute('aria-hidden', 'true');
-  node.setAttribute('focusable', 'false');
-  node.innerHTML = pathData; // path originates from icons.js, not user input
-  return node;
-}
-
 /** Format waktu relatif sederhana: "baru saja", "5 menit lalu". */
 export function timeAgo(iso) {
   const diff = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);

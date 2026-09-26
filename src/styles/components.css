@@ -72,6 +72,47 @@
   flex: 0 0 auto;
 }
 
+.btn__label {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TOMBOL SALIN
+   =========================================================
+   Tombol ini punya pekerjaan yang tidak selalu "--ah, itu tombol
+   copy" bagi pengunjung yang baru pertama kali melihat. Jadi
+   label teksnya dibuat eksplisit ("Salin Nomor Rekening") dan
+   ukurannya dinaikkan ke 44px, meets kiosk pointer guidelines
+   dari WCAG 2.5.5.
+   ========================================================= */
+.btn--copy {
+  width: 100%;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  /* Ikon dicetak tebal supaya tidak tenggelam di layar kecil */
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+
+.btn--copy .btn__icon {
+  color: var(--olive);
+  transition: color var(--t-fast, .18s) ease;
+}
+
+.btn--copy:hover .btn__icon { color: var(--gold); }
+
+/* Keadaan "sudah tersalin" */
+.btn--copy.btn--done {
+  background: var(--success);
+  color: #fff;
+  box-shadow: none;
+  opacity: 1;
+  cursor: default;
+}
+
+.btn--copy.btn--done .btn__icon { color: #fff; }
+
 /* =========================================================
    FORM
    ========================================================= */

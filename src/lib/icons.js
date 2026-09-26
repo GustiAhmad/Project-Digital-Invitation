@@ -84,9 +84,51 @@ const P = {
 };
 
 /**
- * Ambil markup SVG untuk sebuah nama ikon.
+ * Buat elemen <svg> sebagai DOM node.
+ *
+ * Dipakai di semua tempat yang membangun UI lewat helper `el()`.
+ * Mengembalikan Node, BUKAN string - jadi tidak ada jalur yang
+ * memungkinkan markup tak sengaja masuk ke innerHTML.
+ *
  * @param {string} name
- * @param {object} opts  { size, stroke, className }
+ * @param {object} opts  { size, stroke, className, title }
+ */
+export function icon(name, { size = 24, stroke = 1.6, className = '' } = {}) {
+  const path = P[name];
+  if (!path) {
+    console.warn(`[icons] Ikon tidak dikenal: "${name}"`);
+    return document.createTextNode('');
+  }
+
+  const NS = 'http://www.w3.org/2000/svg';
+  const node = document.createElementNS(NS, 'svg');
+  node.setAttribute('viewBox', '0 0 24 24');
+  node.setAttribute('width', size);
+  node.setAttribute('height', size);
+  node.setAttribute('fill', 'none');
+  node.setAttribute('stroke', 'currentColor');
+  node.setAttribute('stroke-width', stroke);
+  node.setAttribute('stroke-linecap', 'round');
+  node.setAttribute('stroke-linejoin', 'round');
+  if (className) node.setAttribute('class', className);
+  node.setAttribute('aria-hidden', 'true');
+  node.setAttribute('focusable', 'false');
+
+  // Path di bawah berasal dari konstanta di file ini, bukan input
+  // pengguna, jadi aman diparsing sebagai markup.
+  const holder = document.createElement('div');
+  holder.innerHTML = path.trim();
+  while (holder.firstChild) node.append(holder.firstChild);
+
+  return node;
+}
+
+/**
+ * Versi string untuk kasus yang benar-benar butuh string HTML
+ * (mis. atribut data-* pada HTML statis).
+ *
+ * ⚠ JANGAN pernah memanggil ini dengan data dari pengguna.
+ * Untuk UI yang dibangun dengan JS, pakai `icon()` di atas.
  */
 export function iconMarkup(name, { size = 24, stroke = 1.6, className = '' } = {}) {
   const path = P[name];

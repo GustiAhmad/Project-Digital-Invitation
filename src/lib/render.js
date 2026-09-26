@@ -19,7 +19,7 @@
 
 import { CONFIG, PRIMARY_EVENT } from '../config.js';
 import { $, $$, el } from './dom.js';
-import { iconMarkup } from './icons.js';
+import { icon } from './icons.js';
 import {
   formatDateLong, formatDateMedium, formatDatePlain,
   formatTimeRange, toDateAttr,
@@ -62,30 +62,31 @@ function renderEvents() {
   if (!host) return;
 
   host.textContent = '';
-  const dateLong = formatDateLong(PRIMARY_EVENT.date);
 
-  CONFIG.events.forEach((event, i) => {
+  CONFIG.events.forEach((event) => {
     const card = el('div', { class: 'event-card' });
+    // Tanggal dihitung dari event ini sendiri, bukan dari PRIMARY_EVENT,
+    // supaya kalau klien menambah acara di tanggal berbeda ikut benar.
+    const dateLong = formatDateLong(event.date);
 
     card.append(
-      el('div', { class: 'event-icon', 'aria-hidden': 'true' },
-        el('span', { html: iconMarkup(event.icon, { size: 34 }) })),
+      el('div', { class: 'event-icon' }, icon(event.icon, { size: 34 })),
 
       el('h3', { text: event.title }),
 
       el('p', { class: 'event-date' },
         el('span', { class: 'event-line' },
-          el('span', { class: 'event-line__icon', html: iconMarkup('calendar', { size: 16 }) }),
+          el('span', { class: 'event-line__icon' }, icon('calendar', { size: 16 })),
           el('time', { datetime: toDateAttr(event), text: dateLong }))),
 
       el('p', { class: 'event-time' },
         el('span', { class: 'event-line' },
-          el('span', { class: 'event-line__icon', html: iconMarkup('clock', { size: 16 }) }),
+          el('span', { class: 'event-line__icon' }, icon('clock', { size: 16 })),
           el('span', { text: formatTimeRange(event) }))),
 
       el('p', { class: 'event-venue' },
         el('span', { class: 'event-line' },
-          el('span', { class: 'event-line__icon', html: iconMarkup('pin', { size: 16 }) }),
+          el('span', { class: 'event-line__icon' }, icon('pin', { size: 16 })),
           el('span', { text: event.venue }))),
 
       el('p', { class: 'event-address', text: `${event.address}, ${event.city}` }),
@@ -94,21 +95,18 @@ function renderEvents() {
         class: 'btn btn--sm event-card__cta',
         href: '#location',
         dataset: { eventId: event.id },
-        html: `Lihat Lokasi ${iconMarkup('chevronRight', { size: 15 })}`,
-      }),
+      }, [
+        el('span', { text: 'Lihat Lokasi' }),
+        el('span', { class: 'btn__icon' }, icon('chevronRight', { size: 15 })),
+      ]),
     );
 
-    // Spasi antar kartu diberi oleh CSS grid, jadi tidak perlu <br>
-    if (i > 0) card.classList.add('event-card--offset');
     host.append(card);
   });
 }
 
 /* ---------- LOKASI ---------- */
 function renderLocation() {
-  const host = $('[data-render="location"]');
-  if (!host) return;
-
   const event = PRIMARY_EVENT;
   const frame = $('[data-map-frame]');
 
@@ -129,7 +127,7 @@ function renderLocation() {
     CONFIG.events.forEach((ev) => {
       list.append(
         el('div', { class: 'venue' }, [
-          el('span', { class: 'venue__icon', html: iconMarkup('pin', { size: 18 }) }),
+          el('span', { class: 'venue__icon' }, icon('pin', { size: 18 })),
           el('div', {}, [
             el('strong', { text: `${ev.title} - ${ev.venue}` }),
             el('span', { text: `${ev.address}, ${ev.city}` }),
@@ -182,20 +180,32 @@ function renderBanks() {
   CONFIG.banks.forEach((bank) => {
     host.append(el('div', { class: 'bank-card' }, [
       el('div', { class: 'bank-card__head' }, [
-        el('span', { class: 'bank-card__icon', html: iconMarkup(bank.icon, { size: 22 }) }),
+        el('span', { class: 'bank-card__icon' }, icon(bank.icon, { size: 22 })),
         el('h3', { text: bank.label }),
       ]),
+
       // Nomor yang DISALIN = bank.number (tanpa spasi).
       // Nomor yang DITAMPILKAN = bank.display.
       // `npm run check` memverifikasi keduanya konsisten.
-      el('p', { class: 'bank-number', dataset: { copyValue: bank.number }, text: bank.display }),
+      el('p', { class: 'bank-number', text: bank.display }),
       el('p', { class: 'bank-holder', text: `a.n. ${bank.holder}` }),
+
+      // Tombol: ikon + teks lengkap, area sentuh >= 44px.
+      // Label diambil dari config supaya klien bisa mengubahnya.
       el('button', {
-        class: 'btn btn--sm',
+        class: 'btn btn--sm btn--copy',
         type: 'button',
-        dataset: { copy: bank.number, copyLabel: `Nomor ${bank.label}` },
-        html: `${iconMarkup('copy', { size: 15 })} Salin Nomor`,
-      }),
+        dataset: {
+          copy: bank.number,
+          copyLabel: `Nomor ${bank.label}`,
+          copySuccess: bank.copiedText,
+        },
+      }, [
+        el('span', { class: 'btn__icon' }, icon('copy', { size: 16 })),
+        el('span', { class: 'btn__label', text: bank.copyButton }),
+      ]),
+
+      el('p', { class: 'bank-hint', text: 'Nomor bisa disalin dengan sekali ketuk' }),
     ]));
   });
 }
@@ -244,7 +254,8 @@ function renderStaticIcons() {
   $$('[data-icon]').forEach((node) => {
     const name = node.dataset.icon;
     if (!name || node.firstChild) return;
-    node.innerHTML = iconMarkup(name, { size: Number(node.dataset.size) || 20 });
+    node.textContent = '';
+    node.append(icon(name, { size: Number(node.dataset.size) || 20 }));
   });
 }
 
@@ -252,7 +263,9 @@ function renderStaticIcons() {
 export function renderAll() {
   bindText();
   renderCoupleNames();
-  renderStaticIcons();
+
+  // Daftar-dinamis (acara, lokasi, kado) dibangun lebih dulu: elemennya
+  // sudah membawa ikon sendiri lewat `icon()`.
   renderEvents();
   renderLocation();
   renderGallery();
@@ -261,4 +274,6 @@ export function renderAll() {
   renderRsvp();
   renderWishes();
   renderShare();
-}
+
+  // Terakhir: isi sisa `data-icon` yang ada di HTML statis.
+  renderStaticIcons();}

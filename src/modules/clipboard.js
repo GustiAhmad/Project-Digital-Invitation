@@ -22,9 +22,8 @@
    Fallback di bawah yang menutup celah tersebut.
    ========================================================= */
 
-import { $$ } from '../lib/dom.js';
 import { toastSuccess, toastError } from '../lib/toast.js';
-import { iconMarkup } from '../lib/icons.js';
+import { icon } from '../lib/icons.js';
 
 /**
  * Salin teks ke clipboard. Mengembalikan Promise<boolean>.
@@ -68,31 +67,65 @@ function legacyCopy(text) {
 }
 
 /**
- * Pasang penangan salin pada semua elemen ber-atribut data-copy.
+ * Pasang penangan salin untuk semua elemen ber-atribut data-copy.
+ *
+ * Pakai DELEGASI di level document, bukan querySelectorAll lalu
+ * addEventListener. Alasannya: tombol kado dibuat ulang oleh
+ * renderAll() (render.js). Kalau listener ditempel sebelum render,
+ * tombol barunya tidak punya handler sama sekali.
  */
 export function initClipboard() {
-  $$('[data-copy]').forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      const value = btn.dataset.copy;
-      const label = btn.dataset.copyLabel || 'Nomor';
-      if (!value) return;
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('[data-copy]');
+    if (!btn) return;
 
-      const ok = await copyText(value);
+    const value = btn.dataset.copy;
+    if (!value) return;
+    if (btn.disabled) return;
 
-      if (ok) {
-        toastSuccess(`${label} berhasil disalin`);
-        flashIcon(btn, 'check');
-      } else {
-        toastError('Gagal menyalin otomatis. Silakan salin manual.');
-      }
-    });
+    const ok = await copyText(value);
+
+    if (ok) {
+      flashCopied(btn, btn.dataset.copySuccess);
+      toastSuccess(btn.dataset.copyLabel
+        ? `${btn.dataset.copyLabel} berhasil disalin`
+        : 'Nomor berhasil disalin');
+    } else {
+      toastError('Gagal menyalin otomatis. Silakan salin manual.');
+    }
   });
 }
 
-/** Tampilkan centang sebentar di tombol (umpan balik visual tambahan). */
-function flashIcon(btn, iconName) {
-  const target = btn.querySelector('.btn__icon') || btn;
-  const original = target.innerHTML;
-  target.innerHTML = iconMarkup(iconName, { size: 15 });
-  setTimeout(() => { target.innerHTML = original; }, 1600);
+/**
+ * Umpan balik visual di dalam tombol: ikon jadi centang dan teks
+ * jadi "Nomor Tersalin!", lalu kembali seperti semula setelah 2 detik.
+ *
+ * Hanya menyentuh <span class="btn__icon"> dan <span class="btn__label">.
+ * Kalau kita menulis ke innerHTML tombol secara utuh, kedua span itu
+ * ikut hilang dan tidak bisa dikembalikan lagi.
+ */
+function flashCopied(btn, successText) {
+  const iconBox = btn.querySelector('.btn__icon');
+  const label = btn.querySelector('.btn__label');
+  const originalLabel = label ? label.textContent : '';
+
+  if (iconBox) {
+    iconBox.textContent = '';
+    iconBox.append(icon('check', { size: 16 }));
+  }
+  if (label && successText) label.textContent = successText;
+
+  btn.classList.add('btn--done');
+  btn.disabled = true;
+
+  clearTimeout(btn._copyTimer);
+  btn._copyTimer = setTimeout(() => {
+    if (iconBox) {
+      iconBox.textContent = '';
+      iconBox.append(icon('copy', { size: 16 }));
+    }
+    if (label) label.textContent = originalLabel;
+    btn.classList.remove('btn--done');
+    btn.disabled = false;
+  }, 2000);
 }

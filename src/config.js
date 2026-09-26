@@ -53,15 +53,15 @@ export const CONFIG = {
       photoAlt: 'Foto Uswatun Hasanah',
       // TODO-KLIEN: ganti dengan nama asli orang tua.
       parentLabel: 'Putri dari',
-      parents: ['Bapak  …', 'Ibu  …'],
+      parents: ['Bapak Pengantin', 'Ibu Pengantin'],
     },
     groom: {
-      name: 'Muhammad  …',
+      name: 'Muhammad',
       photo: './img/couple-groom.jpg',
       photoAlt: 'Foto Muhammad',
       // TODO-KLIEN: ganti dengan nama asli orang tua.
       parentLabel: 'Putra dari',
-      parents: ['Bapak  …', 'Ibu  …'],
+      parents: ['Bapak Pengantin', 'Ibu Pengantin'],
     },
   },
 
@@ -169,6 +169,10 @@ export const CONFIG = {
       number: '123456789012', // TODO-KLIEN: nomor rekening asli
       display: '1234 5678 9012', // TODO-KLIEN: sama seperti `number`, dikelompokkan
       holder: 'Uswatun Hasanah', // TODO-KLIEN: atas nama siapa
+      // Label tombol. Sengaja lengkap & eksplisit supaya pengunjung
+      // langsung tahu apa yang terjadi saat ditekan.
+      copyButton: 'Salin Nomor Rekening',
+      copiedText: 'Nomor Tersalin!',
     },
     {
       id: 'dana',
@@ -177,6 +181,8 @@ export const CONFIG = {
       number: '082253112508', // TODO-KLIEN
       display: '0822 5311 2508', // TODO-KLIEN
       holder: 'Uswatun Hasanah', // TODO-KLIEN
+      copyButton: 'Salin Nomor DANA',
+      copiedText: 'Nomor Tersalin!',
     },
   ],
 

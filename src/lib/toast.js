@@ -53,10 +53,10 @@ export function toast(message, { type = 'success', duration = 3200 } = {}) {
   const item = document.createElement('div');
   item.className = `toast toast--${type}`;
 
-  const icon = document.createElement('span');
-  icon.className = 'toast__icon';
-  icon.setAttribute('aria-hidden', 'true');
-  icon.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"
+  const iconBox = document.createElement('span');
+  iconBox.className = 'toast__icon';
+  iconBox.setAttribute('aria-hidden', 'true');
+  iconBox.innerHTML = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none"
     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICONS[type] || ICONS.info}</svg>`;
 
   const text = document.createElement('span');
@@ -71,7 +71,7 @@ export function toast(message, { type = 'success', duration = 3200 } = {}) {
     stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6 18 18M18 6 6 18"/></svg>`;
   close.addEventListener('click', () => dismiss());
 
-  item.append(icon, text, close);
+  item.append(iconBox, text, close);
   host.append(item);
 
   // Trigger animasi masuk
