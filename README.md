@@ -1,7 +1,12 @@
 # Undangan Pernikahan Digital
 
-Web undangan pernikahan interaktif untuk **Uswatun Hasanah & Muhammad**.
+Web undangan pernikahan interaktif untuk **Muhammad Irfani & Parida Paska**.
 Mobile-first, real-time, dan gratis selamanya (free tier).
+
+Konsepnya sengaja simpel sesuai permintaan klien: satu halaman,
+tanpa foto cover, tanpa galeri, tanpa love story, tanpa donasi.
+Tamu bisa lihat tanggal, buka Google Calendar, simpan `.ics`, dan
+buka Google Maps tanpa signup.
 
 ---
 
@@ -96,14 +101,11 @@ Yang dilakukan script ini:
 > itu jalankan `npm run check:images` - script itu akan gagal
 > kalau ada `srcset` yang menunjuk file yang tidak ada.
 
-### Mengganti foto
+### Mengganti foto potret
 
-1. Letakkan foto baru di `assets-src/`.
-2. Ubah `couple.groom.photo` / `couple.bride.photo` di
-   `src/config.js` ke nama file di `public/img/`.
-3. Kalau lebar/tinggi rasio foto berubah, sesuaikan `width` dan
-   `height` di `index.html` (pakai nilai milik varian **fallback**
-   JPEG), lalu jalankan `npm run check:images`.
+Lihat bagian "Mengganti foto potret" di bawah. Ringkasnya:
+taruh di `assets-src/` -> `npm run optimize` -> salin `widths`
+ke `config.js` -> `npm run check:images`.
 
 ### Kendala umum
 
@@ -115,6 +117,10 @@ Yang dilakukan script ini:
 | Audio tidak berbunyi | Wajib klik dulu (kebijakan autoplay browser). Ada tombol musik. |
 | `.env` tidak terbaca | Pastikan file bernama persis `.env` (bukan `.env.txt`) di root project. |
 | Tanggal / nama hari di preview WhatsApp berbeda | Jalankan `npm run check` - akan menunjukkan letak masalahnya. |
+| Preview WhatsApp masih nama/tanggal lama | `og-image.png` ikut berubah kalau `config.js` berubah. Jalankan `npm run og`. |
+| Tombol "Simpan (.ics)" tidak muncul | Tombol dibangun JavaScript. Kalau tidak terlihat, cek error di Console. |
+| Section kontak kosong | Itu memang disengaja selama `contact.whatsapp` masih `''`. |
+| `npm run check` gagal soal rekening/galeri/cerita | Section itu dibatalkan klien. Hapus dari `index.html`, jangan diabaikan. |
 
 ---
 
@@ -138,7 +144,6 @@ Yang dilakukan script ini:
 |-- src/
 |   |-- config.js           # <<< SATU-SATUNYA SUMBER KONTEN
 |   |-- main.js             # Entry JS - hanya merakit modul
-|   |-- assets/             # Aset yang diproses Vite (mis. foto cover)
 |   |-- styles/
 |   |   |-- main.css        # Hanya meng-import 4 file di bawahnya
 |   |   |-- tokens.css      # Design tokens (warna, font, spacing)
@@ -147,17 +152,18 @@ Yang dilakukan script ini:
 |   |   `-- sections.css    # Style per section
 |   |-- lib/
 |   |   |-- dom.js          # Helper DOM aman (anti-XSS)
-|   |   |-- format.js       # Format tanggal/wAngka (anti salah hari)
+|   |   |-- format.js       # Format tanggal/waktu (anti salah hari)
 |   |   |-- icons.js        # Ikon SVG inline
+|   |   |-- responsive.js   # Bangun srcset dari config
 |   |   |-- render.js       # Isi halaman dari config.js
 |   |   `-- toast.js        # Notifikasi (pengganti alert)
 |   |-- modules/
+|   |   |-- calendar.js     # Google Calendar + unduh .ics
 |   |   |-- countdown.js
 |   |   |-- music.js
-|   |   |-- clipboard.js
 |   |   |-- wishes.js
 |   |   |-- rsvp.js
-|   |   `-- share.js
+|   |   `-- share.js        # Web Share API + salin tautan
 |   `-- lib/supabase.js     # (Tahap 3)
 |
 |-- admin/
@@ -178,40 +184,56 @@ Yang dilakukan script ini:
 
 **90% kebutuhan klien cukup lewat satu file: `src/config.js`.**
 
-Di file itu tersimpan: nama pengantin, nama orang tua, tanggal & jam acara,
-alamat & koordinat venue, nomor rekening, cerita, dan daftar foto galeri.
+Di file itu tersimpan: nama pengantin, nama orang tua, tanggal & jam
+acara, alamat & koordinat lokasi, nomor WhatsApp, teks RSVP, dan
+pengaturan bagikan/QR.
 
 ```js
 export const CONFIG = {
   couple: {
-    bride: { name: 'Uswatun Hasanah', photo: './img/couple-bride.jpg' },
-    groom: { name: 'Muhammad',        photo: './img/couple-groom.jpg' }
+    bride: {
+      name: 'Parida Paska',
+      photo: './img/couple-bride.jpg',
+      widths: [320, 480, 520],   // dari `npm run optimize`
+      parents: ['Bapak Gurda', 'Ibu Rusimah'],
+    },
+    groom: {
+      name: 'Muhammad Irfani',
+      photo: './img/couple-groom.jpg',
+      widths: [320, 480, 563],
+      parents: ['Bapak Abdul Wahid', 'Ibu Deti Novia Susanti'],
+    },
   },
   events: [{
-    title: 'Akad Nikah',
-    date: '2026-11-20',      // WAJIB format YYYY-MM-DD
+    id: 'akad-resepsi',
+    title: 'Akad & Resepsi',
+    date: '2026-10-25',      // WAJIB format YYYY-MM-DD
     startTime: '08:00',
-    endTime: '10:00',
-    timezone: 'Asia/Makassar',   // WITA
-    venue: 'Masjid Al-Muttaqin',
-    address: 'Jl. Melati No.12',
-    city: 'Banjarmasin',
-    lat: -3.4382,               // null = pakai pencarian teks
-    lng: 114.8603
-  }]
+    endTime: '13:00',         // WAJIB - masuk ke DTEND file .ics
+    venue: '',                // kosong = hanya tampilkan alamat
+    address: 'Jl. Kuin Selatan RT 12',
+    district: 'Kuin Selatan, Banjarmasin Barat',
+    city: 'Kota Banjarmasin',
+    region: 'Kalimantan Selatan',
+    lat: -3.3004753589630127, // null = pakai pencarian teks
+    lng: 114.58055877685547,
+  }],
+  contact: { whatsapp: '' },  // kosong = section kontak disembunyikan
 };
 ```
 
+Zona waktu diambil dari konstanta `TIMEZONE = 'Asia/Makassar'` (WITA)
+di bagian atas file, jadi tidak perlu diulang per acara.
+
 ### Kenapa nama hari tidak ditulis manual
 
-Jangan tulis `"Kamis, 20 November 2026"` di config. Cukup tulis
-`date: '2026-11-20'`, dan nama hari akan dihitung otomatis memakai
+Jangan tulis `"Minggu, 25 Oktober 2026"` di config. Cukup tulis
+`date: '2026-10-25'`, dan nama hari akan dihitung otomatis memakai
 zona waktu `Asia/Makassar`.
 
-Alasannya: pada 20 November 2026, hari sebenarnya adalah **Jumat**.
-Teks "Kamis" muncul karena kode lama memakai
-`new Date("November 20, 2026")` yang dibaca sebagai waktu lokal
-perangkat - di perangkat WIB hasilnya bergeser sehari. Dengan
+Alasannya: kode lama memakai `new Date("November 20, 2026")` yang
+dibaca sebagai waktu lokal perangkat - di perangkat WIB hasilnya
+bergeser sehari, dan hari yang tampil menjadi salah. Dengan
 `Intl.DateTimeFormat` + timezone eksplisit, kesalahan ini mustahil
 terjadi lagi.
 
@@ -221,10 +243,36 @@ terjadi lagi.
 npm run check     # pastikan HTML & config tetap sinkron
 ```
 
-### Tombol calendar, peta, dan navigasi
+### Tombol kalender, peta, dan navigasi
 
-Semua ini di-generate dari `config.js`, jadi **otomatis ikut berubah**.
+Semua di-generate dari `config.js`, jadi **otomatis ikut berubah**.
 Tidak perlu edit HTML.
+
+Ada dua tombol kalender di setiap kartu acara:
+
+| Tombol | Untuk siapa | Cara kerja |
+|---|---|---|
+| **Google Calendar** | Yang pakai Google Calendar / Gmail | Buka tab pratinjau resmi Google, tinggal tekan "Simpan" |
+| **Simpan (.ics)** | Yang pakai iOS Calendar, Outlook, Samsung Calendar | Unduh file `.ics` standar |
+
+Kenapa dua-duanya? Kalau cuma ada tombol Google, tamu iPhone akan
+bingung lalu mengetik ulang sendiri. `.ics` dibaca hampir semua
+aplikasi kalender.
+
+> **Jam selesai wajib diisi.** Nilai `endTime` ikut ditulis ke
+> `DTEND` di file `.ics` dan ke parameter `dates` di Google
+> Calendar. Kalau `endTime` salah, semua tamu dapat pengingat yang
+> salah waktunya.
+
+### Mengganti foto potret
+
+1. Taruh file baru di `assets-src/`, misalnya `Irfani.jpeg`.
+2. Jalankan `npm run optimize`. Skrip memetakan nama file ke
+   `couple-groom` / `couple-bride` secara otomatis.
+3. Salin nilai `widths` yang dicetak ke `config.js`
+   (`couple.groom.widths` / `couple.bride.widths`).
+4. Jalankan `npm run check:images` untuk memastikan dimensi
+   `width`/`height` di `index.html` sudah sesuai.
 
 ### Mendapatkan koordinat venue (lat/lng)
 
@@ -277,22 +325,44 @@ git push -u origin feat/nama-fitur
 
 ## Data yang Masih Menunggu Klien
 
-| Item | Status | Filling |
+Jalankan `npm run check:placeholders` untuk melihat daftar ini dari
+terminal, selalu mencerminkan kondisi terbaru.
+
+| Item | Status | Catatan |
 |---|---|---|
-| Nama pengantin lengkap | Provisional | Tahap 1 |
-| Nama orang tua pihak wanita | Placeholder | Tahap 1 |
-| Nama orang tua pihak pria | Placeholder | Tahap 1 |
-| Tanggal & jam pasti | Placeholder | Tahap 1 |
-| Alamat + koordinat venue Akad | Placeholder | Tahap 1 |
-| Alamat + koordinat venue Resepsi | Placeholder | Tahap 1 |
-| Foto cover (landscape) | Placeholder | Tahap 2 |
-| Foto pre-wedding (min. 6) | Placeholder | Tahap 2 |
-| Foto pasangan sudut (potret) | Ada (2 file) | - |
-| Nomor rekening / e-wallet | Placeholder | Tahap 1 |
-| Teks cerita / love story | Placeholder | Tahap 1 |
-| Lagu pengantin (mp3, 3-5 menit) | **File uji, 55 detik** | Wajib ganti |
-| URL domain final | Placeholder | Tahap 9 |
-| QR code | Placeholder | Tahap 9 |
+| Nama pengantin lengkap | **Ada** | Muhammad Irfani & Parida Paska |
+| Nama orang tua pihak pria | **Ada** | Bapak Abdul Wahid & Ibu Deti Novia Susanti |
+| Nama orang tua pihak wanita | **Ada** | Bapak Gurda & Ibu Rusimah |
+| Tanggal & jam mulai | **Ada** | Minggu, 25 Oktober 2026, 08.00 WITA |
+| **Jam selesai acara** | **Asumsi** | `13:00`. Wajib dikonfirmasi - ikut masuk file kalender. |
+| Alamat acara | **Ada** | Jl. Kuin Selatan RT 12, Kuin Selatan, Banjarmasin Barat, Kota Banjarmasin, Kalimantan Selatan |
+| Koordinat lokasi | **Ada** | `-3.3004753589630127, 114.58055877685547` |
+| Nama resmi venue | Kosong | Klien belum memberi nama bangunan. Halaman tampil alamat saja. |
+| Foto potret pengantin | **Ada** | 2 file (563x751 & 520x693). Resolusi masih kecil, belum di-upscale. |
+| Nomor WhatsApp | Kosong | Sesuai permintaan klien, placeholder dulu. Section kontak disembunyikan. |
+| Lagu pengantin (mp3, 3-5 menit) | **File uji, 55 detik** | Wajib ganti dengan lagu asli klien. |
+| URL domain final | Placeholder | Tahap 7 |
+| QR code | Placeholder | Tahap 7 |
+
+### Section yang dibatalkan klien
+
+Sudah dihapus dari `config.js`, `render.js`, dan CSS. `npm run check`
+gagal kalau salah satunya muncul lagi - biasanya karena copy-paste
+dari template lama:
+
+| Section | Alasan |
+|---|---|
+| Foto cover (landscape) | Klien minta konsep simpel |
+| Galeri / lightbox | Dihapus |
+| Teks cerita / love story | Dihapus |
+| Donasi / nomor rekening | Dihapus |
+| Tombol "Buka Undangan" | Dihapus, halaman langsung terbuka |
+
+Soal foto: master di `assets-src/` sengaja **tidak** di-upscale.
+`tools/optimize-images.mjs` hanya membuat varian selebar file
+aslinya. Kalau klien mengirim foto resolusi tinggi (minimal
+sekitar 1200px sisi panjang), hasilnya langsung lebih tajam tanpa
+perubahan kode.
 
 ---
 

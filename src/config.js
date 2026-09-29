@@ -3,12 +3,12 @@
    ---------------------------------------------------------------
    SATU-SATUNYA SUMBER KEBENARAN untuk seluruh konten situs.
 
-   Semua teks yang tampil di halaman (nama, tanggal, alamat,
-   nomor rekening, cerita, daftar foto) berasal dari file ini.
+   Semua teks yang tampil di halaman (nama, tanggal, alamat) berasal
+   dari file ini.
 
    CARA MENGUBAH KONTEN:
      Ubah HANYA file ini. Tidak perlu menyentuh HTML/CSS/JS.
-    _botom Google Calendar, peta, navigasi, dan countdown akan
+     Tombol Google Calendar, peta, navigasi, dan countdown akan
      otomatis menyesuaikan karena semuanya membaca dari sini.
 
    ---------------------------------------------------------------
@@ -34,34 +34,48 @@ export const CONFIG = {
      META & SHARE
      ======================================================= */
   meta: {
-    bride: 'Uswatun Hasanah',
-    groom: 'Muhammad',
-    title: 'The Wedding of Uswatun Hasanah & Muhammad',
+    groom: 'Muhammad Irfani',
+    bride: 'Parida Paska',
+    // Urutan "pria & wanita" mengikuti kebiasaan Indonesia.
+    title: 'The Wedding of Muhammad Irfani & Parida Paska',
     description:
-      'Undangan pernikahan digital Uswatun Hasanah & Muhammad. Kami menanti kehadiran Bapak/Ibu/Saudara/i.',
-    // TODO-KLIEN: URL produksi. Diisi otomatis saat deploy (Tahap 9).
+      'Undangan pernikahan digital Muhammad Irfani & Parida Paska. Kami menanti kehadiran Bapak/Ibu/Saudara/i.',
+    // TODO-KLIEN: URL produksi. Diisi otomatis saat deploy (Tahap 7).
     siteUrl: import.meta.env?.VITE_SITE_URL || '',
   },
 
   /* =======================================================
      PASANGAN
+     ------------------------------------------------------------
+     `photo` menunjuk file di public/img/ yang dihasilkan oleh
+     `npm run optimize` dari master di assets-src/.
+
+     Konvensi nama:
+       assets-src/Parida.jpeg   -> couple-bride.jpg (+ varian WebP)
+       assets-src/Irfani.jpeg   -> couple-groom.jpg (+ varian WebP)
      ======================================================= */
   couple: {
     bride: {
-      name: 'Uswatun Hasanah',
+      name: 'Parida Paska',
       photo: './img/couple-bride.jpg',
-      photoAlt: 'Foto Uswatun Hasanah',
-      // TODO-KLIEN: ganti dengan nama asli orang tua.
+      photoAlt: 'Foto Parida Paska',
+      // Lebar varian WebP di public/img/.
+      //
+      // Diisi oleh `npm run optimize` (script mencetak daftar yang
+      // siap disalin). tools/check-images.mjs memverifikasi daftar ini
+      // cocok dengan file yang benar-benar ada di disk, jadi kalau
+      // lupa menyalin, `npm run check` akan gagal.
+      widths: [320, 480, 520],
       parentLabel: 'Putri dari',
-      parents: ['Bapak Pengantin', 'Ibu Pengantin'],
+      parents: ['Bapak Gurda', 'Ibu Rusimah'],
     },
     groom: {
-      name: 'Muhammad',
+      name: 'Muhammad Irfani',
       photo: './img/couple-groom.jpg',
-      photoAlt: 'Foto Muhammad',
-      // TODO-KLIEN: ganti dengan nama asli orang tua.
+      photoAlt: 'Foto Muhammad Irfani',
+      widths: [320, 480, 563],
       parentLabel: 'Putra dari',
-      parents: ['Bapak Pengantin', 'Ibu Pengantin'],
+      parents: ['Bapak Abdul Wahid', 'Ibu Deti Novia Susanti'],
     },
   },
 
@@ -69,122 +83,56 @@ export const CONFIG = {
      ACARA
      ------------------------------------------------------------
      PENTING: kolom `date` SELALU format YYYY-MM-DD.
-     Nama hari (Jumat/Sabtu/dll) TIDAK ditulis manual -
+     Nama hari (Minggu/Sabtu/dll) TIDAK ditulis manual -
      dihitung otomatis oleh lib/format.js memakai zona waktu
-     di atas. Ini mencegah kesalahan "Kamis vs Jumat" yang
-     terjadi di versi lama.
+     di atas. Ini mencegah kesalahan nama hari.
+
+     Klien memutuskan akad dan resepsi digabung jadi SATU acara
+     di tempat yang sama, jadi `events` hanya berisi satu entri.
+     Menambah acara kedua tetap bisa dilakukan nanti - semua
+     bagian halaman (kartu acara, peta, kalender) dibangun
+     berulang dari array ini.
      ======================================================= */
   events: [
     {
-      id: 'akad',
-      title: 'Akad Nikah',
+      id: 'akad-resepsi',
+      title: 'Akad & Resepsi',
       icon: 'rings',
-      date: '2026-11-20', // TODO-KLIEN: konfirmasi tanggal pasti
-      startTime: '08:00', // TODO-KLIEN: konfirmasi jam
-      endTime: '10:00', // TODO-KLIEN: konfirmasi jam
-      venue: 'Masjid Al-Muttaqin',
-      address: 'Jl. Melati No.12',
-      city: 'Banjarmasin',
-      // TODO-KLIEN: koordinat asli venue (cara memperolehnya ada di README)
-      lat: null,
-      lng: null,
+      date: '2026-10-25',
+      startTime: '08:00',
+      // TODO-KLIEN: konfirmasi jam selesai. Nilai ini dipakai untuk
+      // batas akhir di file kalender (.ics & Google Calendar).
+      endTime: '13:00',
+      // TODO-KLIEN: nama resmi lokasi, bila ada.
+      // Kalau acaranya di rumah, kosongkan saja: alamat di bawah
+      // sudah cukup jelas tanpa nama bangunan.
+      venue: '',
+      address: 'Jl. Kuin Selatan RT 12',
+      district: 'Kuin Selatan, Banjarmasin Barat',
+      city: 'Kota Banjarmasin',
+      region: 'Kalimantan Selatan',
+      lat: -3.3004753589630127,
+      lng: 114.58055877685547,
       // Dipakai sebagai fallback bila koordinat belum tersedia.
-      mapsQuery: 'Masjid Al-Muttaqin, Banjarmasin',
-      isPrimary: true, //<Event yangShown peta di section Lokasi
-    },
-    {
-      id: 'resepsi',
-      title: 'Resepsi',
-      icon: 'glass',
-      date: '2026-11-20', // TODO-KLIEN: konfirmasi tanggal pasti
-      startTime: '11:00',
-      endTime: '15:00',
-      venue: 'Gedung Serbaguna Harmoni',
-      address: 'Jl. Sudirman No.45',
-      city: 'Banjarmasin',
-      lat: null, // TODO-KLIEN
-      lng: null, // TODO-KLIEN
-      mapsQuery: 'Gedung Serbaguna Harmoni, Banjarmasin',
-      isPrimary: false,
+      mapsQuery: 'Jl. Kuin Selatan RT 12, Banjarmasin',
+      isPrimary: true,
     },
   ],
 
   /* =======================================================
-     KISAH
-     ======================================================= */
-  story: {
-    label: 'Our Story',
-    title: 'Kisah Kami',
-    chapters: [
-      {
-        title: 'Pertemuan',
-        // TODO-KLIEN: ganti dengan cerita asli
-        text: 'Setiap kisah memiliki awal. Begitu juga dengan kisah kami. Dari sebuah pertemuan sederhana, perlahan tumbuh menjadi sebuah perjalanan yang berarti.',
-      },
-      {
-        title: 'Perjalanan',
-        // TODO-KLIEN: ganti dengan cerita asli
-        text: 'Kami belajar untuk saling memahami, saling mendukung dan tumbuh bersama.',
-      },
-      {
-        title: 'Hari Istimewa',
-        // TODO-KLIEN: ganti dengan cerita asli
-        text: 'Dengan memohon ridha Allah SWT, kami melangkah menuju kehidupan baru bersama.',
-      },
-    ],
-  },
-
-  /* =======================================================
-     GALERI
+     KONTAK
      ------------------------------------------------------------
-    -gallery masih grid di Tahap 1. Struktur ini akan dipakai
-     ulang oleh carousel Swiper di Tahap 4.
+     Kosongkan `whatsapp` untuk menyembunyikan tombolnya.
+     Format internasional tanpa "+" dan tanpa spasi, contoh:
+       6281234567890
      ======================================================= */
-  gallery: {
-    label: 'Memories',
-    title: 'Galeri Foto',
-    // TODO-KLIEN: ganti dengan foto pre-wedding asli (min. 6).
-    photos: [
-      { src: './img/gallery-1.svg', alt: 'Foto pre-wedding 1', width: 1200, height: 1500 },
-      { src: './img/gallery-2.svg', alt: 'Foto pre-wedding 2', width: 1200, height: 1500 },
-      { src: './img/gallery-3.svg', alt: 'Foto pre-wedding 3', width: 1200, height: 1500 },
-      { src: './img/gallery-4.svg', alt: 'Foto pre-wedding 4', width: 1200, height: 1500 },
-      { src: './img/gallery-5.svg', alt: 'Foto pre-wedding 5', width: 1200, height: 1500 },
-      { src: './img/gallery-6.svg', alt: 'Foto pre-wedding 6', width: 1200, height: 1500 },
-    ],
+  contact: {
+    label: 'Kontak Pengantin',
+    // TODO-KLIEN: nomor WhatsApp pasangan (format internasional).
+    whatsapp: '',
+    message:
+      'Assalamu\'alaikum, saya ingin mengonfirmasi kehadiran untuk pernikahan Muhammad Irfani & Parida Paska.',
   },
-
-  /* =======================================================
-     KADO / DONASI
-     ------------------------------------------------------------
-     `number` dipakai untuk fitur salin ke clipboard.
-     Pastikan SELARAS dengan `display` yang dilihat pengunjung.
-     Script `npm run check` akan memverifikasi ini.
-     ======================================================= */
-  banks: [
-    {
-      id: 'brimo',
-      label: 'BRIMO',
-      icon: 'landmark',
-      number: '123456789012', // TODO-KLIEN: nomor rekening asli
-      display: '1234 5678 9012', // TODO-KLIEN: sama seperti `number`, dikelompokkan
-      holder: 'Uswatun Hasanah', // TODO-KLIEN: atas nama siapa
-      // Label tombol. Sengaja lengkap & eksplisit supaya pengunjung
-      // langsung tahu apa yang terjadi saat ditekan.
-      copyButton: 'Salin Nomor Rekening',
-      copiedText: 'Nomor Tersalin!',
-    },
-    {
-      id: 'dana',
-      label: 'DANA',
-      icon: 'smartphone',
-      number: '082253112508', // TODO-KLIEN
-      display: '0822 5311 2508', // TODO-KLIEN
-      holder: 'Uswatun Hasanah', // TODO-KLIEN
-      copyButton: 'Salin Nomor DANA',
-      copiedText: 'Nomor Tersalin!',
-    },
-  ],
 
   /* =======================================================
      BAGIKAN / QR
@@ -193,7 +141,7 @@ export const CONFIG = {
     label: 'Digital Invitation',
     title: 'Bagikan Undangan',
     caption: 'Scan QR Code untuk membuka undangan.',
-    // TODO-KLIEN: QR asli akan dibuat di Tahap 9 dari URL produksi.
+    // TODO-KLIEN: QR asli akan dibuat di Tahap 7 dari URL produksi.
     qrPlaceholder: './img/qr-placeholder.svg',
   },
 
@@ -239,7 +187,7 @@ export const PRIMARY_EVENT =
 
 /**
  * Tanggal acara sebagai string ISO-8601 dengan offset eksplisit.
- * Contoh: "2026-11-20T08:00:00+08:00"
+ * Contoh: "2026-10-25T08:00:00+08:00"
  */
 export function eventStartISO(event = PRIMARY_EVENT) {
   return `${event.date}T${event.startTime}:00${UTC_OFFSET}`;
@@ -252,5 +200,7 @@ export function eventEndISO(event = PRIMARY_EVENT) {
 
 /** Alamat satu baris, untuk Google Calendar & peta. */
 export function eventFullAddress(event) {
-  return [event.venue, event.address, event.city].filter(Boolean).join(', ');
+  return [event.venue, event.address, event.district, event.city, event.region]
+    .filter(Boolean)
+    .join(', ');
 }

@@ -73,17 +73,8 @@ export function initMusic() {
   // Tombol musik
   btn.addEventListener('click', toggle);
 
-  // "Buka Undangan" = gesture pertama pengguna, satu-satunya momen
-  // browser mengizinkan pemutaran otomatis.
-  const openBtn = $('#openInvitation');
-  if (openBtn) {
-    openBtn.addEventListener('click', () => {
-      if (audio.paused && !userStopped) play();
-    });
-  }
-
-  // Keadaan playback bisa berubah dari luar (mis. perangkat Anakin
-  // menghentikan audio karena ada telepon).
+  // Keadaan playback bisa berubah dari luar (mis. perangkat lain
+  // menghentikan audio karena ada telepon masuk).
   audio.addEventListener('play', () => { playing = true; paint(); });
   audio.addEventListener('pause', () => { playing = false; paint(); });
   audio.addEventListener('ended', () => { playing = false; paint(); });

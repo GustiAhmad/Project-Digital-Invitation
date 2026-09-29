@@ -219,7 +219,6 @@ select {
    IKON
    ========================================================= */
 .event-icon,
-.bank-card__icon,
 .venue__icon {
   display: grid;
   place-items: center;
@@ -279,10 +278,22 @@ select {
 /* =========================================================
    SECTION CARD
    ========================================================= */
-.event-card,
-.bank-card {
+.event-card {
   background: var(--bg-card);
   border-radius: var(--r-xl);
   box-shadow: var(--sh-sm);
   text-align: center;
+}
+
+/* Dua tombol kalender di dalam kartu acara. Jarak antar tombol
+   dibuat eksplisit (bukan cuma gap flex) supaya tetap rapi saat
+   teks tombol berubah panjang. */
+.event-card__calendar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--border);
 }

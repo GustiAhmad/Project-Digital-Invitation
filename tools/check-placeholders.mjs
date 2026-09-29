@@ -23,10 +23,13 @@ const todos = [...configSrc.matchAll(/TODO-KLIEN:\s*(.+)/g)]
   // dedupe
   .filter((v, i, a) => a.indexOf(v) === i);
 
-/* ---------- 2. Aset placeholder yang masih dipakai ---------- */
-const fromConfig = [...configSrc.matchAll(/'(\.\/img\/[^']*(?:placeholder|gallery-\d)[^']*)'/g)]
+/* ---------- 2. Aset placeholder yang masih dipakai ----------
+   Pola gallery-\d ikut di-detect sebagaiKESALAHAN, bukan placeholder:
+   galeri sudah dibatalkan klien, jadi file-nya tidak boleh muncul lagi.
+   --------------------------------------------------------------- */
+const fromConfig = [...configSrc.matchAll(/'(\.\/img\/[^']*placeholder[^']*)'/g)]
   .map((m) => m[1]);
-const fromHtml = [...indexHtml.matchAll(/(\.\/img\/(?:qr-)?placeholder[^"']*)/g)]
+const fromHtml = [...indexHtml.matchAll(/(\.\/img\/[^"']*placeholder[^"']*)/g)]
   .map((m) => m[1]);
 
 const placeholderAssets = [...new Set([...fromConfig, ...fromHtml])];
@@ -35,6 +38,15 @@ const missingAssets = placeholderAssets.filter(
   (rel) => !existsSync(join(ROOT, 'public', rel.replace('./', ''))),
 );
 
+/* ---------- 2b. Aset dari section yang sudah dibatalkan ---------- */
+const removedSectionAssets = [
+  ...new Set([
+    ...[...configSrc.matchAll(/'(\.\/img\/gallery-[^']*)'/g)].map((m) => m[1]),
+    ...[...indexHtml.matchAll(/(\.\/img\/gallery-[^"']*)/g)].map((m) => m[1]),
+    ...[...indexHtml.matchAll(/(\.\/img\/cover-[^"']*)/g)].map((m) => m[1]),
+  ]),
+];
+
 /* ---------- 3. Nilai yang masih Ellipsis / contoh ---------- */
 const stillPlaceholder = [
   ...new Set(
@@ -42,12 +54,34 @@ const stillPlaceholder = [
   ),
 ];
 
+/* ---------- 3b. Nomor WhatsApp organizer ---------- */
+//Klien minta placeholder dulu. Section kontak disembunyikan selama
+// field ini kosong, jadi tidak tampil tombol yang lead ke nowhere.
+const whatsapp = (configSrc.match(/whatsapp:\s*'([^']*)'/) || [])[1];
+const whatsappEmpty = !whatsapp;
+
 /* ---------- 4. Koordinat venue ---------- */
 const nullCoords = (configSrc.match(/(lat|lng):\s*null/g) || []).length;
 const venueCount = (configSrc.match(/venue:\s*'/g) || []).length;
 
+/* ---------- 4b. Nama resmi venue ---------- */
+//Alamat sudah pasti dari klien, tapi nama bangunan/gedung belum.
+//Selama kosong, halaman menampilkan alamat saja - itu wajar, tapi
+//harus terlihat di daftar ini supaya tidak dianggap sudah final.
+const venueName = (configSrc.match(/venue:\s*'([^']*)'/) || [])[1];
+const venueNameEmpty = !venueName;
+
 /* ---------- 5. Tanggal masih perlu konfirmasi ---------- */
 const date = (configSrc.match(/date:\s*'(\d{4}-\d{2}-\d{2})'/) || [])[1];
+
+/* Jam selesai dianggap masih "asumsi" kalau baris `endTime`
+  didampingi TODO-KLIEN. TODO-nya sering ditulis di baris SEBELUM
+   nilai, jadi kita harus melihat beberapa baris ke atas - bukan
+   cuma baris yang sama. */
+const endTimeLine = configSrc.indexOf('endTime:');
+const endTimePending = endTimeLine !== -1 && /TODO-KLIEN/.test(
+  configSrc.slice(Math.max(0, endTimeLine - 300), endTimeLine),
+);
 
 /* ---------- Laporan ---------- */
 console.log('\n  DATA YANG MENUNGGU KLIEN');
@@ -66,9 +100,33 @@ placeholderAssets.forEach((t) => console.log(`        - ${t}`));
 console.log(`\n  [${++group}] Koordinat venue  (${nullCoords} nilai null dari ${venueCount * 2} slot)`);
 if (nullCoords === 0) console.log('        - Semua koordinat sudah diisi.');
 
+console.log(`\n  [${++group}] Nama resmi venue`);
+if (venueNameEmpty) {
+  console.log('        - venue masih kosong di config.js. Saat ini halaman hanya');
+  console.log('          menampilkan alamat, jadi tidak salah - tapi minta nama');
+  console.log('          bangunan/gedung agar tamu tidak bingung.');
+} else {
+  console.log(`        - Terisi: ${venueName}`);
+}
+
+console.log(`\n  [${++group}] Nomor WhatsApp organizer`);
+if (whatsappEmpty) {
+  console.log('        - Kosong sesuai permintaan klien (placeholder dulu).');
+  console.log('          Section kontak disembunyikan sampai nomor diisi.');
+} else {
+  console.log(`        - Terisi: ${whatsapp}`);
+}
+
 console.log(`\n  [${++group}] Tanggal acara  (${date || 'tidak ditemukan'})`);
-console.log(`        - Perlu konfirmasi klien. Nilai sekarang masih asumsi.`);
-/* ---------- 6. Musik latar ---------- */
+if (endTimePending) {
+  console.log('        - Tanggal & jam mulai sudah dari klien.');
+  console.log('        - JAM SELESAI masih asumsi. Wajib dikonfirmasi sebelum');
+  console.log('          produksi karena ikut masuk ke file kalender .ics.');
+} else {
+  console.log('        - Tanggal, jam mulai, dan jam selesai sudah lengkap.');
+}
+
+/* ---------- 7. Musik latar ---------- */
 // Lagu pengantin sungguhan berdurasi 3-5 menit. File uji atau sampel
 // library gratis biasanya di bawah 1 menit. Kalau durasinya mencurigakan
 // pendek, hampir pasti itu belum lagu pilihan klien.
@@ -118,6 +176,11 @@ if (existsSync(audioPath)) {
   console.log('        ! public/audio/lagu.mp3 tidak ditemukan.');
 }
 
+if (removedSectionAssets.length) {
+  console.log('\n  PERINGATAN: aset section yang sudah dibatalkan masih terpakai:');
+  removedSectionAssets.forEach((a) => console.log(`        ! ${a}`));
+}
+
 if (missingAssets.length) {
   console.log('\n  PERINGATAN: aset placeholder hilang dari disk:');
   missingAssets.forEach((a) => console.log(`        ! ${a}`));
@@ -125,7 +188,14 @@ if (missingAssets.length) {
 
 console.log('\n  ' + '='.repeat(58));
 
-const total = todos.length + stillPlaceholder.length + nullCoords + audioPending;
+const total = todos.length
+  + stillPlaceholder.length
+  + nullCoords
+  + audioPending
+  + removedSectionAssets.length
+  + (venueNameEmpty ? 1 : 0)
+  + (whatsappEmpty ? 1 : 0)
+  + (endTimePending ? 1 : 0);
 if (total === 0) {
   console.log('  SEMUA DATA SUDAH LENGKAP. Siap produksi.\n');
 } else {

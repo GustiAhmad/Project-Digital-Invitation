@@ -7,9 +7,47 @@
    ========================================================= */
 
 import { $$ } from '../lib/dom.js';
-import { copyText } from './clipboard.js';
-import { toastSuccess, toastError, toastInfo } from '../lib/toast.js';
+import { toastSuccess, toastError } from '../lib/toast.js';
 import { CONFIG } from '../config.js';
+
+/* ---------- Salin ke clipboard ----------
+   Dipisah dari share.js supaya modul ini tidak perlu
+   initialize sendiri: dipakai juga oleh tombol salin URL di
+   section QR. Timeout dipakai karena navigator.clipboard
+   menolak promise yang menggantung di tab non-HTTPS (mis.
+   dibuka dari IP lokal tanpa HTTPS), dan penolakan itu
+   akan menggantung await selamanya.
+   ------------------------------------------------------------ */
+async function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    try {
+      await Promise.race([
+        navigator.clipboard.writeText(text),
+        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 1500)),
+      ]);
+      return true;
+    } catch {
+      // Lanjut ke fallback di bawah.
+    }
+  }
+
+  // Fallback untuk HTTP non-secure & browser lama.
+  // execCommand deprecated, tapi satu-satunya cara tanpa HTTPS.
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    ta.remove();
+    return ok;
+  } catch {
+    return false;
+  }
+}
 
 export function initShare() {
   const buttons = $$('[data-share]');

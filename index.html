@@ -19,17 +19,17 @@
     src/config.js tetap jadi sumber kebenaran; tools/check-content.mjs
     akan gagal kalau isi di sini berbeda dengan config.js.
   -->
-  <title>The Wedding of Uswatun Hasanah &amp; Muhammad</title>
-  <meta name="description" content="Undangan pernikahan digital Uswatun Hasanah &amp; Muhammad. Kami menanti kehadiran Bapak/Ibu/Saudara/i.">
+  <title>The Wedding of Muhammad Irfani &amp; Parida Paska</title>
+  <meta name="description" content="Undangan pernikahan digital Muhammad Irfani &amp; Parida Paska. Kami menanti kehadiran Bapak/Ibu/Saudara/i.">
 
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Digital Invitation">
-  <meta property="og:title" content="The Wedding of Uswatun Hasanah &amp; Muhammad">
+  <meta property="og:title" content="The Wedding of Muhammad Irfani &amp; Parida Paska">
   <meta property="og:description" content="Undangan pernikahan digital. Kami menanti kehadiran Bapak/Ibu/Saudara/i.">
   <meta property="og:image" content="./og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Undangan pernikahan Uswatun Hasanah &amp; Muhammad">
+  <meta property="og:image:alt" content="Undangan pernikahan Muhammad Irfani &amp; Parida Paska">
   <meta name="twitter:card" content="summary_large_image">
 
   <link rel="icon" type="image/svg+xml" href="./icons/favicon.svg">
@@ -48,24 +48,30 @@
 
 <main id="main">
 
-  <!-- ============ 1. COVER ============ -->
+  <!-- ============ 1. HERO ============ -->
+  <!-- Klien meminta konsep simpel: tanpa foto cover dan tanpa
+       animasi "Buka Undangan". Langsung menampilkan nama & tanggal.
+       ID tetap "cover" supaya CSS & anchor lama tidak putus, tapi
+       isinya sekarang murni hero teks. -->
   <section id="cover">
-    <div class="cover-content">
+    <div class="hero-content">
       <p class="small-title">The Wedding Of</p>
       <h1>
-        Uswatun Hasanah
+        Muhammad Irfani
         <br>
         <span class="amp" aria-hidden="true">&amp;</span><span class="sr-only">dan</span>
-        Muhammad
+        Parida Paska
       </h1>
-      <p class="cover-date">
-        <time datetime="2026-11-20T08:00:00+08:00">Jumat, 20 November 2026</time>
+      <p class="hero-date">
+        <time datetime="2026-10-25T08:00:00+08:00">Minggu, 25 Oktober 2026</time>
       </p>
-      <a href="#intro" class="btn" id="openInvitation">Buka Undangan</a>
+      <a href="#couple" class="hero-scroll" aria-label="Gulir ke bawah">
+        <span data-icon="chevronRight" data-size="20" aria-hidden="true"></span>
+      </a>
     </div>
   </section>
 
-  <!-- ============ 2. INTRO + COUNTDOWN ============ -->
+  <!-- ============ 2. SAMBUTAN + COUNTDOWN ============ -->
   <section id="intro" class="intro">
     <div class="container">
       <p class="small-title">Assalamu'alaikum Wr. Wb.</p>
@@ -73,9 +79,9 @@
         Dengan penuh rasa bahagia, kami mengundang Bapak/Ibu/Saudara/i
         untuk hadir dalam acara pernikahan kami.
       </p>
-      <p class="script" data-bind="couple-names-script">Uswatun Hasanah &amp; Muhammad</p>
+      <p class="script" data-bind="couple-names-script">Muhammad Irfani &amp; Parida Paska</p>
       <p>
-        <time datetime="2026-11-20T08:00:00+08:00">Jumat, 20 November 2026</time>
+        <time datetime="2026-10-25T08:00:00+08:00">Minggu, 25 Oktober 2026</time>
       </p>
 
       <div class="countdown" id="countdown">
@@ -89,45 +95,46 @@
   </section>
 
   <!-- ============ 3. MEMPELAI ============ -->
-  <section class="couple" aria-labelledby="couple-title">
+  <section class="couple" id="couple" aria-labelledby="couple-title">
     <div class="container center">
       <p class="small-title">Mempelai</p>
       <h2 class="title" id="couple-title">Dengan penuh cinta</h2>
-      <p class="text">
-        Maha suci Allah yang telah menciptakan makhluk-Nya berpasang-pasangan.
-      </p>
 
       <div class="couple-grid">
         <div class="person">
           <!-- src dari config.js; srcset ditulis di sini sebagai
                cadangan kalau JS gagal, lalu ditimpa oleh
-               lib/responsive.js saat JS jalan. -->
-          <img src="./img/couple-bride.jpg" alt="Foto Uswatun Hasanah"
-               data-attr="src|couple.bride.photo" data-responsive="couple"
-               srcset="./img/couple-bride-480.webp 480w, ./img/couple-bride-640.webp 640w, ./img/couple-bride-768.webp 768w, ./img/couple-bride-1200.webp 1200w, ./img/couple-bride-1800.webp 1800w"
+               lib/responsive.js saat JS jalan.
+               Lebar srcset harus sama dengan couple.bride.widths
+               di config.js - dicek oleh tools/check-images.mjs. -->
+          <img src="./img/couple-groom.jpg" alt="Foto Muhammad Irfani"
+               data-attr="src|couple.groom.photo"
+               data-widths-path="couple.groom.widths" data-responsive="couple"
+               srcset="./img/couple-groom-320.webp 320w, ./img/couple-groom-480.webp 480w, ./img/couple-groom-563.webp 563w"
                sizes="(max-width: 700px) 46vw, 300px"
-               width="768" height="1020" loading="lazy" decoding="async">
-          <h3 data-text="couple.bride.name">Uswatun Hasanah</h3>
+               width="563" height="751" loading="lazy" decoding="async">
+          <h3 data-text="couple.groom.name">Muhammad Irfani</h3>
           <p class="person__parents">
-            <span data-text="couple.bride.parentLabel">Putri dari</span><br>
-            <span data-text="couple.bride.parents.0">Bapak Pengantin</span>
+            <span data-text="couple.groom.parentLabel">Putra dari</span><br>
+            <span data-text="couple.groom.parents.0">Bapak Abdul Wahid</span>
             &amp;
-            <span data-text="couple.bride.parents.1">Ibu Pengantin</span>
+            <span data-text="couple.groom.parents.1">Ibu Deti Novia Susanti</span>
           </p>
         </div>
 
         <div class="person">
-          <img src="./img/couple-groom.jpg" alt="Foto Muhammad"
-               data-attr="src|couple.groom.photo" data-responsive="couple"
-               srcset="./img/couple-groom-480.webp 480w, ./img/couple-groom-640.webp 640w, ./img/couple-groom-768.webp 768w, ./img/couple-groom-1200.webp 1200w, ./img/couple-groom-1800.webp 1800w"
+          <img src="./img/couple-bride.jpg" alt="Foto Parida Paska"
+               data-attr="src|couple.bride.photo"
+               data-widths-path="couple.bride.widths" data-responsive="couple"
+               srcset="./img/couple-bride-320.webp 320w, ./img/couple-bride-480.webp 480w, ./img/couple-bride-520.webp 520w"
                sizes="(max-width: 700px) 46vw, 300px"
-               width="768" height="1020" loading="lazy" decoding="async">
-          <h3 data-text="couple.groom.name">Muhammad</h3>
+               width="520" height="693" loading="lazy" decoding="async">
+          <h3 data-text="couple.bride.name">Parida Paska</h3>
           <p class="person__parents">
-            <span data-text="couple.groom.parentLabel">Putra dari</span><br>
-            <span data-text="couple.groom.parents.0">Bapak Pengantin</span>
+            <span data-text="couple.bride.parentLabel">Putri dari</span><br>
+            <span data-text="couple.bride.parents.0">Bapak Gurda</span>
             &amp;
-            <span data-text="couple.groom.parents.1">Ibu Pengantin</span>
+            <span data-text="couple.bride.parents.1">Ibu Rusimah</span>
           </p>
         </div>
       </div>
@@ -140,26 +147,21 @@
       <p class="small-title">Save The Date</p>
       <h2 class="title" id="events-title">Detail Acara</h2>
       <div class="event-grid" data-render="events">
-        <!-- Fallback bila JS tidak aktif. tools/check-content.mjs
-             membandingkannya dengan src/config.js. -->
-        <div class="event-card">
-          <div class="event-icon" data-icon="rings" data-size="34" aria-hidden="true"></div>
-          <h3>Akad Nikah</h3>
-          <p>Jumat, 20 November 2026</p>
-          <p>08.00 &ndash; 10.00 WITA</p>
-          <p>Masjid Al-Muttaqin</p>
-          <p>Jl. Melati No.12, Banjarmasin</p>
-          <a href="#location" class="btn btn--sm event-card__cta">Lihat Lokasi</a>
-        </div>
-        <div class="event-card">
-          <div class="event-icon" data-icon="glass" data-size="34" aria-hidden="true"></div>
-          <h3>Resepsi</h3>
-          <p>Jumat, 20 November 2026</p>
-          <p>11.00 &ndash; 15.00 WITA</p>
-          <p>Gedung Serbaguna Harmoni</p>
-          <p>Jl. Sudirman No.45, Banjarmasin</p>
-          <a href="#location" class="btn btn--sm event-card__cta">Lihat Lokasi</a>
-        </div>
+      <!-- Fallback bila JS tidak aktif. tools/check-content.mjs
+           membandingkannya dengan src/config.js.
+           Tombol kalender TIDAK ada di sini: alamat .ics dibangun
+           di JavaScript dari src/config.js, jadi tidak bisa ditulis
+           sebagai tautan statis. Tamu yang JS-nya mati tetap bisa
+           melihat tanggal dan alamat, lalu memakai Google Calendar
+           manual. -->
+      <div class="event-card">
+        <div class="event-icon" data-icon="rings" data-size="34" aria-hidden="true"></div>
+        <h3>Akad &amp; Resepsi</h3>
+        <p>Minggu, 25 Oktober 2026</p>
+        <p>08.00 &ndash; 13.00 WITA</p>
+        <p>Jl. Kuin Selatan RT 12, Kuin Selatan, Banjarmasin Barat, Kota Banjarmasin, Kalimantan Selatan</p>
+        <a href="#venue-akad-resepsi" class="btn btn--sm event-card__cta">Lihat Lokasi</a>
+      </div>
       </div>
     </div>
   </section>
@@ -173,22 +175,15 @@
       </div>
 
       <!-- Ringkasan alamat. Sengaja TIDAK berisi <iframe> supaya:
-             1. crawler (Google, WhatsApp) tetap membaca alamat,
-             2. halaman tidak memuat 2 peta berat sekaligus.
-           Peta di-build oleh JS dari src/config.js di bawah. -->
+           1. crawler (Google, WhatsApp) tetap membaca alamat,
+           2. halaman tidak memuat peta berat di awal.
+         Peta di-build oleh JS dari src/config.js di bawah. -->
       <div class="venue-list" data-render="venue-list">
         <div class="venue">
           <span class="venue__icon" data-icon="pin" aria-hidden="true"></span>
           <div>
-            <strong>Akad Nikah &mdash; Masjid Al-Muttaqin</strong>
-            <span>Jl. Melati No.12, Banjarmasin</span>
-          </div>
-        </div>
-        <div class="venue">
-          <span class="venue__icon" data-icon="pin" aria-hidden="true"></span>
-          <div>
-            <strong>Resepsi &mdash; Gedung Serbaguna Harmoni</strong>
-            <span>Jl. Sudirman No.45, Banjarmasin</span>
+            <strong>Akad &amp; Resepsi</strong>
+            <span>Jl. Kuin Selatan RT 12, Kuin Selatan, Banjarmasin Barat, Kota Banjarmasin, Kalimantan Selatan</span>
           </div>
         </div>
       </div>
@@ -197,42 +192,22 @@
            Placeholder HTML ini hanya untuk kasus JS gagal; isinya
            dibangun ulang oleh renderLocation(). -->
       <div class="map-list" data-render="map-list">
-        <article class="map-card" id="venue-akad">
+        <article class="map-card" id="venue-akad-resepsi">
           <header class="map-card__head">
-            <h3>Akad Nikah</h3>
-            <p>Masjid Al-Muttaqin</p>
+            <h3>Akad &amp; Resepsi</h3>
+            <p class="map-card__address">Jl. Kuin Selatan RT 12, Kuin Selatan, Banjarmasin Barat, Kota Banjarmasin, Kalimantan Selatan</p>
           </header>
           <div class="map-box">
-            <iframe data-map-frame="akad" title="Peta lokasi Akad Nikah"
-              src="https://www.google.com/maps?q=Masjid%20Al-Muttaqin%2C%20Banjarmasin&z=17&output=embed"
+            <iframe data-map-frame="akad-resepsi" title="Peta lokasi Akad &amp; Resepsi"
+              src="https://www.google.com/maps?q=-3.3004753589630127%2C114.58055877685547&z=17&output=embed"
               loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
           </div>
           <div class="map-actions">
-            <a class="btn" data-nav-maps data-event-id="akad"
-               href="https://www.google.com/maps/dir/?api=1&destination=Masjid%20Al-Muttaqin%2C%20Banjarmasin&travelmode=driving"
+            <a class="btn" data-nav-maps data-event-id="akad-resepsi"
+               href="https://www.google.com/maps/dir/?api=1&destination=-3.3004753589630127%2C114.58055877685547&travelmode=driving"
                target="_blank" rel="noopener noreferrer">
               <span data-icon="pin" aria-hidden="true"></span>
-              Navigasi ke Masjid Al-Muttaqin
-            </a>
-          </div>
-        </article>
-
-        <article class="map-card" id="venue-resepsi">
-          <header class="map-card__head">
-            <h3>Resepsi</h3>
-            <p>Gedung Serbaguna Harmoni</p>
-          </header>
-          <div class="map-box">
-            <iframe data-map-frame="resepsi" title="Peta lokasi Resepsi"
-              src="https://www.google.com/maps?q=Gedung%20Serbaguna%20Harmoni%2C%20Banjarmasin&z=17&output=embed"
-              loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-          </div>
-          <div class="map-actions">
-            <a class="btn" data-nav-maps data-event-id="resepsi"
-               href="https://www.google.com/maps/dir/?api=1&destination=Gedung%20Serbaguna%20Harmoni%2C%20Banjarmasin&travelmode=driving"
-               target="_blank" rel="noopener noreferrer">
-              <span data-icon="pin" aria-hidden="true"></span>
-              Navigasi ke Gedung Serbaguna Harmoni
+              Buka di Google Maps
             </a>
           </div>
         </article>
@@ -240,44 +215,17 @@
     </div>
   </section>
 
-  <!-- ============ 6. GALERI ============ -->
-  <section class="gallery" aria-labelledby="gallery-title">
+  <!-- ============ 6. KONTAK ============ -->
+  <!-- Tombol WhatsApp disembunyikan oleh renderContact() selama
+       contact.whatsapp di config.js masih kosong. -->
+  <section class="contact" aria-labelledby="contact-title">
     <div class="container center">
-      <p class="small-title">Memories</p>
-      <h2 class="title" id="gallery-title">Galeri Foto</h2>
-      <p class="text">
-        Beberapa momen indah dalam perjalanan kami menuju hari istimewa ini.
-      </p>
-
-      <div class="gallery-grid" data-render="gallery">
-        <img src="./img/gallery-1.svg" alt="Foto pre-wedding 1" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-2.svg" alt="Foto pre-wedding 2" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-3.svg" alt="Foto pre-wedding 3" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-4.svg" alt="Foto pre-wedding 4" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-5.svg" alt="Foto pre-wedding 5" width="1200" height="1500" loading="lazy" decoding="async">
-        <img src="./img/gallery-6.svg" alt="Foto pre-wedding 6" width="1200" height="1500" loading="lazy" decoding="async">
-      </div>
+      <h2 class="title" id="contact-title">Ada pertanyaan?</h2>
+      <div class="contact-actions" data-render="contact" hidden></div>
     </div>
   </section>
 
-  <!-- ============ 7. CERITA ============ -->
-  <section class="story" aria-labelledby="story-title">
-    <div class="container center">
-      <p class="small-title">Our Story</p>
-      <h2 class="title" id="story-title">Kisah Kami</h2>
-
-      <div class="story-box" data-render="story">
-        <h3>Pertemuan</h3>
-        <p>Setiap kisah memiliki awal. Begitu juga dengan kisah kami. Dari sebuah pertemuan sederhana, perlahan tumbuh menjadi sebuah perjalanan yang berarti.</p>
-        <h3>Perjalanan</h3>
-        <p>Kami belajar untuk saling memahami, saling mendukung dan tumbuh bersama.</p>
-        <h3>Hari Istimewa</h3>
-        <p>Dengan memohon ridha Allah SWT, kami melangkah menuju kehidupan baru bersama.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 8. RSVP ============ -->
+  <!-- ============ 7. RSVP ============ -->
   <section class="rsvp" id="rsvp" aria-labelledby="rsvp-title">
     <div class="container center">
       <p class="small-title">RSVP</p>
@@ -316,7 +264,7 @@
     </div>
   </section>
 
-  <!-- ============ 9. UCAPAN ============ -->
+  <!-- ============ 8. UCAPAN ============ -->
   <section class="wishes" id="wishes" aria-labelledby="wishes-title">
     <div class="container center">
       <p class="small-title">Wishes</p>
@@ -369,50 +317,7 @@
     </div>
   </section>
 
-  <!-- ============ 10. KADO ============ -->
-  <section class="gift" aria-labelledby="gift-title">
-    <div class="container center">
-      <p class="small-title">Wedding Gift</p>
-      <h2 class="title" id="gift-title">Kado Pernikahan</h2>
-      <p class="text">
-        Bagi keluarga dan sahabat yang ingin memberikan tanda kasih,
-        dapat melalui rekening atau dompet digital berikut.
-      </p>
-
-      <div data-render="banks">
-        <div class="bank-card">
-          <div class="bank-card__head">
-            <span class="bank-card__icon" data-icon="landmark" aria-hidden="true"></span>
-            <h3>BRIMO</h3>
-          </div>
-          <p class="bank-number">1234 5678 9012</p>
-          <p class="bank-holder">a.n. Uswatun Hasanah</p>
-          <button class="btn btn--sm btn--copy" type="button" data-copy="123456789012"
-            data-copy-label="Nomor BRIMO" data-copy-success="Nomor Tersalin!">
-            <span class="btn__icon" data-icon="copy" aria-hidden="true"></span>
-            <span class="btn__label">Salin Nomor Rekening</span>
-          </button>
-          <p class="bank-hint">Nomor bisa disalin dengan sekali ketuk</p>
-        </div>
-        <div class="bank-card">
-          <div class="bank-card__head">
-            <span class="bank-card__icon" data-icon="smartphone" aria-hidden="true"></span>
-            <h3>DANA</h3>
-          </div>
-          <p class="bank-number">0822 5311 2508</p>
-          <p class="bank-holder">a.n. Uswatun Hasanah</p>
-          <button class="btn btn--sm btn--copy" type="button" data-copy="082253112508"
-            data-copy-label="Nomor DANA" data-copy-success="Nomor Tersalin!">
-            <span class="btn__icon" data-icon="copy" aria-hidden="true"></span>
-            <span class="btn__label">Salin Nomor DANA</span>
-          </button>
-          <p class="bank-hint">Nomor bisa disalin dengan sekali ketuk</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 11. BAGIKAN + QR ============ -->
+  <!-- ============ 9. BAGIKAN + QR ============ -->
   <section class="qr" aria-labelledby="qr-title">
     <div class="container center">
       <p class="small-title">Digital Invitation</p>
@@ -439,7 +344,7 @@
 <!-- ============ FOOTER ============ -->
 <footer>
   <p>Terima kasih atas doa dan kehadirannya.</p>
-  <p class="script" data-bind="couple-names-script">Uswatun Hasanah &amp; Muhammad</p>
+  <p class="script" data-bind="couple-names-script">Muhammad Irfani &amp; Parida Paska</p>
   <p>&copy; 2026</p>
 </footer>
 

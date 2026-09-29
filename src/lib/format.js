@@ -64,14 +64,13 @@ export function toDateAttr(event) {
   return `${event.date}T${event.startTime}:00${UTC_OFFSET}`;
 }
 
-/** Nomor rekening dikelompokkan: "123456789012" -> "1234 5678 9012" */
-export function groupNumber(value, size = 4) {
-  return String(value).replace(/\D/g, '').replace(new RegExp(`\\B(?=(\\w{${size}})+(?!\\w))`, 'g'), ' ');
-}
-
 /**
- * Versi .ics dari tanggal ("2026-11-20T08:00:00+08:00")
+ * Versi .ics dari tanggal ("2026-10-25T08:00:00+08:00")
  * Format .ics wajib "YYYYMMDDTHHMMSSZ" (UTC, tanpa tanda +/-, tanpa titik).
+ *
+ * Konversi ke WAJIB: kalau tanggal lokal dikirim apa adanya,
+ * Calendar membacanya sebagai waktu di zona TAMU. Tamu WIB akan
+ * melihat acara mulai 1 jam lebih awal.
  */
 export function toICSStamp(isoString) {
   return new Date(isoString)

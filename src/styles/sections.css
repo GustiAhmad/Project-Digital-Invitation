@@ -5,7 +5,13 @@
    ========================================================= */
 
 /* =========================================================
-   1. COVER
+   1. HERO
+   ------------------------------------------------------------
+   Klien meminta konsep simpel: tanpa foto cover, tanpa tombol
+   "Buka Undangan". Karena tidak ada gambar latar, section ini
+   memakai warna solid + ornamen CSS ringan. Itu disengaja:
+   hilang satu file SVG background = satu request dan beberapa KB
+   yang tidak perlu.
    ========================================================= */
 #cover {
   position: relative;
@@ -18,38 +24,56 @@
   padding: var(--sp-8) var(--sp-5);
   text-align: center;
   color: var(--white);
-
-  /* Warna solid sebagai jaring pengaman: kalau file gambar gagal
-     dimuat, teks putih tetap terbaca di atas latar gelap. */
   background-color: var(--forest-deep);
+
+  /* Ornamen: dua lingkaran samar sebagai tekstur, digambar
+     sepenuhnya dengan CSS. Tidak menambah request jaringan. */
   background-image:
-    linear-gradient(rgba(30, 32, 26, .55), rgba(30, 32, 26, .72)),
-    url('../assets/cover-placeholder.svg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .07), transparent 55%),
+    radial-gradient(circle at 50% 42%, transparent 58%, rgba(201, 162, 39, .16) 59%, transparent 61%);
 }
 
-.cover-content {
+.hero-content {
   max-width: 720px;
   animation: fade-up .9s cubic-bezier(.2, .7, .3, 1) both;
 }
 
-.cover-content h1 {
+.hero-content h1 {
   font-size: var(--fs-h1);
   text-shadow: 0 2px 28px rgba(0, 0, 0, .5);
 }
 
-.cover-content .small-title {
+.hero-content .small-title {
   color: var(--gold-light);
   letter-spacing: var(--tracking-widest);
 }
 
-.cover-date {
+.hero-date {
   margin-block: var(--sp-6);
   font-size: var(--fs-md);
   letter-spacing: 2px;
   text-shadow: 0 1px 14px rgba(0, 0, 0, .55);
+}
+
+/* Panah "gulir ke bawah" - penanda bahwa masih ada isi di bawah,
+   penting sekarang karena tidak ada tombol "Buka Undangan". */
+.hero-scroll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-top: var(--sp-4);
+  color: var(--gold-light);
+  opacity: .8;
+  transform: rotate(90deg);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.hero-scroll:hover,
+.hero-scroll:focus-visible {
+  opacity: 1;
+  transform: rotate(90deg) translateX(3px);
 }
 
 @keyframes fade-up {
@@ -197,6 +221,22 @@
   flex: 0 0 auto;
 }
 
+/* Jam dan nama venue diberi warna aksen supaya mata langsung
+   menangkap dua hal yang paling dicari tamu: kapan & di mana.
+   Tanggal dibiarkan warna body supaya hierarkinya jelas: jam dan
+   lokasi menonjol, tanggal lebih redup. */
+.event-date { color: var(--text-body) !important; }
+
+.event-time {
+  font-weight: 600;
+  color: var(--forest) !important;
+}
+
+.event-venue {
+  font-weight: 600;
+  color: var(--olive) !important;
+}
+
 .event-address { color: var(--text-muted) !important; }
 
 .event-card__cta {
@@ -319,64 +359,7 @@
 }
 
 /* =========================================================
-   6. GALERI
-   (masih grid di Tahap 1 -> carousel + lightbox di Tahap 4)
-   ========================================================= */
-.gallery { background: var(--bg-alt); }
-
-.gallery-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--sp-3);
-  margin-top: var(--sp-8);
-}
-
-.gallery-grid img {
-  width: 100%;
-  height: 220px;
-  object-fit: cover;
-  border-radius: var(--r-md);
-  background: var(--bg-page);
-  cursor: zoom-in;
-  transition: transform var(--t-base), box-shadow var(--t-base);
-}
-
-.gallery-grid img:hover {
-  transform: scale(1.03);
-  box-shadow: var(--sh-md);
-}
-
-/* =========================================================
-   7. CERITA
-   Latar berbeda dari galeri agar tidak menyatu jadi satu blok.
-   ========================================================= */
-.story { background: var(--bg-page); }
-
-.story-box {
-  max-width: var(--container-narrow);
-  margin: var(--sp-8) auto 0;
-  padding: clamp(24px, 6vw, 40px);
-  background: var(--bg-card);
-  border-radius: var(--r-xl);
-  box-shadow: var(--sh-sm);
-  text-align: left;
-}
-
-.story-box h3 {
-  margin-top: var(--sp-6);
-  margin-bottom: var(--sp-2);
-  font-size: var(--fs-xl);
-  color: var(--olive);
-}
-
-.story-box h3:first-child { margin-top: 0; }
-
-.story-box p { color: var(--text-body); }
-
-.story-box > h3 + p { margin-bottom: var(--sp-2); }
-
-/* =========================================================
-   8. RSVP
+   6. RSVP
    ========================================================= */
 .rsvp { background: var(--bg-alt); }
 
@@ -466,57 +449,20 @@
 }
 
 /* =========================================================
-   10. KADO
+   7. KONTAK
+   ------------------------------------------------------------
+   Tombol WhatsApp. `hidden` di HTML awal, lalu dihapus oleh
+   renderContact() hanya kalau nomor sudah diisi di config.js.
    ========================================================= */
-.gift { background: var(--bg-page); }
+.contact { background: var(--bg-page); }
 
-.bank-card {
-  max-width: 420px;
-  margin: var(--sp-5) auto;
-  padding: clamp(22px, 5vw, 32px);
-}
-
-.bank-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-4);
-}
-
-.bank-card__head h3 {
-  font-size: var(--fs-2xl);
-  color: var(--olive);
-}
-
-.bank-card__icon { color: var(--gold); }
-
-.bank-number {
-  font-size: clamp(1.05rem, 5vw, 1.375rem);
-  font-weight: 600;
-  letter-spacing: 2px;
-  font-variant-numeric: tabular-nums;
-  color: var(--forest);
-  margin-bottom: var(--sp-2);
-  /* Nomor rekening tidak boleh terpotong di layar sempit */
-  overflow-wrap: anywhere;
-}
-
-.bank-holder {
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-  margin-bottom: var(--sp-3);
-}
-
-.bank-hint {
-  margin-top: var(--sp-2);
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-  text-align: center;
+.contact-actions {
+  max-width: var(--container-form);
+  margin: var(--sp-6) auto 0;
 }
 
 /* =========================================================
-   11. BAGIKAN + QR
+   8. BAGIKAN + QR
    ========================================================= */
 .qr { background: var(--bg-alt); text-align: center; }
 
@@ -548,7 +494,7 @@
 }
 
 /* =========================================================
-   12. FOOTER
+   9. FOOTER
    ========================================================= */
 footer {
   padding: var(--sp-16) var(--sp-5);
@@ -581,9 +527,6 @@ footer p { font-size: var(--fs-sm); opacity: .8; }
   .couple-grid,
   .event-grid { grid-template-columns: 1fr; }
 
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-  .gallery-grid img { height: 180px; }
-
   .map-actions .btn { width: 100%; }
 }
 
@@ -596,5 +539,4 @@ footer p { font-size: var(--fs-sm); opacity: .8; }
   .countdown { gap: 5px; }
   .count-box { flex-basis: 70px; padding: 10px 1px; }
   .count-box span { font-size: 8px; letter-spacing: 0; }
-  .bank-number { letter-spacing: 1px; }
 }

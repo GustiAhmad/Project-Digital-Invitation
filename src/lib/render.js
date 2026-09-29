@@ -17,7 +17,7 @@
    Tidak ada satu pun innerHTML untuk data dari config.
    ========================================================= */
 
-import { CONFIG } from '../config.js';
+import { CONFIG, eventStartISO, eventEndISO, eventFullAddress } from '../config.js';
 import { $, $$, el } from './dom.js';
 import { icon } from './icons.js';
 import { applyResponsive } from './responsive.js';
@@ -46,10 +46,15 @@ function bindText() {
     node.setAttribute(attr, value);
 
     // Foto yang sumbernya diambil dari config ikut mendapat srcset,
-    // supaya HP tidak mengunduh file 1600px cuma untuk thumbnail.
+    // supaya HP tidak mengunduh file sebesar layar penuh cuma untuk
+    // thumbnail. Daftar lebar ikut diambil dari config yang sama.
     if (attr === 'src' && node.tagName === 'IMG') {
       const sizeKey = node.dataset.responsive || 'couple';
-      applyResponsive(node, value, sizeKey);
+      // `data-widths-path` menunjuk ke array lebar di config,
+      // contoh: "couple.bride.widths"
+      const widthsPath = node.dataset.widthsPath;
+      const widths = widthsPath ? resolve(widthsPath) : [];
+      applyResponsive(node, value, sizeKey, widths);
     }
   });
 }
@@ -73,12 +78,11 @@ function renderEvents() {
   host.textContent = '';
 
   CONFIG.events.forEach((event) => {
-    const card = el('div', { class: 'event-card' });
     // Tanggal dihitung dari event ini sendiri, bukan dari PRIMARY_EVENT,
     // supaya kalau klien menambah acara di tanggal berbeda ikut benar.
     const dateLong = formatDateLong(event.date);
 
-    card.append(
+    const card = el('div', { class: 'event-card' },
       el('div', { class: 'event-icon' }, icon(event.icon, { size: 34 })),
 
       el('h3', { text: event.title }),
@@ -93,12 +97,15 @@ function renderEvents() {
           el('span', { class: 'event-line__icon' }, icon('clock', { size: 16 })),
           el('span', { text: formatTimeRange(event) }))),
 
-      el('p', { class: 'event-venue' },
+      // Baris lokasi hanya muncul kalau ada nama lokasi. Kalau acara
+      // di rumah, `venue` kosong dan alamat di bawah sudah cukup.
+      // `el()` melompati null, jadi ": null" aman di sini.
+      event.venue ? el('p', { class: 'event-venue' },
         el('span', { class: 'event-line' },
           el('span', { class: 'event-line__icon' }, icon('pin', { size: 16 })),
-          el('span', { text: event.venue }))),
+          el('span', { text: event.venue }))) : null,
 
-      el('p', { class: 'event-address', text: `${event.address}, ${event.city}` }),
+      el('p', { class: 'event-address', text: addressLabel(event) }),
 
       // Langsung ke kartu venue milik acara ini, bukan ke section
       // "#location" generik - supaya pengunjung tidak harus menebak
@@ -111,22 +118,50 @@ function renderEvents() {
         el('span', { text: 'Lihat Lokasi' }),
         el('span', { class: 'btn__icon' }, icon('chevronRight', { size: 15 })),
       ]),
+
+      // Dua jalan ke kalender, karena tidak semua orang pakai
+      // Google Calendar. Lihat modules/calendar.js.
+      el('div', { class: 'event-card__calendar' }, [
+        el('a', {
+          class: 'btn btn--sm btn--ghost',
+          href: '#',
+          dataset: { calendar: 'google', eventId: event.id },
+        }, [
+          el('span', { class: 'btn__icon' }, icon('calendar', { size: 15 })),
+          el('span', { text: 'Google Calendar' }),
+        ]),
+        el('button', {
+          class: 'btn btn--sm btn--ghost',
+          type: 'button',
+          dataset: { calendar: 'ics', eventId: event.id },
+        }, [
+          el('span', { class: 'btn__icon' }, icon('download', { size: 15 })),
+          el('span', { text: 'Simpan (.ics)' }),
+        ]),
+      ]),
     );
 
     host.append(card);
   });
 }
 
+/** Alamat satu baris tanpa bagian yang kosong. */
+function addressLabel(event) {
+  return [event.address, event.district, event.city, event.region]
+    .filter(Boolean)
+    .join(', ');
+}
+
 /* ---------- LOKASI ---------- */
 
 /**
- * Satu venue = satu peta.
+ * Satu acara = satu peta.
  *
- * Kenapa tidak satu peta untuk semua? Karena akad nikah dan resepsi
- * bisa di lokasi yang BERBEDA. Kalau cuma ada satu peta, pengunjung
- * yang mau menuju resepsi bisa salah klik dan arrive di masjid.
- * Satu kartu per acara membuat tiap tombol navigasi jelas milik
- * acara yang mana.
+ * Kenapa dipisah, padahal sekarang hanya ada satu acara? Karena saat
+ * ini akad dan resepsi digabung, tapi tidak dijamin begitu selamanya.
+ * Kalau nanti dipecah lagi dan lokasinya berbeda, struktur ini sudah
+ * benar: tiap peta jelas milik acara yang mana, jadi tidak ada tamu
+ * yang salah klik.
  */
 function renderLocation() {
   // Ringkasan alamat (tanpa iframe) - ini yang dibaca crawler.
@@ -138,8 +173,8 @@ function renderLocation() {
         el('div', { class: 'venue' }, [
           el('span', { class: 'venue__icon' }, icon('pin', { size: 18 })),
           el('div', {}, [
-            el('strong', { text: `${ev.title} - ${ev.venue}` }),
-            el('span', { text: `${ev.address}, ${ev.city}` }),
+            el('strong', { text: ev.venue || ev.title }),
+            el('span', { text: addressLabel(ev) }),
           ]),
         ]),
       );
@@ -154,7 +189,7 @@ function renderLocation() {
   CONFIG.events.forEach((ev) => {
     const frame = el('iframe', {
       // src diisi setelah elemen masuk DOM (lihat catatan di bawah)
-      title: `Peta lokasi ${ev.title} di ${ev.venue}`,
+      title: `Peta lokasi ${ev.title}`,
       loading: 'lazy',
       referrerpolicy: 'no-referrer-when-downgrade',
       allowfullscreen: true,
@@ -163,8 +198,8 @@ function renderLocation() {
     mapList.append(el('article', { class: 'map-card', id: `venue-${ev.id}` }, [
       el('header', { class: 'map-card__head' }, [
         el('h3', { text: ev.title }),
-        el('p', { text: ev.venue }),
-        el('p', { class: 'map-card__address', text: `${ev.address}, ${ev.city}` }),
+        ev.venue ? el('p', { text: ev.venue }) : null,
+        el('p', { class: 'map-card__address', text: addressLabel(ev) }),
       ]),
       el('div', { class: 'map-box' }, frame),
       el('div', { class: 'map-actions' }, [
@@ -176,7 +211,7 @@ function renderLocation() {
           dataset: { navMaps: '', eventId: ev.id },
         }, [
           el('span', { class: 'btn__icon' }, icon('pin', { size: 16 })),
-          el('span', { text: `Navigasi ke ${ev.venue}` }),
+          el('span', { text: 'Buka di Google Maps' }),
         ]),
       ]),
     ]));
@@ -198,7 +233,7 @@ function renderLocation() {
 function mapsEmbedUrl(ev) {
   const q = (ev.lat != null && ev.lng != null)
     ? `${ev.lat},${ev.lng}`
-    : `${ev.venue}, ${ev.address}, ${ev.city}`;
+    : addressLabel(ev);
   return `https://www.google.com/maps?q=${encodeURIComponent(q)}&z=17&output=embed`;
 }
 
@@ -206,83 +241,8 @@ function mapsEmbedUrl(ev) {
 function mapsDirectionsUrl(ev) {
   const dest = (ev.lat != null && ev.lng != null)
     ? `${ev.lat},${ev.lng}`
-    : `${ev.venue}, ${ev.address}, ${ev.city}`;
+    : addressLabel(ev);
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=driving`;
-}
-
-/* ---------- GALERI (masih grid; carousel di Tahap 4) ---------- */
-function renderGallery() {
-  const host = $('[data-render="gallery"]');
-  if (!host) return;
-
-  host.textContent = '';
-  CONFIG.gallery.photos.forEach((photo, i) => {
-    const img = el('img', {
-      src: photo.src,
-      alt: photo.alt,
-      width: photo.width,
-      height: photo.height,
-      loading: 'lazy',
-      dataset: { index: String(i) },
-    });
-    // srcset + sizes disusun dari konvensi nama file, lihat
-    // lib/responsive.js. Foto placeholder SVG dilewati otomatis.
-    applyResponsive(img, photo.src, 'gallery');
-    host.append(img);
-  });
-}
-
-/* ---------- KISAH ---------- */
-function renderStory() {
-  const host = $('[data-render="story"]');
-  if (!host) return;
-
-  host.textContent = '';
-  CONFIG.story.chapters.forEach((chapter) => {
-    host.append(
-      el('h3', { text: chapter.title }),
-      el('p', { text: chapter.text }),
-    );
-  });
-}
-
-/* ---------- KADO ---------- */
-function renderBanks() {
-  const host = $('[data-render="banks"]');
-  if (!host) return;
-
-  host.textContent = '';
-  CONFIG.banks.forEach((bank) => {
-    host.append(el('div', { class: 'bank-card' }, [
-      el('div', { class: 'bank-card__head' }, [
-        el('span', { class: 'bank-card__icon' }, icon(bank.icon, { size: 22 })),
-        el('h3', { text: bank.label }),
-      ]),
-
-      // Nomor yang DISALIN = bank.number (tanpa spasi).
-      // Nomor yang DITAMPILKAN = bank.display.
-      // `npm run check` memverifikasi keduanya konsisten.
-      el('p', { class: 'bank-number', text: bank.display }),
-      el('p', { class: 'bank-holder', text: `a.n. ${bank.holder}` }),
-
-      // Tombol: ikon + teks lengkap, area sentuh >= 44px.
-      // Label diambil dari config supaya klien bisa mengubahnya.
-      el('button', {
-        class: 'btn btn--sm btn--copy',
-        type: 'button',
-        dataset: {
-          copy: bank.number,
-          copyLabel: `Nomor ${bank.label}`,
-          copySuccess: bank.copiedText,
-        },
-      }, [
-        el('span', { class: 'btn__icon' }, icon('copy', { size: 16 })),
-        el('span', { class: 'btn__label', text: bank.copyButton }),
-      ]),
-
-      el('p', { class: 'bank-hint', text: 'Nomor bisa disalin dengan sekali ketuk' }),
-    ]));
-  });
 }
 
 /* ---------- RSVP ---------- */
@@ -312,6 +272,37 @@ function renderWishes() {
   msg.maxLength = CONFIG.wishes.messageMaxLength;
 }
 
+/* ---------- KONTAK / WHATSAPP ----------
+   Tombol disembunyikan selama `contact.whatsapp` masih kosong,
+   supaya tidak ada tautan wa.me yang tidak berguna.
+   ------------------------------------------------------------------ */
+function renderContact() {
+  const host = $('[data-render="contact"]');
+  if (!host) return;
+
+  const { whatsapp, message } = CONFIG.contact;
+  if (!whatsapp) {
+    host.textContent = '';
+    host.hidden = true;
+    return;
+  }
+
+  const text = encodeURIComponent(message);
+  host.textContent = '';
+  host.hidden = false;
+  host.append(
+    el('a', {
+      class: 'btn btn--block',
+      href: `https://wa.me/${whatsapp}?text=${text}`,
+      target: '_blank',
+      rel: 'noopener noreferrer',
+    }, [
+      el('span', { class: 'btn__icon' }, icon('smartphone', { size: 16 })),
+      el('span', { text: CONFIG.contact.label }),
+    ]),
+  );
+}
+
 /* ---------- SHARE + QR ---------- */
 function renderShare() {
   const urlNode = $('[data-render="share-url"]');
@@ -339,13 +330,11 @@ export function renderAll() {
   bindText();
   renderCoupleNames();
 
-  // Daftar-dinamis (acara, lokasi, kado) dibangun lebih dulu: elemennya
+  // Daftar-dinamis (acara, lokasi) dibangun lebih dulu: elemennya
   // sudah membawa ikon sendiri lewat `icon()`.
   renderEvents();
   renderLocation();
-  renderGallery();
-  renderStory();
-  renderBanks();
+  renderContact();
   renderRsvp();
   renderWishes();
   renderShare();

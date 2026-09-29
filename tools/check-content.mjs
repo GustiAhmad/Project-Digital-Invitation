@@ -4,14 +4,14 @@
  * Memastikan index.html dan src/config.js TIDAK berbeda.
  *
  * MASALAH YANG DISELESAIKAN:
- *   index.html sengaja berisi teks fallback (nama, tanggal, alamat,
- *   nomor rekening) supaya crawler WhatsApp yang tidak menjalankan JS
- *   tetap bisa menampilkan preview yang benar.
+ *   index.html sengaja berisi teks fallback (nama, tanggal, alamat)
+ *   supaya crawler WhatsApp yang tidak menjalankan JS tetap bisa
+ *   menampilkan preview yang benar.
  *
  *   Riskanya: kalau klien mengubah config.js lalu lupa mengubah
  *   HTML, preview di WhatsApp akan menampilkan TANGGAL LAMA
- *   sementara halamannya sendiri tampil tanggal baru. Jiangek
- *   sangat membingungkan dan sulit dideteksi.
+ *   sementara halamannya sendiri tampil tanggal baru. Itu sangat
+ *   membingungkan dan sulit dideteksi.
  *
  *   Skrip ini menjadi penjaga: `npm run check` gagal kalau ada
  *   ketidakcocokan.
@@ -20,7 +20,7 @@
  * ---------------------------------------------------------------
  */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -54,6 +54,53 @@ function cfgArrayOfStrings(marker) {
   return out;
 }
 
+/**
+ * Ambil isi satu blok object dari config.js, dari titik `{` sampai
+ * `}` PASANGANNYA. Dipakai untuk couple.groom / couple.bride supaya
+ * `parents:` milik sisi lain tidak ikut terbaca.
+ *
+ * Jendela karakter tetap (slice) tidak bisa dipakai: config akan
+ * grew setelah klien menambah field baru, dan window yang pas
+ * sekarang bisa gagal diam-diam nanti.
+ */
+function cfgObjectBlock(marker) {
+  const start = configSrc.indexOf(marker);
+  if (start === -1) return '';
+  const open = configSrc.indexOf('{', start);
+  if (open === -1) return '';
+  let depth = 0;
+  for (let i = open; i < configSrc.length; i++) {
+    if (configSrc[i] === '{') depth++;
+    else if (configSrc[i] === '}') {
+      depth--;
+      if (depth === 0) return configSrc.slice(open + 1, i);
+    }
+  }
+  return '';
+}
+
+/* ---------- Ambil isi satu blok array dari config.js ----------
+   config.js tidak bisa di-import di Node (memakai import.meta.env),
+   jadi blok diambil sebagai teks. Fungsi ini mencari pembatas `[`
+   dan `]` yang PASANGAN, sehingga `parents: ['A','B']` di dalam
+   event tidak ikut tertangkap sebagai array terpisah.
+   ------------------------------------------------------------ */
+function cfgArrayBlock(marker) {
+  const start = configSrc.indexOf(marker);
+  if (start === -1) return '';
+  const open = configSrc.indexOf('[', start);
+  if (open === -1) return '';
+  let depth = 0;
+  for (let i = open; i < configSrc.length; i++) {
+    if (configSrc[i] === '[') depth++;
+    else if (configSrc[i] === ']') {
+      depth--;
+      if (depth === 0) return configSrc.slice(open, i + 1);
+    }
+  }
+  return configSrc.slice(open);
+}
+
 /* ---------- Utilitas HTML ---------- */
 
 const strip = (s) => s
@@ -73,19 +120,46 @@ const checks = [];
 const add = (name, ok, detail) => checks.push({ name, ok, detail });
 
 /* ---------- 1. Nama pengantin di <title> & OG ---------- */
-const bride = cfgString('bride');
-const groomCfg = (configSrc.match(/groom:\s*'([^']+)'/) || [])[1];
+/* Nama diambil dari config, BUKAN ditulis manual di sini. Kalau
+   klien mengganti nama, checker ini otomatis mengikuti - dan akan
+   menandai kalau index.html lupa diupdate. */
+const brideName = (configSrc.match(/bride:\s*'([^']+)'/) || [])[1];
+const groomName = (configSrc.match(/groom:\s*'([^']+)'/) || [])[1];
 
-if (html.includes('<title>The Wedding of Uswatun Hasanah &amp; Muhammad</title>')) {
-  add('Nama di <title>', true, 'OK');
+if (!brideName || !groomName) {
+  add('Nama di config', false,
+    'Tidak bisa membaca couple.bride.name / couple.groom.name dari config.js');
 } else {
-  add('Nama di <title>', false,
-    'Judul <title> tidak lagi "The Wedding of Uswatun Hasanah & Muhammad". '
-    + 'Update juga og:title & og:description.');
+  // Urutan di halaman:оссиcalaki dulu, lalu perempuan.
+  const expectedTitle = `<title>The Wedding of ${groomName} &amp; ${brideName}</title>`;
+  if (html.includes(expectedTitle)) {
+    add('Nama di <title>', true, expectedTitle);
+  } else {
+    add('Nama di <title>', false,
+      `Diharapkan persis: ${expectedTitle} `
+      + 'Update juga og:title, og:description, dan og:image:alt.');
+  }
+
+  for (const tag of ['og:title', 'og:image:alt', 'description']) {
+    const ok = html.includes(`${groomName} &amp; ${brideName}`)
+      || html.includes(`${groomName} dan ${brideName}`);
+    if (!ok) {
+      add(`Nama konsisten di <meta ${tag}>`, false,
+        `Meta ${tag} tidak memuat "${groomName}" dan "${brideName}".`);
+    } else {
+      add(`Nama konsisten di <meta ${tag}>`, true, 'OK');
+    }
+  }
+
+  // Nama lama harus benar-benar hilang dari HTML, kalau tidak maka
+  // preview WhatsApp masih menampilkan pasangan sebelumnya.
+  const stale = ['Uswatun', 'Hasanah'];
+  const found = stale.filter((s) => html.includes(s));
+  add('Nama pasangan lama dihapus', found.length === 0,
+    found.length ? `Masih muncul: ${found.join(', ')}` : 'OK');
 }
 
 /* ---------- 2. Tanggal & nama hari di <time datetime> ---------- */
-// config: date: '2026-11-20', startTime: '08:00'
 const date = (configSrc.match(/date:\s*'(\d{4}-\d{2}-\d{2})'/) || [])[1];
 const time = (configSrc.match(/startTime:\s*'(\d{2}:\d{2})'/) || [])[1];
 
@@ -114,73 +188,61 @@ if (date && time) {
   }
 }
 
-/* ---------- 3. Nomor rekening: display vs yang disalin ---------- */
-// Ambil HANYA bagian `banks: [ ... ]` supaya tidak salah menangkap
-// kata kunci `label:` milik section lain (mis. story).
-const banksBlock = (() => {
-  const start = configSrc.indexOf('banks: [');
-  if (start === -1) return '';
-  const open = configSrc.indexOf('[', start);
-  const close = configSrc.indexOf('\n  ],', open);
-  return configSrc.slice(open, close === -1 ? undefined : close);
-})();
-
-const bankBlocks = [...banksBlock.matchAll(
-  /label:\s*'([^']+)',[\s\S]*?number:\s*'([^']+)',[\s\S]*?display:\s*'([^']+)'/g,
-)];
-
-if (!bankBlocks.length) {
-  add('Nomor rekening', false, 'Pola bank tidak ditemukan di config.js');
-} else {
-  for (const [, label, number, display] of bankBlocks) {
-    const normalized = display.replace(/\D/g, '');
-    if (normalized === number) {
-      add(`Rekening ${label} konsisten`, true, `${number} == ${display}`);
-    } else {
-      add(`Rekening ${label} TIDAK konsisten`, false,
-        `number="${number}" tapi display="${display}" `
-        + `(digit: ${normalized}). Tamu menyalin A, melihat B.`);
-    }
-
-    // Pastikan value di HTML sama dengan config
-    if (!html.includes(`data-copy="${number}"`)) {
-      add(`data-copy ${label} di HTML`, false,
-        `Tidak ditemukan data-copy="${number}" di index.html`);
-    }
-  }
+/* ---------- 3. Section yang dibatalkan klien ----------
+   Klien minta tanpa rekening, tanpa galeri, dan tanpa cerita.
+   Pemeriksaan ini mencegah section tersebut muncul kembali
+   diam-diam - biasanya lewat copy-paste template lama.
+   ------------------------------------------------------------ */
+for (const [label, pattern] of [
+  ['Rekening (donasi)', /data-copy="/],
+  ['Galeri foto', /class="gallery"|gallery-\d\.svg/],
+  ['Cerita / love story', /class="story"|story-box/],
+  ['Gambar cover', /cover-placeholder|class="cover-content"/],
+]) {
+  add(`${label} tidak ada`, !pattern.test(html),
+    pattern.test(html)
+      ? 'Section ini sudah dibatalkan klien, hapus dari index.html.'
+      : 'OK');
 }
 
-/* ---------- 4. Alamat venue ---------- */
-const venues = [...configSrc.matchAll(
-  /venue:\s*'([^']+)',\s*\n\s*address:\s*'([^']+)'/g,
-)];
+/* ---------- 4. Alamat acara ----------
+   Venue resmi belum diberikan klien, jadi field `venue` masih kosong
+   dan yang tampil hanya alamat. Checker ini mengikuti config:
+   kalau nanti venue diisi, nilainya otomatis ikut di-check.
+   ------------------------------------------------------------ */
+const eventBlock = cfgArrayBlock('events:');
 
-for (const [i, [, venue, address]] of venues.entries()) {
-  if (html.includes(venue) && html.includes(address)) {
-    add(`Alamat venue ${i + 1} ada di HTML`, true, venue);
+if (!eventBlock) {
+  add('Blok acara di config', false, 'Tidak menemukan "events: [" di config.js');
+} else {
+  const venue = (eventBlock.match(/venue:\s*'([^']*)'/) || [])[1];
+  const address = (eventBlock.match(/address:\s*'([^']+)'/) || [])[1];
+
+  if (venue && !html.includes(venue)) {
+    add('Nama venue ada di HTML', false,
+      `Config: "${venue}". Wajib ada di index.html untuk preview WhatsApp.`);
+  } else if (venue) {
+    add('Nama venue ada di HTML', true, venue);
   } else {
-    add(`Alamat venue ${i + 1} hilang dari HTML`, false,
-      `HTML harus memuat "${venue}" dan "${address}".`);
+    add('Nama venue (opsional)', true, 'Kosong - ditampilkan sebagai alamat saja');
+  }
+
+  if (address && html.includes(address)) {
+    add('Alamat acara ada di HTML', true, address);
+  } else {
+    add('Alamat acara ada di HTML', false,
+      address ? `Tidak ditemukan "${address}" di index.html.`
+              : 'Tidak bisa membaca address dari events[]');
   }
 }
 
 /* ---------- 4b. Tiap acara punya peta & navigasi sendiri ----------
-   Akad nikah dan resepsi bisa berbeda lokasi. Kalau keduanya memakai
-   satu peta yang sama, tamu bisa salah datang. Jadi jumlah <iframe>,
-   kartu venue, dan tombol navigasi HARUS sama dengan jumlah event.
+   Kalau suatu saat akad dan resepsi dipecah ke lokasi berbeda,
+   jumlah <iframe>, kartu lokasi, dan tombol navigasi HARUS sama
+   dengan jumlah event. Kalau tidak, tamu bisa salah datang.
    --------------------------------------------------------------- */
 
-// Ambil blok `events: [ ... ]` supaya event tidak tertukar dengan
-// bank atau story yang juga punya field `id`.
-const eventsBlock = (() => {
-  const start = configSrc.indexOf('events: [');
-  if (start === -1) return '';
-  const open = configSrc.indexOf('[', start);
-  const close = configSrc.indexOf('\n  ],', open);
-  return configSrc.slice(open, close === -1 ? undefined : close);
-})();
-
-const eventCount = (eventsBlock.match(/\bid:\s*'/g) || []).length;
+const eventCount = (eventBlock.match(/\bid:\s*'/g) || []).length;
 
 // Komentar HTML ikut memuat kata "<iframe>". Kalau tidak dibuang,
 // hitungan peta jadi keliru dan check ini selalu gagal.
@@ -191,43 +253,131 @@ const navLinks = (htmlNoComment.match(/data-nav-maps/g) || []).length;
 const mapCards = (htmlNoComment.match(/class="map-card"/g) || []).length;
 
 if (eventCount === 0) {
-  add('Jumlah acara terbaca', false, 'Blok "events: [" tidak ditemukan di config.js');
+  add('Jumlah acara terbaca', false, 'Tidak ada id: di dalam events[]');
 } else {
-  if (mapFrames === eventCount) {
-    add('Satu peta per acara', true, `${mapFrames} peta untuk ${eventCount} acara`);
-  } else {
-    add('Satu peta per acara', false,
-      `Config punya ${eventCount} acara, tapi HTML hanya punya ${mapFrames} peta. `
-      + 'Tamu yang menuju resepsi bisa salah datang ke masjid.');
-  }
-
-  if (mapCards === eventCount) {
-    add('Satu kartu venue per acara', true, `${mapCards} kartu`);
-  } else {
-    add('Satu kartu venue per acara', false,
-      `Diharapkan ${eventCount} .map-card, ditemukan ${mapCards}.`);
-  }
-
-  if (navLinks === eventCount) {
-    add('Satu tombol navigasi per acara', true, `${navLinks} tombol`);
-  } else {
-    add('Satu tombol navigasi per acara', false,
-      `Harus ada ${eventCount} tombol navigasi, ditemukan ${navLinks}.`);
+  for (const [name, actual, unit] of [
+    ['Satu peta per acara', mapFrames, 'peta'],
+    ['Satu kartu lokasi per acara', mapCards, 'kartu'],
+    ['Satu tombol navigasi per acara', navLinks, 'tombol'],
+  ]) {
+    if (actual === eventCount) {
+      add(name, true, `${actual} ${unit} untuk ${eventCount} acara`);
+    } else {
+      add(name, false,
+        `Diharapkan ${eventCount} ${unit}, ditemukan ${actual}. `
+        + 'Tamu yang salah alamat akan sangat mungkin terjadi.');
+    }
   }
 }
 
-/* ---------- 5. Galeri: jumlah & sumber gambar ---------- */
-const gallerySrc = [...configSrc.matchAll(/src:\s*'(\.\/img\/gallery-[^']+)'/g)].map((m) => m[1]);
-const missing = gallerySrc.filter((src) => !html.includes(src));
-if (missing.length === 0) {
-  add('Galeri foto lengkap', true, `${gallerySrc.length} foto ada di HTML`);
-} else {
-  add('Galeri foto tidak lengkap', false, `Hilang di HTML: ${missing.join(', ')}`);
+/* ---------- 5. Nama orang tua sesuai config ---------- */
+for (const [side, marker] of [
+  ['pria', 'groom: {'],
+  ['wanita', 'bride: {'],
+]) {
+  const block = cfgObjectBlock(marker);
+  const parentsBlock = (block.match(/parents:\s*\[([^\]]*)\]/) || [])[1] || '';
+  const names = [...parentsBlock.matchAll(/'([^']+)'/g)].map((m) => m[1]);
+
+  if (names.length !== 2) {
+    add(`Jumlah orang tua ${side}`, false,
+      `Harus tepat 2 nama di couple.${side}.parents, ditemukan ${names.length}`);
+    continue;
+  }
+  const missingParent = names.filter((n) => !html.includes(n));
+  add(`Orang tua ${side} di HTML`, missingParent.length === 0,
+    missingParent.length
+      ? `Tidak ditemukan di index.html: ${missingParent.join(' & ')}`
+      : `${names[0]} & ${names[1]}`);
 }
 
-/* ---------- 6. Tidak ada TODO yang terlewat di konten produksi ---------- */
-/* (Comment-only: TODO di dalam komentar JS tidak dihitung di sini.
-   Pemeriksaan TODO-KLIEN menyeluruh ada di tools/check-placeholders.mjs) */
+/* ---------- 6. Signature el() harus menerima anak variabel ----------
+   MASALAH YANG DISELESAIKAN:
+     Signature lama `el(tag, attrs = {}, children = '')` hanya menerima
+     TIGA argumen. Pemakaian seperti
+     el('span', { class: 'x' }, ikon, el('time', {...}))
+     membuat anak ke-4 DIBUANG DIAM-DIAM tanpa error, sehingga kartu
+     acara hanya menampilkan ikon saja dan tanggal/jam hilang.
+
+     Perbaikannya: `el(tag, attrs = {}, ...children)`, dan `el()`
+     kini melompati null/undefined/false (appendChildren sudah begitu).
+
+   Guard ini menjaga signature itu tidak dikembalikan diam-diam, karena
+   akibatnya tidak terlihat di build maupun console.
+   --------------------------------------------------------------- */
+const domSrc = readFileSync(join(ROOT, 'src', 'lib', 'dom.js'), 'utf8');
+
+const elSignature = domSrc.match(/export function el\(\s*tag[^)]*\)/);
+const acceptsRest = elSignature
+  && /(\.\.\.children|(\.\.\.[a-zA-Z]+)\s*[,)])/.test(elSignature[0]);
+
+add('Signature el() menerima anak variabel', Boolean(acceptsRest),
+  acceptsRest
+    ? 'OK'
+    : `Ditemukan: ${elSignature ? elSignature[0] : 'tidak bisa dibaca'}. `
+      + 'Harus `el(tag, attrs = {}, ...children)`, kalau tidak anak ke-4+ '
+      + 'akan hilang tanpa error.');
+
+/* ---------- 7. append() native dengan nilai kosong ----------
+   `node.append(null)` pada DOM native menulis TEKS "null" ke layar,
+   karena append() tidak memfilter null seperti helper el() sendiri.
+   Pola `kondisi ? el(..) : null` yang diteruskan ke append() adalah
+   penyebab teks "null" pernah muncul di kartu acara.
+   Di src/ ini append() hanya boleh dipanggil dengan anak yang
+   dijamin tidak kosong.
+   --------------------------------------------------------------- */
+function listJsFiles(dir, acc = []) {
+  for (const name of readdirSync(dir, { withFileTypes: true })) {
+    const p = join(dir, name.name);
+    if (name.isDirectory()) listJsFiles(p, acc);
+    else if (name.name.endsWith('.js')) acc.push(p);
+  }
+  return acc;
+}
+
+/** Pecah argumen pemanggilan pada tingkat teratas, abaikan string & kurung. */
+function splitCallArgs(src, from) {
+  const args = [];
+  let depth = 0;
+  let quote = null;
+  let cur = '';
+  for (let i = from; i < src.length; i++) {
+    const ch = src[i];
+    if (quote) {
+      if (ch === quote && src[i - 1] !== '\\') quote = null;
+      cur += ch;
+      continue;
+    }
+    if (ch === '"' || ch === "'" || ch === '`') { quote = ch; cur += ch; continue; }
+    if ('([{'.includes(ch)) depth++;
+    else if (')]}'.includes(ch)) {
+      if (depth === 0) { args.push(cur.trim()); return args; }
+      depth--;
+    } else if (ch === ',' && depth === 0) { args.push(cur.trim()); cur = ''; continue; }
+    cur += ch;
+  }
+  return args;
+}
+
+const suspects = [];
+for (const file of listJsFiles(join(ROOT, 'src'))) {
+  const src = readFileSync(file, 'utf8');
+  for (const m of src.matchAll(/\.append\(/g)) {
+    const args = splitCallArgs(src, m.index + m[0].length);
+    // null / false langsung, atau cabang ternary yang berakhiran ": null".
+    const bad = args.filter((a) => a === 'null' || a === 'false' || /:\s*(null|false)\s*$/.test(a));
+    if (bad.length) {
+      const line = src.slice(0, m.index).split('\n').length;
+      suspects.push(`${file.replace(ROOT + '\\', '').replace(ROOT + '/', '')}:${line}`);
+    }
+  }
+}
+
+add('append() tanpa nilai kosong', suspects.length === 0,
+  suspects.length
+    ? 'append() native dengan null/false akan menampilkan teks "null". '
+      + `Perbaiki di: ${suspects.join(', ')}`
+    : 'OK');
 
 /* ---------- Laporan ---------- */
 const failed = checks.filter((c) => !c.ok);

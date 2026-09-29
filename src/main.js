@@ -11,10 +11,10 @@ import './styles/main.css';
 import { renderAll } from './lib/render.js';
 import { initCountdown } from './modules/countdown.js';
 import { initMusic } from './modules/music.js';
-import { initClipboard } from './modules/clipboard.js';
 import { initWishes } from './modules/wishes.js';
 import { initRsvp } from './modules/rsvp.js';
 import { initShare, initCharCount, initUnsavedGuard } from './modules/share.js';
+import { initCalendar } from './modules/calendar.js';
 
 function boot() {
   // 1. Isi konten dari config.js
@@ -23,12 +23,12 @@ function boot() {
   // 2. Pasang fitur interaktif
   initCountdown();
   initMusic();
-  initClipboard();
   initWishes();
   initRsvp();
   initShare();
   initCharCount();
   initUnsavedGuard();
+  initCalendar();
 }
 
 if (document.readyState === 'loading') {

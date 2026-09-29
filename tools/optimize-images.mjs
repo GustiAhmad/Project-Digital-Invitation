@@ -6,9 +6,8 @@
 
    MASALAH YANG DISELESAIKAN
      1. Bobot halaman
-        Dua foto master saja 7,2 MB. Untuk phone subscriber 3G/4G
-        itu 15-40 detik loading, dan sebagian besar tamu akan
-        meninggalkan halaman sebelum selesai.
+        Foto master yang besar membuat halaman berat, terutama
+        untuk tamu yang pakai jaringan seluler.
 
      2. Metadata pribadi bocor
         Foto HP modern menyisipkan EXIF: koordinat GPS, tanggal &
@@ -26,71 +25,55 @@
      Yang di-commit hanya hasil olahannya di `public/img/`.
 
    KONVENSI NAMA
-     `assets-src/couple-bride.jpg`  ->  `public/img/couple-bride-480.webp`
-                                        `public/img/couple-bride-960.webp`
-                                        `public/img/couple-bride-1600.webp`
-                                        `public/img/couple-bride.jpg`  (fallback)
+     assets-src/Parida.jpeg  ->  public/img/couple-bride-320.webp
+                                public/img/couple-bride-480.webp
+                                public/img/couple-bride-520.webp
+                                public/img/couple-bride.jpg   (fallback)
 
-     srcset di halaman disusun dari konvensi ini, jadi tidak ada
-     daftar URL yang bisa basi. Lihat src/lib/responsive.js.
+     srcset halaman disusun dari daftar `widths` di src/config.js.
+     Script ini mencetak lebar mana yang berhasil dibuat - salin
+     ke `widths` di config.js, lalu jalankan `npm run check:images`
+     untuk memastikan daftarnya cocok dengan file yang ada di disk.
    ========================================================= */
 
 import sharp from 'sharp';
 import { readdirSync, statSync, existsSync, unlinkSync } from 'node:fs';
-import { join, extname, basename } from 'node:path';
+import { join, extname, basename, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { dirname } from 'node:path';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC_DIR = join(ROOT, 'assets-src');
 const OUT_DIR = join(ROOT, 'public', 'img');
 
-/* ---------- Lebar yang dihasilkan ----------
-   Dipilih berdasarkan KONDISI LAYOUT yang sebenarnya, bukan tebakan.
+/* ---------- Kandidat lebar ----------
+   Daftar ini HANYA kandidat. Lebar yang lebih besar dari foto
+   sumber akan dilewati, karena memperbesar foto tidak menambah
+   detail - hanya menambah bobot dan membuatAlgo terlihat buram.
 
-   Foto pengantin & galeri tampil di grid 2 kolom:
-     - HP   : ~224 CSS px
-     - desktop: ~300 CSS px
+   Kenapa 320 sebagai yang terkecil? Slot foto di HP sekitar
+   224 CSS px, jadi DPR 1 hanya butuh 224. Varian 320 memberi
+   sedikit ruang lega tanpa terbebani.
 
-   Kebutuhan device px = CSS px x DPR. Untuk HP modern DPR 3, 224 px
-   jadi 672 px. Lebar yang tersedia harus SEDEKAT mungkin dengan 672,
-   kalau tidak browser melompat ke varian yang terlalu besar.
-
-   Lebar lama hanya [480, 960, 1600]. Untuk kebutuhan 672 px, browser
-   memilih 960w dan membayar 116 KB untuk gambar yang hanya tampil
-   224 px. Itu 2x lebih besar dari yang perlu, dan membatalkan
-   seluruh penghematan yang dilakukan Tahap 2 ini.
-
-   Lebar baru dibuat rapat supaya tiap perangkat dapat varian
-   terkecil yang masih cukup tajam.
+   Kenapa 480 wajib ada? Kebanyakan Android dan iPhone lama punya
+   DPR 2, jadi 224 x 2 = 448 px - 480 adalah titik yang pas.
    ------------------------------------------------------------------ */
-const WIDTHS = [480, 640, 768, 1200, 1800];
-
-// Lebar untuk file JPEG fallback (browser tanpa WebP).
-//
-// Dipilih 768, bukan 1200. Fallback tidak perlu ukuran besar
-// untuk lightbox, karena semua browser yang punya lightbox sudah
-// pasti mendukung WebP. Menjaga fallback di 768 juga mencegah
-// file fallback jadi lebih berat dari file aslinya (186 KB),
-// yang justru merugikan pengguna browser lama yang koneksinya
-// lambat.
-const FALLBACK_WIDTH = 768;
+const WIDTH_CANDIDATES = [320, 480, 768, 1200, 1800];
 
 /* ---------- Pengaturan kualitas ----------
-   WebP q76 masih indistinguishable dari aslinya pada ukuran tampil
+   WebP q76 masih sulit dibedakan dari aslinya pada ukuran tampil
    di atas, dan mendukung alpha (dibutuhkan untuk logo transparent).
    ---------------------------------------------------------------- */
 const WEBP = { quality: 76, effort: 6 };
 const JPEG = { quality: 78, progressive: true, mozjpeg: true };
 
 /* ---------- Master yang perlu diganti namanya ----------
-   Nama file foto klien tidak rapi ("Muhammad.jpg"), sedangkan
-   config.js memakai nama semantik. Peta ini satu-satunya tempat
-   pemetaannya, supaya tidak ada tebakan.
+   Nama file foto klien tidak rapi, sedangkan config.js memakai
+   nama semantik. Peta ini satu-satunya tempat pemetaannya, supaya
+   tidak ada tebakan.
    ------------------------------------------------------------- */
 const RENAME = {
-  'Muhammad.jpg': 'couple-groom',
-  'uswatun.jpg': 'couple-bride',
+  'Irfani.jpeg': 'couple-groom',
+  'Parida.jpeg': 'couple-bride',
 };
 
 /* ---------- Utilitas ---------- */
@@ -108,7 +91,7 @@ function cleanOldVariants(outBase) {
   if (!existsSync(OUT_DIR)) return;
   for (const f of readdirSync(OUT_DIR)) {
     const stem = basename(f, extname(f));
-    // Hapus hanya milik outBase, mis. couple-bride-960.webp
+    // Hapus hanya milik outBase, mis. couple-bride-480.webp
     if (stem === outBase || stem.startsWith(`${outBase}-`)) {
       unlinkSync(join(OUT_DIR, f));
     }
@@ -117,7 +100,8 @@ function cleanOldVariants(outBase) {
 
 /**
  * Proses satu master menjadi beberapa lebar x 2 format.
- * Mengembalikan objek berisi ukuran file hasil.
+ * Lebar yang dipakai = kandidat yang <= lebar sumber, ditambah
+ * lebar sumber itu sendiri kalau belum termasuk kandidat.
  */
 async function processOne(masterPath, outBase) {
   const masterSize = statSync(masterPath).size;
@@ -125,15 +109,18 @@ async function processOne(masterPath, outBase) {
   // rotate() membaca orientasi dari EXIF lalu menerapkan perubahannya.
   // Tanpa ini, foto yang diambil dengan kamera yang dimiringkan ke
   // portrait akan tampil miring 90 derajat.
-  const base = sharp(masterPath).rotate();
+  const meta = await sharp(masterPath).rotate().metadata();
 
-  const meta = await base.metadata();
-  const written = { master: masterSize, webp: {}, jpeg: 0 };
+  // PENTING: jangan pernah memperbesar (upscale). Foto 563px yang
+  // distretch jadi 768px tidak jadi lebih tajam - ia hanya lebih
+  // besar dan lebih lambat dimuat.
+  const widths = WIDTH_CANDIDATES.filter((w) => w < meta.width);
+  if (!widths.includes(meta.width)) widths.push(meta.width);
+  widths.sort((a, b) => a - b);
 
-  for (const width of WIDTHS) {
-    // Jangan memperbesar gambar yang lebih kecil dari target.
-    if (meta.width <= width && written.jpeg) continue;
+  const written = { master: masterSize, webp: {}, jpeg: 0, widths };
 
+  for (const width of widths) {
     const out = join(OUT_DIR, `${outBase}-${width}.webp`);
     await sharp(masterPath)
       .rotate()
@@ -144,10 +131,11 @@ async function processOne(masterPath, outBase) {
   }
 
   // Fallback JPEG untuk browser tanpa WebP (sekitar 2017 ke bawah).
+  // Pakai lebar sumber penuh: browser ini sudah tua dan koneksi
+  // sudah jelas lambat, jadi tidak perlu penghematan di sini.
   const jpgOut = join(OUT_DIR, `${outBase}.jpg`);
   await sharp(masterPath)
     .rotate()
-    .resize({ width: FALLBACK_WIDTH, withoutEnlargement: true })
     .jpeg(JPEG)
     .toFile(jpgOut);
   written.jpeg = statSync(jpgOut).size;
@@ -156,20 +144,13 @@ async function processOne(masterPath, outBase) {
   return written;
 }
 
-/* ---------- Hapus metadata lama dari fallback JPEG ----------
-
-   sharp secara default TIDAK menyalin EXIF, tapi kita juga memastikan
-   tidak ada blok APP yang tidak terduga dengan menulis ulang file.
-   (Dicek ulang oleh tools/check-images.mjs di bawah.)
-   ------------------------------------------------------------------ */
-
 /* ---------- Jalan utama ---------- */
 
 console.log('\n  OPTIMASI GAMBAR');
 console.log('  ' + '='.repeat(62));
 
 if (!existsSync(SRC_DIR)) {
-  console.log(`\n  Folder master tidak ditemukan: assets-src/`);
+  console.log('\n  Folder master tidak ditemukan: assets-src/');
   console.log('  Buat folder itu dan taruh foto master di dalamnya.\n');
   process.exit(0);
 }
@@ -179,9 +160,7 @@ if (!existsSync(OUT_DIR)) {
   process.exit(1);
 }
 
-const masters = readdirSync(SRC_DIR)
-  .filter((f) => /\.(jpe?g|png)$/i.test(f))
-  .filter((f) => basename(f, extname(f)) !== 'cover-placeholder');
+const masters = readdirSync(SRC_DIR).filter((f) => /\.(jpe?g|png)$/i.test(f));
 
 if (!masters.length) {
   console.log('\n  Tidak ada file gambar di assets-src/. Tidak ada yang diproses.');
@@ -195,17 +174,10 @@ let totalJpeg = 0;
 const rows = [];
 
 for (const file of masters) {
-  const stem = basename(file, extname(file));
-  const outBase = RENAME[file] || stem;
-  const masterPath = join(SRC_DIR, file);
-
-  // Lewati bila master == nama keluaran (mis. couple-bride.jpg)
-  if (stem === outBase) {
-    // tetap diproses, hanya informational
-  }
+  const outBase = RENAME[file] || basename(file, extname(file));
 
   cleanOldVariants(outBase);
-  const r = await processOne(masterPath, outBase);
+  const r = await processOne(join(SRC_DIR, file), outBase);
 
   totalMaster += r.master;
   for (const w of Object.values(r.webp)) totalWebp += w;
@@ -220,33 +192,44 @@ for (const r of rows) {
   console.log(`  ${r.file}${renamed}`);
   console.log(`    master        ${r.dimensions}   ${humanBytes(r.master)}`);
 
-  const parts = WIDTHS
+  const parts = r.widths
     .filter((w) => r.webp[w])
     .map((w) => `${w}w=${humanBytes(r.webp[w])}`);
   console.log(`    webp          ${parts.join('  ')}`);
-  console.log(`    jpeg fallback ${humanBytes(r.jpeg)}  (tanpa EXIF)`);
+  console.log(`    jpeg fallback ${humanBytes(r.jpeg)}  (${r.dimensions}, tanpa EXIF)`);
+  console.log('');
 
-  const smallest = Math.min(...Object.values(r.webp));
-  const ratio = ((1 - smallest / r.master) * 100).toFixed(1);
-  console.log(`    hemat         ${ratio}% dibanding master`);
+  // Disalin apa adanya ke `widths` di src/config.js.
+  console.log(`    salin ke config.js ->  ${r.outBase === 'couple-bride' ? 'couple.bride' : 'couple.groom'}.widths`);
+  console.log(`      widths: [${r.widths.join(', ')}],`);
   console.log('');
 }
 
 console.log('  ' + '='.repeat(62));
-console.log(`  Total master        ${humanBytes(totalMaster)}`);
-console.log(`  Total hasil (webp)  ${humanBytes(totalWebp)}`);
-console.log(`  Total fallback jpg  ${humanBytes(totalJpeg)}`);
-console.log(`  Hemat               ${humanBytes(totalMaster - totalWebp - totalJpeg)}`);
+console.log(`  Total master            ${humanBytes(totalMaster)}`);
+console.log(`  Total varian WebP      ${humanBytes(totalWebp)}  (${rows.length} foto x ${rows[0].widths.length} lebar)`);
+console.log(`  Total fallback JPEG    ${humanBytes(totalJpeg)}  (${rows.length} foto, 1 lebar)`);
 console.log('');
 
-/* ---------- Peringatan bila master terlalu besar ---------- */
-for (const r of rows) {
-  if (r.master > 2 * 1024 * 1024) {
-  console.log(`  [CATATAN] ${r.file} pernah ter-commit sebelum di-ignore.`);
-  console.log('           Working tree sekarang aman, tapi metadata GPS/EXIF');
-  console.log('           masih terekspos di riwayat Git commit 12efb40.');
-  console.log('           Kalau ini repo privat, tidak mendesak. Kalau publik,');
-  console.log('           perlu rewrite history (git filter-repo) - lihat README.');
-  }
+// Jangan pakai metrik "hemat" Percentage terhadap master. Master
+// yang sudah dioptimasi sebelumnya (mis. hasil crop dari klien)
+// bisa saja SUDAH kecil, sehingga menyimpan 3 varian WebP malah
+// terlihat "lebih besar". Angka itu menyesatkan.
+//
+// Yang relevan justru: berapa yang benar-benar diunduh satu HP.
+const perPhoto = rows.map((r) => {
+  const smallest = r.widths.length ? r.webp[r.widths[0]] : 0;
+  const largest = r.widths.length ? r.webp[r.widths[r.widths.length - 1]] : 0;
+  return { base: r.outBase, smallest, largest, jpeg: r.jpeg, master: r.master };
+});
+console.log('  Yang benar-benar diunduh satu perangkat:');
+for (const p of perPhoto) {
+  const jpegSaving = p.master ? ((1 - p.jpeg / p.master) * 100).toFixed(0) : '-';
+  console.log(`    ${p.base}`);
+  console.log(`      DPR 1-2 (WebP)        ${humanBytes(p.smallest)} - ${humanBytes(p.largest)}`);
+  console.log(`      DPR 3 atau fallback   ${humanBytes(p.jpeg)} JPEG  (-${jpegSaving}% vs master)`);
 }
+console.log('');
+console.log('  CATATAN: salin daftar `widths` di atas ke src/config.js,');
+console.log('  lalu jalankan  npm run check:images  untuk memverifikasi.');
 console.log('');

@@ -17,9 +17,12 @@ export const $$ = (selector, scope = document) => [...scope.querySelectorAll(sel
  * @param {string} tag
  * @param {object} attrs  - atribut biasa. Nilai null/undefined dilewati.
  *                         Key diawali "on" dianggap event listener.
- * @param {string|string|Node} children
+ * @param {...(string|Node|null|false|Array)} children
+ *       (children opsional boleh banyak: el('div', {}, a, b, c). Nilai
+ *        null/undefined/false dilewati, jadi conditional `cond ? el(..) : null`
+ *        aman dipakai langsung tanpa filter manual.
  */
-export function el(tag, attrs = {}, children = '') {
+export function el(tag, attrs = {}, ...children) {
   const node = document.createElement(tag);
 
   for (const [key, value] of Object.entries(attrs)) {
@@ -38,6 +41,16 @@ export function el(tag, attrs = {}, children = '') {
     }
   }
 
+  appendChildren(node, children);
+  return node;
+}
+
+/**
+ * Tambahkan anak ke `node`, melewati nilai kosong.
+ * Dipakai juga sebagai pengganti `node.append(...)` native, karena
+ * `append()` native tidak memfilter null dan akan menulis teks "null".
+ */
+export function addChildren(node, ...children) {
   appendChildren(node, children);
   return node;
 }

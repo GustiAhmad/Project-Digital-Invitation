@@ -100,7 +100,10 @@ const esc = (s) => String(s ?? '')
 
 /* ---------- 4. Susun HTML ---------- */
 
-const nama = `${esc(bride)} &amp; ${esc(groom)}`;
+// Urutan nama harus sama dengan <title> di index.html: pria
+// lebih dulu. Kalau dibalik, share preview di WhatsApp akan
+// menampilkan urutan berbeda dari halaman yang dibuka tamu.
+const nama = `${esc(groom)} &amp; ${esc(bride)}`;
 
 const html = `<!doctype html>
 <html lang="id">
@@ -273,10 +276,7 @@ try {
 if (existsSync(OUT)) {
   const size = (readFileSync(OUT).length / 1024).toFixed(0);
   console.log(`  + og-image.png (1200x630, ${size} KB)`);
-  console.log(`      ${bride} & ${groom} - ${tanggalPanjang} - ${jamLabel} - ${city}`);
-  if (/Kamis/.test(tanggalPanjang)) {
-    console.warn('      [PERINGATAN] Nama hari "Kamis" - periksa format tanggal.');
-  }
+  console.log(`      ${groom} & ${bride} - ${tanggalPanjang} - ${jamLabel} - ${city}`);
 } else {
   console.error('  [GAGAL] public/og-image.png tidak terbentuk.');
   process.exitCode = 1;

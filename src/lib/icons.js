@@ -28,6 +28,10 @@ const P = {
 
   clock: `<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>`,
 
+  download: `
+    <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/>
+    <path d="M4 20h16"/>`,
+
   pin: `
     <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
     <circle cx="12" cy="10" r="3"/>`,
