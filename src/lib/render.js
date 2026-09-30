@@ -121,22 +121,39 @@ function renderEvents() {
 
       // Dua jalan ke kalender, karena tidak semua orang pakai
       // Google Calendar. Lihat modules/calendar.js.
+      //
+      // Petunjuk per-perangkat WAJIB ada: tombol "Google Calendar"
+      // dan "Simpan (.ics)" saja tidak menjelaskan ke tamu mana
+      // yang benar untuk hapenya. Tamu iPhone yang salah klik akan
+      // mendarat di halaman Google, diminta login, lalu menekan
+      // tombol Simpan - dan banyak yang akhirnya menyerah tanpa
+      // menyimpan tanggalnya.
       el('div', { class: 'event-card__calendar' }, [
-        el('a', {
-          class: 'btn btn--sm btn--ghost',
-          href: '#',
-          dataset: { calendar: 'google', eventId: event.id },
-        }, [
-          el('span', { class: 'btn__icon' }, icon('calendar', { size: 15 })),
-          el('span', { text: 'Google Calendar' }),
+        el('p', {
+          class: 'event-card__calendar-hint',
+          text: 'Simpan tanggal acara ke kalender',
+        }),
+        el('div', { class: 'event-card__calendar-row' }, [
+          el('a', {
+            class: 'btn btn--sm btn--ghost',
+            href: '#',
+            dataset: { calendar: 'google', eventId: event.id },
+          }, [
+            el('span', { class: 'btn__icon' }, icon('calendar', { size: 15 })),
+            el('span', { text: 'Google Calendar' }),
+          ]),
+          el('span', { class: 'event-card__calendar-for', text: 'Android' }),
         ]),
-        el('button', {
-          class: 'btn btn--sm btn--ghost',
-          type: 'button',
-          dataset: { calendar: 'ics', eventId: event.id },
-        }, [
-          el('span', { class: 'btn__icon' }, icon('download', { size: 15 })),
-          el('span', { text: 'Simpan (.ics)' }),
+        el('div', { class: 'event-card__calendar-row' }, [
+          el('button', {
+            class: 'btn btn--sm btn--ghost',
+            type: 'button',
+            dataset: { calendar: 'ics', eventId: event.id },
+          }, [
+            el('span', { class: 'btn__icon' }, icon('download', { size: 15 })),
+            el('span', { text: 'Simpan (.ics)' }),
+          ]),
+          el('span', { class: 'event-card__calendar-for', text: 'iPhone' }),
         ]),
       ]),
     );
@@ -276,31 +293,41 @@ function renderWishes() {
    Tombol disembunyikan selama `contact.whatsapp` masih kosong,
    supaya tidak ada tautan wa.me yang tidak berguna.
    ------------------------------------------------------------------ */
+/**
+ * Section kontak dibangun seluruhnya di sini, bukan di index.html.
+ *
+ * Kenapa? Karena `contact.whatsapp` masih kosong. Versi sebelumnya
+ * menuliskan section + judul "Ada pertanyaan?" langsung di HTML,
+ * lalu hanya menyembunyikan tombolnya - jadi yang tertinggal di
+ * halaman adalah judul itu sendiri dengan section kosong di
+ * bawahnya. Klien minta bagian itu dihapus.
+ *
+ * Sekarang kalau `whatsapp` kosong, tidak ada apa pun yang dirender.
+ * Begitu nomor diisi, section muncul lengkap dengan judul dari
+ * config tanpa perlu menyentuh index.html.
+ */
 function renderContact() {
-  const host = $('[data-render="contact"]');
-  if (!host) return;
+  const { title, label, whatsapp, message } = CONFIG.contact;
+  if (!whatsapp) return;
 
-  const { whatsapp, message } = CONFIG.contact;
-  if (!whatsapp) {
-    host.textContent = '';
-    host.hidden = true;
-    return;
-  }
+  const host = el('section', { class: 'contact', ariaLabelledby: 'contact-title' },
+    el('div', { class: 'container center' },
+      el('h2', { class: 'title', id: 'contact-title', text: title }),
+      el('div', { class: 'contact-actions' },
+        el('a', {
+          class: 'btn btn--block',
+          href: `https://wa.me/${whatsapp}?text=${encodeURIComponent(message)}`,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        }, [
+          el('span', { class: 'btn__icon' }, icon('smartphone', { size: 16 })),
+          el('span', { text: label }),
+        ]))));
 
-  const text = encodeURIComponent(message);
-  host.textContent = '';
-  host.hidden = false;
-  host.append(
-    el('a', {
-      class: 'btn btn--block',
-      href: `https://wa.me/${whatsapp}?text=${text}`,
-      target: '_blank',
-      rel: 'noopener noreferrer',
-    }, [
-      el('span', { class: 'btn__icon' }, icon('smartphone', { size: 16 })),
-      el('span', { text: CONFIG.contact.label }),
-    ]),
-  );
+  // Disisipkan sebelum section RSVP supaya urutan halaman tetap:
+  // lokasi -> kontak -> RSVP.
+  const rsvp = $('#rsvp');
+  if (rsvp) rsvp.before(host);
 }
 
 /* ---------- SHARE + QR ---------- */
@@ -315,6 +342,44 @@ function renderShare() {
   if (img) img.src = CONFIG.share.qrPlaceholder;
 }
 
+/* ---------- GALERI ---------- */
+/**
+ * Galeri dibangun dari array di config.js supaya menambah/kurangi
+ * foto cukup lewat config, bukan dengan menyunting HTML.
+ *
+ * `widths` dipakai src/modules/gallery.js untuk membangun srcset.
+ * Foto yang belum punya file asli tetap dirender sebagai placeholder
+ * bernomor, supaya jumlah slot dan tata letaknya bisa direview
+ * sebelum klien mengirim fotonya.
+ */
+function renderGallery() {
+  const host = $('[data-render="gallery"]');
+  if (!host) return;
+
+  const { photos } = CONFIG.gallery;
+  host.textContent = '';
+
+  if (!photos || !photos.length) {
+    host.hidden = true;
+    return;
+  }
+
+  host.hidden = false;
+  photos.forEach((photo, i) => {
+    host.append(el('div', { class: 'gallery-item' }, [
+      el('img', {
+        src: photo.src,
+        alt: photo.alt,
+        // width/height dummy: mencegah layout bergeser saat gambar
+        // dimuat (CLS). Nanti gallery.js mengisinya dengan ukuran asli.
+        loading: 'lazy',
+        decoding: 'async',
+        dataset: { galleryIndex: String(i) },
+      }),
+    ]));
+  });
+}
+
 /* ---------- IKON STATIS ---------- */
 function renderStaticIcons() {
   $$('[data-icon]').forEach((node) => {
@@ -326,14 +391,49 @@ function renderStaticIcons() {
 }
 
 /* ---------- ENTRY ---------- */
+/* ---------- COVER ----------
+   Foto latar diambil dari config lalu disuntikkan sebagai CSS
+   custom property, bukan ditulis inline ke style atribut. Dengan
+   begitu semua detail tampilannya (posisi, opacity, warna scrim)
+   tetap di CSS, dan config hanya menentukan "foto mana".
+
+   Nilai opacity dibatasi 0..0.6 di sini: kalau klien menaikkan
+   opacity lewat config tanpa batas, teks putih bisa saja tenggelam
+   di atas foto terang - persis masalah yang sebenarnya ingin
+   diperbaiki.
+   ------------------------------------------------------------------ */
+function renderHero() {
+  const bd = CONFIG.hero && CONFIG.hero.backdrop;
+  const cover = $('#cover');
+  if (!bd || !cover) return;
+
+  // `src` kosong = wadah disiapkan tapi foto belum ada (klien belum
+  // mengirim foto pre-wedding). Backdrop di-reset ke nilai default
+  // CSS (tanpa foto), jadi cover kembali ke gradien solid.
+  if (bd.src) {
+    cover.style.setProperty('--hero-backdrop', `url("${bd.src}")`);
+    cover.style.setProperty('--hero-backdrop-position', bd.position || '50% 30%');
+
+    const raw = Number(bd.opacity);
+    const safe = Number.isFinite(raw) ? Math.min(Math.max(raw, 0), 0.6) : 0.3;
+    cover.style.setProperty('--hero-backdrop-opacity', String(safe));
+  } else {
+    cover.style.removeProperty('--hero-backdrop');
+    cover.style.removeProperty('--hero-backdrop-position');
+    cover.style.removeProperty('--hero-backdrop-opacity');
+  }
+}
+
 export function renderAll() {
   bindText();
+  renderHero();
   renderCoupleNames();
 
   // Daftar-dinamis (acara, lokasi) dibangun lebih dulu: elemennya
   // sudah membawa ikon sendiri lewat `icon()`.
   renderEvents();
   renderLocation();
+  renderGallery();
   renderContact();
   renderRsvp();
   renderWishes();

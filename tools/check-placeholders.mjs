@@ -24,8 +24,10 @@ const todos = [...configSrc.matchAll(/TODO-KLIEN:\s*(.+)/g)]
   .filter((v, i, a) => a.indexOf(v) === i);
 
 /* ---------- 2. Aset placeholder yang masih dipakai ----------
-   Pola gallery-\d ikut di-detect sebagaiKESALAHAN, bukan placeholder:
-   galeri sudah dibatalkan klien, jadi file-nya tidak boleh muncul lagi.
+   Pola gallery-N ikut dilaporkan sebagai placeholder yang MASIH
+   dipakai: klien meminta galeri dikembalikan, tapi foto aslinya
+   belum dikirim. Selama masih placeholder, section tampil rapi dan
+   bisa direview layout-nya (tidak ada ikon gambar rusak).
    --------------------------------------------------------------- */
 const fromConfig = [...configSrc.matchAll(/'(\.\/img\/[^']*placeholder[^']*)'/g)]
   .map((m) => m[1]);
@@ -38,14 +40,33 @@ const missingAssets = placeholderAssets.filter(
   (rel) => !existsSync(join(ROOT, 'public', rel.replace('./', ''))),
 );
 
-/* ---------- 2b. Aset dari section yang sudah dibatalkan ---------- */
-const removedSectionAssets = [
-  ...new Set([
-    ...[...configSrc.matchAll(/'(\.\/img\/gallery-[^']*)'/g)].map((m) => m[1]),
-    ...[...indexHtml.matchAll(/(\.\/img\/gallery-[^"']*)/g)].map((m) => m[1]),
-    ...[...indexHtml.matchAll(/(\.\/img\/cover-[^"']*)/g)].map((m) => m[1]),
-  ]),
-];
+/* ---------- 2b. Galeri pre-wedding (menunggu klien) ----------
+   Galeri sudah diminta klien, jadi ASETNYA SAH. Yang belum ada
+   adalah foto aslinya. Bedakan dua hal ini, jangan sampai
+   placeholder dianggap sebagai section yang dibatalkan.
+   ------------------------------------------------------------ */
+const galleryAssets = [...new Set([
+  ...[...configSrc.matchAll(/'(\.\/img\/gallery-[^']*)'/g)].map((m) => m[1]),
+  ...[...indexHtml.matchAll(/(\.\/img\/gallery-[^"']*)/g)].map((m) => m[1]),
+])];
+
+const galleryMissingOnDisk = galleryAssets.filter(
+  (rel) => !existsSync(join(ROOT, 'public', rel.replace('./', ''))),
+);
+
+// Cover masih section yang benar-benar dibatalkan klien.
+const removedSectionAssets = [...new Set(
+  [...indexHtml.matchAll(/(\.\/img\/cover-[^"']*)/g)].map((m) => m[1]),
+)];
+
+/* ---------- 2c. Foto cover / backdrop (menunggu klien) ----------
+   Wadahnya (renderHero + CSS ::before) sudah siap, tapi klien
+   belum mengirim foto pre-wedding. `src: ''` itu keadaan yang
+   sah, bukan bug - tapi harus terlihat di daftar ini supaya
+   tidak menganggap cover sudah final. */
+const heroBlock = (configSrc.match(/backdrop:\s*\{[^}]*\}/) || [''])[0];
+const coverPhoto = (heroBlock.match(/src:\s*'([^']*)'/) || [])[1];
+const coverPhotoEmpty = !coverPhoto;
 
 /* ---------- 3. Nilai yang masih Ellipsis / contoh ---------- */
 const stillPlaceholder = [
@@ -71,17 +92,25 @@ const venueCount = (configSrc.match(/venue:\s*'/g) || []).length;
 const venueName = (configSrc.match(/venue:\s*'([^']*)'/) || [])[1];
 const venueNameEmpty = !venueName;
 
-/* ---------- 5. Tanggal masih perlu konfirmasi ---------- */
+/* ---------- 5. Tanggal & jam selesai acara ---------- */
 const date = (configSrc.match(/date:\s*'(\d{4}-\d{2}-\d{2})'/) || [])[1];
 
-/* Jam selesai dianggap masih "asumsi" kalau baris `endTime`
-  didampingi TODO-KLIEN. TODO-nya sering ditulis di baris SEBELUM
-   nilai, jadi kita harus melihat beberapa baris ke atas - bukan
-   cuma baris yang sama. */
-const endTimeLine = configSrc.indexOf('endTime:');
-const endTimePending = endTimeLine !== -1 && /TODO-KLIEN/.test(
-  configSrc.slice(Math.max(0, endTimeLine - 300), endTimeLine),
-);
+/* Halaman sengaja menulis "08.00 - Selesai" (endTimeLabel),
+   sementara file kalender butuh jam konkret (endTime, mis. 17:00).
+
+   Selama endTimeLabel masih bernilai "Selesai" (bukan jam), berarti
+   klien belum menetapkan jam berakhirnya. Itu perlu tetap terlihat
+   di daftar ini, karena DTEND di .ics / Google Calendar memakai
+   angka yang masih asumsi - kalau salah, tamu bisa datang atau
+   terlewat di jam yang keliru.
+
+   Kenapa tidak lagi membaca komentar TODO-KLIEN? Karena TODO-nya
+   bisa diletakkan di mana pun dan gampang tidak sengaja terhapus.
+   Nilai `endTimeLabel` sendiri lebih jujur: kalau isinya bukan
+   jam, berarti belum final. */
+const endTimeLabel = (configSrc.match(/endTimeLabel:\s*'([^']*)'/) || [])[1];
+const endTime = (configSrc.match(/endTime:\s*'([^']*)'/) || [])[1];
+const endTimePending = !endTimeLabel || !/^\d{1,2}[.:]\d{2}$/.test(endTimeLabel);
 
 /* ---------- Laporan ---------- */
 console.log('\n  DATA YANG MENUNGGU KLIEN');
@@ -96,6 +125,25 @@ stillPlaceholder.forEach((t) => console.log(`        - "${t}"`));
 
 console.log(`\n  [${++group}] Aset gambar placeholder  (${placeholderAssets.length})`);
 placeholderAssets.forEach((t) => console.log(`        - ${t}`));
+
+console.log(`\n  [${++group}] Foto galeri pre-wedding  (${galleryAssets.length} slot)`);
+if (galleryMissingOnDisk.length) {
+  console.log('        ! Slot galeri hilang dari disk:');
+  galleryMissingOnDisk.forEach((t) => console.log(`          ! ${t}`));
+} else {
+  console.log('        - Semua slot ada, layout siap direview.');
+}
+console.log('        - Isinya masih PLACEHOLDER, bukan foto asli. Minta klien');
+console.log('          mengirim 6 foto pre-wedding, lalu: npm run optimize,');
+console.log('          ubah src di config.js ke .jpg dan isi widths.');
+
+if (coverPhotoEmpty) {
+  console.log('\n  [' + (++group) + '] Foto cover (backdrop)');
+  console.log('        - Wadah sudah siap, src sengaja kosong - menunggu foto');
+  console.log('          pre-wedding klien. Saat foto datang: isi hero.backdrop.src');
+  console.log('          di config.js (file hasil `npm run optimize`, mis.');
+  console.log('          ./img/gallery-1.webp), lalu cek kontras teks di preview.');
+}
 
 console.log(`\n  [${++group}] Koordinat venue  (${nullCoords} nilai null dari ${venueCount * 2} slot)`);
 if (nullCoords === 0) console.log('        - Semua koordinat sudah diisi.');
@@ -120,10 +168,12 @@ if (whatsappEmpty) {
 console.log(`\n  [${++group}] Tanggal acara  (${date || 'tidak ditemukan'})`);
 if (endTimePending) {
   console.log('        - Tanggal & jam mulai sudah dari klien.');
-  console.log('        - JAM SELESAI masih asumsi. Wajib dikonfirmasi sebelum');
-  console.log('          produksi karena ikut masuk ke file kalender .ics.');
+  console.log(`        - Di halaman ditulis "08.00 - ${endTimeLabel || '?'}".`);
+  console.log(`        - Tapi file kalender memakai DTEND ${endTime || '?'} (masih`);
+  console.log('          asumsi). Konfirmasi jam selesai yang pasti sebelum');
+  console.log('          produksi, lalu samakan endTimeLabel dan endTime.');
 } else {
-  console.log('        - Tanggal, jam mulai, dan jam selesai sudah lengkap.');
+  console.log(`        - Lengkap: ${endTimeLabel} (halaman & kalender konsisten).`);
 }
 
 /* ---------- 7. Musik latar ---------- */
@@ -181,6 +231,11 @@ if (removedSectionAssets.length) {
   removedSectionAssets.forEach((a) => console.log(`        ! ${a}`));
 }
 
+if (galleryMissingOnDisk.length) {
+  console.log('\n  PERINGATAN: slot galeri hilang dari disk (gambar rusak di halaman):');
+  galleryMissingOnDisk.forEach((a) => console.log(`        ! ${a}`));
+}
+
 if (missingAssets.length) {
   console.log('\n  PERINGATAN: aset placeholder hilang dari disk:');
   missingAssets.forEach((a) => console.log(`        ! ${a}`));
@@ -192,10 +247,13 @@ const total = todos.length
   + stillPlaceholder.length
   + nullCoords
   + audioPending
+  + (galleryAssets.length ? 1 : 0)
+  + galleryMissingOnDisk.length
   + removedSectionAssets.length
   + (venueNameEmpty ? 1 : 0)
   + (whatsappEmpty ? 1 : 0)
-  + (endTimePending ? 1 : 0);
+  + (endTimePending ? 1 : 0)
+  + (coverPhotoEmpty ? 1 : 0);
 if (total === 0) {
   console.log('  SEMUA DATA SUDAH LENGKAP. Siap produksi.\n');
 } else {

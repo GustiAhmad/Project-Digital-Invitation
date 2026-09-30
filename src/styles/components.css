@@ -285,15 +285,53 @@ select {
   text-align: center;
 }
 
-/* Dua tombol kalender di dalam kartu acara. Jarak antar tombol
-   dibuat eksplisit (bukan cuma gap flex) supaya tetap rapi saat
-   teks tombol berubah panjang. */
+/* ---------- Tombol kalender di dalam kartu acara ----------
+   Sebelumnya cuma dua tombol berdampingan tanpa keterangan, dan
+   tamu tidak tahu mana yang untuk hapenya. Sekarang ada:
+     judul kecil  -> apa fungsi tombolnya
+     tiap baris   -> satu tombol + label perangkatnya
+   Susunannya kolom supaya label perangkat tetap menempel pada
+   tombolnya saat layar sempit (tidak terpisah ke baris lain). */
 .event-card__calendar {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: var(--sp-2);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
   margin-top: var(--sp-4);
   padding-top: var(--sp-4);
-  border-top: 1px solid var(--border);
+  /* Dulu `var(--border)` yang tidak pernah didefinisikan di
+     tokens.css, jadi aturan ini sebenarnya tidak berefek. Var
+     yang benar `--line`. */
+  border-top: 1px solid var(--line);
+}
+
+.event-card__calendar-hint {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .75;
+}
+
+.event-card__calendar-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* Label perangkat. Dibuat pill kecil supaya terbaca sebagai
+   "keterangan yang menempel", bukan teks bebas yang bisa
+   disalahartikan sebagai bagian dari nama tombol. */
+.event-card__calendar-for {
+  min-width: 4.5rem;
+  padding: .2rem .55rem;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--olive);
+  background: color-mix(in srgb, var(--olive) 12%, transparent);
+  border-radius: 999px;
 }

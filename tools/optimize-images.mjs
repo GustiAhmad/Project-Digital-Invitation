@@ -76,6 +76,18 @@ const RENAME = {
   'Parida.jpeg': 'couple-bride',
 };
 
+/* ---------- Foto galeri ----------
+   Dua foto pasangan dikenali lewat RENAME di atas. SELURUH file
+   lain di assets-src/ diperlakukan sebagai foto galeri.
+
+   Kenapa pakai urutan, bukan angka di nama file? Nama file dari
+   kamera sering seperti "DSC_9999.jpg" atau "IMG_2026_0042.jpg" -
+   angka di sana bukan nomor urut foto. Mengikutinya akan membuat
+   nama seperti gallery-9999, dan nomor bisa bentrok kalau klien
+   mengirim foto yang nomornya sama. Jadi nomornya selalu urut 1..N
+   dari file yang sudah diurutkan, hasilnya stabil antar-jalankan.
+   ------------------------------------------------------------------ */
+
 /* ---------- Utilitas ---------- */
 
 const kb = (n) => `${(n / 1024).toFixed(0).padStart(5)} KB`;
@@ -94,6 +106,35 @@ function cleanOldVariants(outBase) {
     // Hapus hanya milik outBase, mis. couple-bride-480.webp
     if (stem === outBase || stem.startsWith(`${outBase}-`)) {
       unlinkSync(join(OUT_DIR, f));
+    }
+  }
+}
+
+/**
+ * Buang varian galeri yang nomornya sudah tidak dipakai.
+ *
+ * cleanOldVariants() di atas hanya membersihkan nama yang SEDANG
+ * diproses. Kalau klien mengganti 6 foto jadi 5, maka gallery-6.*
+ * darialyzer sebelumnya tidak ikut terhapus dan tertinggal di
+ * public/img. gallery.photos di config.js juga jadi 5, jadi file
+ * yatim itu tidak terpakai lagi - dan tidak ada yang tahu
+ *.harUS dihapus.
+ */
+function cleanStaleGallerySlots(keepBases) {
+  if (!existsSync(OUT_DIR)) return;
+  const keep = new Set(keepBases);
+  for (const f of readdirSync(OUT_DIR)) {
+    // Hanya varian hasil optimizer (jpg/webp). Placeholder .svg
+    // BUKAN hasil proses ini dan tidak boleh ikut terhapus -
+    // tanpa placeholder, section galeri tampil dengan ikon gambar
+    // rusak saat klien belum mengirim foto.
+    if (!/\.(jpe?g|webp)$/i.test(f)) continue;
+
+    const stem = basename(f, extname(f));
+    const m = stem.match(/^(gallery-\d+)(-\d+)?$/);
+    if (m && !keep.has(m[1])) {
+      unlinkSync(join(OUT_DIR, f));
+      console.log(`    dibuang (nomor tak terpakai)  ${f}`);
     }
   }
 }
@@ -173,9 +214,30 @@ let totalWebp = 0;
 let totalJpeg = 0;
 const rows = [];
 
-for (const file of masters) {
-  const outBase = RENAME[file] || basename(file, extname(file));
+/* ---------- Penomoran foto galeri ----------
+   Dua foto pasangan sudah dipetakan lewat RENAME. Semua file lain
+   adalah foto galeri dan diberi nomor urut. RENAME diprioritaskan
+   supaya file pasangan tidak ikut/workflow penomoran.
+   ------------------------------------------------------------ */
+let slot = 0;
+const plan = masters.map((file) => {
+  const known = RENAME[file];
+  if (known) return { file, outBase: known, isGallery: false };
+  slot += 1;
+  return { file, outBase: `gallery-${slot}`, isGallery: true };
+});
 
+const dupe = plan
+  .map((p) => p.outBase)
+  .filter((b, i, a) => a.indexOf(b) !== i);
+if (dupe.length) {
+  console.error('\n  [GAGAL] Nama file master bentrok:');
+  [...new Set(dupe)].forEach((d) => console.error(`    - ${d}`));
+  console.error('  Beri nama unik di file master-nya, lalu ulangi.\n');
+  process.exit(1);
+}
+
+for (const { file, outBase } of plan) {
   cleanOldVariants(outBase);
   const r = await processOne(join(SRC_DIR, file), outBase);
 
@@ -185,6 +247,8 @@ for (const file of masters) {
 
   rows.push({ file, outBase, ...r });
 }
+
+cleanStaleGallerySlots(plan.map((p) => p.outBase));
 
 console.log('');
 for (const r of rows) {
@@ -200,7 +264,12 @@ for (const r of rows) {
   console.log('');
 
   // Disalin apa adanya ke `widths` di src/config.js.
-  console.log(`    salin ke config.js ->  ${r.outBase === 'couple-bride' ? 'couple.bride' : 'couple.groom'}.widths`);
+  // Petunjuknya harus menyebut slot yang benar - dulu semua file
+  // disuruh disalin ke couple.groom, termasuk foto galeri.
+  const target = r.outBase === 'couple-bride' ? 'couple.bride'
+    : r.outBase === 'couple-groom' ? 'couple.groom'
+    : `gallery.photos[${/^gallery-(\d+)$/.exec(r.outBase)?.[1] - 1}]`;
+  console.log(`    salin ke config.js ->  ${target}.widths`);
   console.log(`      widths: [${r.widths.join(', ')}],`);
   console.log('');
 }

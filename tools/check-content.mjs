@@ -20,7 +20,7 @@
  * ---------------------------------------------------------------
  */
 
-import { readFileSync, readdirSync } from 'node:fs';
+import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -189,20 +189,200 @@ if (date && time) {
 }
 
 /* ---------- 3. Section yang dibatalkan klien ----------
-   Klien minta tanpa rekening, tanpa galeri, dan tanpa cerita.
-   Pemeriksaan ini mencegah section tersebut muncul kembali
-   diam-diam - biasanya lewat copy-paste template lama.
+   Klien minta tanpa rekening dan tanpa cerita. Galeri pre-wedding
+   dan foto cover justru diminta KEMBALI, jadi keduanya tidak ada
+   di daftar ini. Pemeriksaan ini mencegah section yang dibatalkan
+   muncul kembali diam-diam - biasanya lewat copy-paste template
+   lama.
    ------------------------------------------------------------ */
 for (const [label, pattern] of [
   ['Rekening (donasi)', /data-copy="/],
-  ['Galeri foto', /class="gallery"|gallery-\d\.svg/],
   ['Cerita / love story', /class="story"|story-box/],
-  ['Gambar cover', /cover-placeholder|class="cover-content"/],
 ]) {
   add(`${label} tidak ada`, !pattern.test(html),
     pattern.test(html)
       ? 'Section ini sudah dibatalkan klien, hapus dari index.html.'
       : 'OK');
+}
+
+/* ---------- 3a. Cover: foto latar ----------
+   Klien minta foto pasangan dipakai sebagai latar cover supaya
+   nama pengantin lebih terbaca. Konfigurasinya ada di
+   CONFIG.hero.backdrop dan disuntikkan renderHero() sebagai CSS
+   custom property --hero-backdrop.
+
+   Foto SENGAJA KOSONG buat sekarang: wadah (renderHero + CSS
+   ::before) sudah siap, tapi klien belum mengirim foto
+   pre-wedding. Jadi `src: ''` ADALAH keadaan yang sah - hanya
+   perlu diingat sebagai data yang menunggu klien (lihat
+   check-placeholders.mjs).
+
+   Yang diperiksa:
+     1. config hero.backdrop ada,
+     2. kalau `src` diisi, file fotonya benar-benar ada di
+        public/img/,
+     3. kalau `src` kosong, lapor bahwa wadah siap tapi foto
+        belum ada,
+     4. opacity dibatasi (kalau terlalu tinggi, teks putih malah
+        tenggelam - persis masalah yang mau diperbaiki).
+   ------------------------------------------------------------ */
+const heroBlock = cfgObjectBlock('hero: {');
+const heroSrc = (heroBlock.match(/src:\s*'([^']*)'/) || [])[1];
+const heroOpacity = Number((heroBlock.match(/opacity:\s*([\d.]+)/) || [])[1]);
+
+if (!heroBlock) {
+  add('Cover punya foto latar', false,
+    'CONFIG.hero.backdrop tidak ditemukan di config.js. Tanpa itu, '
+    + 'nama pengantin kembali menyatu dengan latar polos.');
+} else if (!heroSrc) {
+  add('Cover punya foto latar', true,
+    'Wadah siap, foto sengaja kosong (menunggu foto pre-wedding klien). '
+    + 'Saat foto datang, isi hero.backdrop.src lalu jalankan ulang.');
+} else {
+  const heroFile = heroSrc.replace(/^\.\//, 'public/');
+  add('Cover punya foto latar', existsSync(join(ROOT, heroFile)),
+    `${heroSrc} -> ${existsSync(join(ROOT, heroFile)) ? 'ada' : 'TIDAK ADA di public/img/'}`);
+
+  add('Opacity foto cover aman (<= 0.6)',
+    Number.isFinite(heroOpacity) && heroOpacity <= 0.6,
+    Number.isFinite(heroOpacity)
+      ? `opacity=${heroOpacity}`
+      : 'opacity tidak terbaca; teks bisa tenggelam di foto terang.');
+}
+
+/* Komentar HTML ikut memuat kata "<iframe>". Kalau tidak dibuang,
+   hitungan peta dan slot galeri jadi keliru. */
+const htmlNoCommentLike = html.replace(/<!--[\s\S]*?-->/g, '');
+
+/* ---------- 3b. Galeri pre-wedding ----------
+   Klien meminta galeri dikembalikan. Jumlah slot di fallback HTML
+   harus sama dengan jumlah foto di config.js, kalau tidak maka
+   satu foto diam-diam tidak tampil - atau ada slot kosong yang
+   tidak pernah diisi.
+   ------------------------------------------------------------ */
+const galleryBlock = cfgArrayBlock('photos: [');
+const galleryConfigCount = galleryBlock
+  ? (galleryBlock.match(/\bsrc:/g) || []).length
+  : -1;
+
+const galleryHtmlCount = (htmlNoCommentLike.match(/class="gallery-item"/g) || []).length;
+
+if (galleryConfigCount < 0) {
+  add('Galeri ada di config', false,
+    'Tidak menemukan "photos: [" di config.js');
+} else if (galleryConfigCount === 0) {
+  add('Galeri ada di config', false,
+    'gallery.photos kosong. Klien meminta galeri pre-wedding, '
+    + 'minimal satu foto harus terdaftar.');
+} else if (galleryHtmlCount === galleryConfigCount) {
+  add('Jumlah slot galeri = jumlah foto', true,
+    `${galleryConfigCount} foto di config, ${galleryHtmlCount} slot di HTML`);
+} else {
+  add('Jumlah slot galeri = jumlah foto', false,
+    `config.js punya ${galleryConfigCount} foto, index.html punya `
+    + `${galleryHtmlCount} slot. Samakan supaya tidak ada foto yang `
+    + 'tidak tampil atau slot kosong.');
+}
+
+/* ---------- 3c. Tombol "Buka Undangan" ----------
+   Tombol ini yang memulai musik, jadi harus ada dan harus menuju
+   ke #intro. Kalau href-nya #couple, pengunjung melompati
+   sambutan + countdown dan musik tetap tidak berbunyi.
+
+   PENTING: urutan atribut di HTML tidak dijamin (mis. `href`
+   boleh ditulis sebelum `class`). Regex yang bergantung urutan
+   akan GAGAL COCOK, lalu check ini lolos diam-diam lewat cabang
+   else. extractHref membaca seluruh tag <a> itu, bukan hanya
+   sebagian, jadi aman terhadap urutan atribut.
+   ------------------------------------------------------------ */
+
+/** Ambil nilai href dari tag <a> pertama yang memuat `marker`. */
+function extractHref(htmlSrc, marker) {
+  const i = htmlSrc.indexOf(marker);
+  if (i === -1) return null; // marker tidak ada sama sekali
+
+  const open = htmlSrc.lastIndexOf('<a', i);
+  if (open === -1) return null;
+
+  const close = htmlSrc.indexOf('>', i);
+  if (close === -1) return null;
+
+  const m = htmlSrc.slice(open, close + 1).match(/href="([^"]*)"/);
+  return m ? m[1] : ''; // '' = tag ada tapi href kosong
+}
+
+const openHref = extractHref(htmlNoCommentLike, 'id="openInvitation"');
+
+if (openHref === null) {
+  add('Tombol "Buka Undangan" ada', false,
+    'Tidak ditemukan #openInvitation di index.html. Tanpa tombol ini '
+    + 'musik tidak pernah mulai (browser memblokir autoplay).');
+} else if (openHref !== '#intro') {
+  add('Tombol "Buka Undangan" menuju #intro', false,
+    `href="${openHref}" - harus "#intro" supaya sambutan dan countdown `
+    + 'ikut terlihat.');
+} else {
+  add('Tombol "Buka Undangan" menuju #intro', true, 'href="#intro"');
+}
+
+// Panah di cover harus ke #intro juga. Dulu ke #couple sehingga
+// section sambutan terlewat.
+const arrowHref = extractHref(htmlNoCommentLike, 'class="hero-scroll"');
+
+if (arrowHref === null) {
+  add('Panah cover menuju #intro', false,
+    'Tidak ditemukan .hero-scroll di cover.');
+} else if (arrowHref !== '#intro') {
+  add('Panah cover menuju #intro', false,
+    `href="${arrowHref}" - harus "#intro".`);
+} else {
+  add('Panah cover menuju #intro', true, 'href="#intro"');
+}
+
+/* ---------- 3d. Section kontak tidak boleh di HTML ----------
+   Klien minta bagian "Ada pertanyaan?" dihapus. Section kontak
+   sekarang dibangun renderContact() hanya kalau
+   contact.whatsapp sudah diisi.
+
+   Kalau muncul lagi di index.html, artinya salah satu:
+     - Judul ditulis statis padahal tombolnya tidak ada (persis
+      keluhan klien), atau
+     -nomor WhatsApp sudah diisi tapi section lupa dihapus dari
+      HTML, sehingga muncul dua kali.
+
+   Yang diperiksa di sini: tidak ada <section class="contact">
+   di index.html, dan judul lama tidak ada di mana pun.
+   ------------------------------------------------------------ */
+add('Section kontak tidak ada di HTML',
+  !/<section[^>]*class="[^"]*contact/.test(htmlNoCommentLike),
+  /<section[^>]*class="[^"]*contact/.test(htmlNoCommentLike)
+    ? 'Section kontak ditulis statis. Biarkan renderContact() yang '
+      + 'membuatnya, atau hapus juga dari index.html.'
+    : 'OK');
+
+add('Judul "Ada pertanyaan?" dihapus',
+  !/ada pertanyaan/i.test(htmlNoCommentLike),
+  /ada pertanyaan/i.test(htmlNoCommentLike)
+    ? 'Klien sudah minta judul ini dihapus.'
+    : 'OK');
+
+/* ---------- 3e. Petunjuk tombol kalender ----------
+   Klien minta diperjelas mana tombol untuk Android dan mana untuk
+   iPhone. Tanpa petunjuk, tamu iPhone salah klik tombol Google,
+   diminta login, lalu menyerah.
+
+   Tombolnya dibangun JavaScript (src/lib/render.js), jadi yang
+   diperiksa di sini adalah kode render-nya - bukan index.html.
+   ------------------------------------------------------------ */
+const renderSrc = readFileSync(join(ROOT, 'src', 'lib', 'render.js'), 'utf8');
+
+for (const [label, needle] of [
+  ['ada label "Android"', "'Android'"],
+  ['ada label "iPhone"', "'iPhone'"],
+  ['ada judul petunjuk kalender', 'Simpan tanggal acara ke kalender'],
+]) {
+  add(`Petunjuk kalender: ${label}`, renderSrc.includes(needle),
+    renderSrc.includes(needle) ? 'OK' : `Tidak ditemukan ${needle} di render.js`);
 }
 
 /* ---------- 4. Alamat acara ----------

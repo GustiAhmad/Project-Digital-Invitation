@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 600"
+     width="400" height="600" role="img"
+     aria-label="Placeholder foto pre-wedding 2">
+  <rect width="400" height="600" fill="#f7f3eb"/>
+  <rect x="10" y="10" width="380" height="580"
+        fill="none" stroke="#b8964f" stroke-width="2" stroke-dasharray="10 8" opacity=".55"/>
+  <circle cx="200" cy="250" r="46" fill="none" stroke="#68745d" stroke-width="2.5" opacity=".35"/>
+  <path d="M170 285c0-16 13-29 30-29s30 13 30 29" fill="none" stroke="#68745d"
+        stroke-width="2.5" stroke-linecap="round" opacity=".35"/>
+  <text x="200" y="360" text-anchor="middle" font-family="Georgia,serif"
+        font-size="46" fill="#b8964f" opacity=".75">2</text>
+  <text x="200" y="392" text-anchor="middle" font-family="'Montserrat','Helvetica Neue',Arial,sans-serif" font-size="14"
+        letter-spacing="3" fill="#68745d" opacity=".6">PLACEHOLDER</text>
+</svg>

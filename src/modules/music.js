@@ -13,7 +13,7 @@
      Semua browser modern memblokir autoplay bersuara sampai ada
      interaksi pengguna. Karena itu musik HANYA mulai setelah
      pengunjung menekan "Buka Undangan" - itu juga gesture pertama
-     yang sah. Tidak ada cara sah untuk troph circumvent ini.
+     yang sah. Tidak ada cara sah untuk melewati ini.
    ========================================================= */
 
 import { $ } from '../lib/dom.js';
@@ -68,6 +68,26 @@ export function initMusic() {
       userStopped = true;
       pause();
     }
+  }
+
+  // ---- GATE MUSIK ----
+  // Klien meminta musik TIDAK mulai saat cover dibuka. Semua browser
+  // modern juga memblokir autoplay bersuara, jadi tidak ada cara sah
+  // untuk memaksa suara tanpa gesture pengguna.
+  //
+  // Klik "Buka Undangan" adalah gesture yang tepat: pengguna sudah
+  // menyatakan niat membuka undangan, dan ini sekaligus memberi tahu
+  // browser bahwa audio boleh diputar (user activation).
+  //
+  // Anchor ke #intro tetap dipakai (href di index.html) supaya
+  //Undangan tetap bisa dibuka tanpa JavaScript.
+  const openBtn = $('#openInvitation');
+  if (openBtn) {
+    openBtn.addEventListener('click', () => {
+      // Jangan hidupkan lagi kalau tamu sudah sengaja mematikan -
+      // menghormati pilihan mereka lebih penting.
+      if (!userStopped && audio.paused) play();
+    });
   }
 
   // Tombol musik

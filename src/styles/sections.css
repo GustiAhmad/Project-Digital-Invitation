@@ -7,11 +7,19 @@
 /* =========================================================
    1. HERO
    ------------------------------------------------------------
-   Klien meminta konsep simpel: tanpa foto cover, tanpa tombol
-   "Buka Undangan". Karena tidak ada gambar latar, section ini
-   memakai warna solid + ornamen CSS ringan. Itu disengaja:
-   hilang satu file SVG background = satu request dan beberapa KB
-   yang tidak perlu.
+   Klien awalnya meminta konsep simpel tanpa foto cover, lalu
+   berubah pikiran: nama pengantin di cover dinilai terlalu menyatu
+   dengan latar sehingga sulit dibaca. Solusinya dua lapis:
+
+     1. foto sebagai latar, diredupkan (--hero-backdrop-opacity),
+        supaya teks tetap jadi elemen utama - bukan foto yang
+        mencolok dan teks yang jadi samar; dan
+     2. scrim gelap berlapis (#cover::after) plus text-shadow.
+
+   `--hero-backdrop` diisi dari CONFIG.hero.backdrop di
+   src/lib/render.js (renderHero). Kalau var itu belum diisi -
+   mis. JS mati - cover tetap pakai gradien solid seperti dulu,
+   jadi tidak pernah jadi background kosong.
    ========================================================= */
 #cover {
   position: relative;
@@ -33,30 +41,135 @@
     radial-gradient(circle at 50% 42%, transparent 58%, rgba(201, 162, 39, .16) 59%, transparent 61%);
 }
 
+/* ---------- Foto latar + scrim ----------
+   Dua pseudo-element, bukan background-image langsung, karena
+   keduanya butuh opacity DAN z-index yang berbeda:
+     ::before = foto (di redupkan)
+     ::after  = scrim gelap (menjaga kontras teks)
+   Kalau digabung ke background-image, opacity foto akan ikut
+   meredupkan warna solid di belakanganya juga. */
+#cover::before,
+#cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#cover::before {
+  background-image: var(--hero-backdrop, none);
+  background-size: cover;
+  background-position: var(--hero-backdrop-position, 50% 30%);
+  background-repeat: no-repeat;
+  opacity: var(--hero-backdrop-opacity, 0);
+  z-index: -2;
+}
+
+/* Scrim: paling gelap di tengah, agak longgar di tepi. Area
+   tengah-tengah halaman bukan kebetulan - di situlah nama
+   dan tombol berada, jadi bagian yang paling butuh kontras. */
+#cover::after {
+  background:
+    radial-gradient(ellipse 70% 55% at 50% 46%,
+      rgba(20, 24, 19, .82) 0%,
+      rgba(20, 24, 19, .62) 55%,
+      rgba(20, 24, 19, .34) 100%),
+    linear-gradient(to bottom,
+      rgba(20, 24, 19, .55) 0%,
+      rgba(20, 24, 19, .28) 30%,
+      rgba(20, 24, 19, .38) 100%);
+  z-index: -1;
+}
+
 .hero-content {
+  position: relative;
+  z-index: 1;
   max-width: 720px;
   animation: fade-up .9s cubic-bezier(.2, .7, .3, 1) both;
 }
 
+/* ---------- Kontras teks di atas foto ----------
+   Nama pengantin sebelumnya dianggap "terlalu menyatu dengan
+   background". Tiga lapis sekarang: scrim ::after di atas,
+   text-shadow berlapis di sini, dan font tetap putih penuh. */
 .hero-content h1 {
   font-size: var(--fs-h1);
-  text-shadow: 0 2px 28px rgba(0, 0, 0, .5);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, .55),
+    0 2px 18px rgba(0, 0, 0, .65),
+    0 4px 40px rgba(0, 0, 0, .5);
 }
 
 .hero-content .small-title {
   color: var(--gold-light);
   letter-spacing: var(--tracking-widest);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, .6),
+    0 2px 14px rgba(0, 0, 0, .6);
 }
 
 .hero-date {
   margin-block: var(--sp-6);
   font-size: var(--fs-md);
   letter-spacing: 2px;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, .6),
+    0 2px 14px rgba(0, 0, 0, .65);
+}
+
+/* ---------- TOMBOL "BUKA UNDANGAN" ----------
+   Klien meminta tombol ini ada. Fungsinya nyata, bukan hiasan:
+   mengarahkan ke #intro sekaligus menjadi gesture yang sah untuk
+   memulai musik (browser memblokir autoplay bersuara).
+   Karena itu targetnya Sapaan + countdown, BUKAN langsung ke
+   profil pengantin - halaman jadi terasa runtut. */
+.btn--open {
+  margin-top: var(--sp-5);
+  padding: var(--sp-4) var(--sp-8);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  background: var(--gold);
+  color: var(--forest-deep);
+  border: 1px solid var(--gold);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+}
+
+.btn--open:hover,
+.btn--open:focus-visible {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+  transform: translateY(-2px);
+}
+
+.btn--open .btn__icon {
+  transition: transform .2s ease;
+}
+
+.btn--open:hover .btn__icon {
+  transform: translateX(3px);
+}
+
+/* Sapaan personal di cover. Default disembunyikan di HTML supaya
+   tidak ada baris kosong saat JS belum sempat berjalan. */
+.hero-guest {
+  margin-top: var(--sp-4);
+  font-family: var(--font-script);
+  font-size: clamp(1.25rem, 5.5vw, 1.75rem);
+  color: var(--gold-light);
   text-shadow: 0 1px 14px rgba(0, 0, 0, .55);
 }
 
-/* Panah "gulir ke bawah" - penanda bahwa masih ada isi di bawah,
-   penting sekarang karena tidak ada tombol "Buka Undangan". */
+/* Sapaan personal di halaman sambutan. */
+.guest-line {
+  margin-top: var(--sp-3);
+  font-family: var(--font-script);
+  font-size: clamp(1.375rem, 6vw, 1.875rem);
+  color: var(--forest);
+}
+
+/* Panah "lanjut ke bawah" - penanda bahwa masih ada isi di bawah.
+   Dipakai bersama tombol Buka Undangan, bukan menggantikannya. */
 .hero-scroll {
   display: inline-flex;
   align-items: center;
@@ -84,63 +197,17 @@
 /* =========================================================
    2. INTRO
    ========================================================= */
-.intro { background: var(--bg-alt); text-align: center; }
-
-.intro .script {
-  font-size: var(--fs-script);
-  margin-block: var(--sp-5);
-  color: var(--forest);
-}
-
-/* ---------- COUNTDOWN ---------- */
-.countdown {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: clamp(6px, 2.5vw, 14px);
-  margin-top: var(--sp-8);
-}
-
-.count-box {
-  /* flex-basis, bukan width tetap: mencegah luapan di layar 320px */
-  flex: 1 1 76px;
-  min-width: 0;
-  max-width: 96px;
-  padding: var(--sp-3) 2px;
-  background: var(--bg-card);
-  border-radius: var(--r-md);
-  box-shadow: var(--sh-xs);
-}
-
-.count-box strong {
-  display: block;
-  font-family: var(--font-serif);
-  font-style: normal;
-  font-size: clamp(1.25rem, 6vw, 1.5625rem);
-  font-variant-numeric: tabular-nums;
-  line-height: 1.1;
-  color: var(--forest);
-}
-
-.count-box span {
-  display: block;
-  font-size: 9px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.countdown.is-finished { opacity: .55; }
-
-.countdown-note {
-  margin-top: var(--sp-5);
-  font-family: var(--font-script);
-  font-size: var(--fs-script-sm);
-  color: var(--olive);
+.intro {
+  background: var(--bg-alt);
+  text-align: center;
+  /* Tombol "Buka Undangan" dan panah sama-sama menuju ke sini.
+     Tanpa scroll-margin-top, header fixed akan menutupi baris
+     pertama ("Assalamu'alaikum") tepat setelah lompat. */
+  scroll-margin-top: 90px;
 }
 
 /* =========================================================
-   3. MEMPELAI
+   4. MEMPELAI
    ========================================================= */
 .couple { background: var(--bg-page); }
 
@@ -247,7 +314,121 @@
 .event-card__cta:hover svg { transform: translateX(3px); }
 
 /* =========================================================
-   5. LOKASI
+   5. GALERI PRE-WEDDING
+   ------------------------------------------------------------
+   Grid murni CSS, tanpa library. Jumlah kolom menyesuaikan lebar
+   layar supaya tidak perlu JavaScript sama sekali.
+   ========================================================= */
+.gallery {
+  background: var(--bg-alt);
+  padding-block: var(--sp-16);
+}
+
+.gallery-grid {
+  display: grid;
+  /* auto-fit + minmax: 2 kolom di HP, bertambah otomatis di tablet
+     dan desktop tanpa breakpoint tambahan. */
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-8);
+}
+
+.gallery-item {
+  /* Rasio 2:3 dijaga di semua ukuran kolom, jadi grid tidak
+     melompat saat gambar dimuat. */
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--bg-card);
+  box-shadow: var(--sh-xs);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.04);
+}
+
+/* Placeholder bernomor - dipakai selama foto asli belum dikirim
+   klien, supaya tata letak galeri tetap bisa direview. */
+.gallery-item--empty {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--gold-soft);
+  box-shadow: none;
+}
+
+.gallery-item__num {
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  color: var(--gold);
+  opacity: .5;
+}
+
+.countdown.is-finished { opacity: .55; }
+
+.intro .script {
+  font-size: var(--fs-script);
+  margin-block: var(--sp-5);
+  color: var(--forest);
+}
+
+/* ---------- COUNTDOWN ---------- */
+.countdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(6px, 2.5vw, 14px);
+  margin-top: var(--sp-8);
+}
+
+.count-box {
+  /* flex-basis, bukan width tetap: mencegah luapan di layar 320px */
+  flex: 1 1 76px;
+  min-width: 0;
+  max-width: 96px;
+  padding: var(--sp-3) 2px;
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-xs);
+}
+
+.count-box strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-style: normal;
+  font-size: clamp(1.25rem, 6vw, 1.5625rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--forest);
+}
+
+.count-box span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.countdown.is-finished { opacity: .55; }
+
+.countdown-note {
+  margin-top: var(--sp-5);
+  font-family: var(--font-script);
+  font-size: var(--fs-script-sm);
+  color: var(--olive);
+}
+
+/* =========================================================
+   6. LOKASI
    ========================================================= */
 .location { background: var(--bg-page); text-align: center; }
 
@@ -359,7 +540,7 @@
 }
 
 /* =========================================================
-   6. RSVP
+   7. RSVP
    ========================================================= */
 .rsvp { background: var(--bg-alt); }
 
@@ -371,7 +552,9 @@
 }
 
 /* =========================================================
-   9. UCAPAN
+   8. UCAPAN
+   ------------------------------------------------------------
+   (nomor urut mengikuti urutan section di index.html)
    ========================================================= */
 .wishes { background: var(--bg-page); }
 
@@ -449,7 +632,7 @@
 }
 
 /* =========================================================
-   7. KONTAK
+   8. KONTAK
    ------------------------------------------------------------
    Tombol WhatsApp. `hidden` di HTML awal, lalu dihapus oleh
    renderContact() hanya kalau nomor sudah diisi di config.js.
@@ -462,7 +645,7 @@
 }
 
 /* =========================================================
-   8. BAGIKAN + QR
+   9. BAGIKAN + QR
    ========================================================= */
 .qr { background: var(--bg-alt); text-align: center; }
 
@@ -494,7 +677,7 @@
 }
 
 /* =========================================================
-   9. FOOTER
+   10. FOOTER
    ========================================================= */
 footer {
   padding: var(--sp-16) var(--sp-5);

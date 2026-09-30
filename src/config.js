@@ -100,12 +100,23 @@ export const CONFIG = {
       icon: 'rings',
       date: '2026-10-25',
       startTime: '08:00',
-      // TODO-KLIEN: konfirmasi jam selesai. Nilai ini dipakai untuk
-      // batas akhir di file kalender (.ics & Google Calendar).
-      endTime: '13:00',
-      // TODO-KLIEN: nama resmi lokasi, bila ada.
-      // Kalau acaranya di rumah, kosongkan saja: alamat di bawah
-      // sudah cukup jelas tanpa nama bangunan.
+      // Batas akhir untuk FILE KALENDER (.ics & Google Calendar).
+      // Nilai ini tidak pernah ditampilkan ke tamu - yang tampil
+      // adalah `endTimeLabel` di bawah.
+      //
+      // Dipakai 17:00 karena kalender butuh jam konkret: kalau
+      // acaranya diisi "08:00 - Selesai", Google Calendar tidak bisa
+      // mengaturnya dan akan membuat acara 0 menit.
+      endTime: '17:00',
+      // Yang benar-benar ditulis di halaman. Klien meminta ditulis
+      // "08.00 - Selesai" karena jamンドanya memang belum pasti.
+      endTimeLabel: 'Selesai',
+      // TODO-KLIEN: konfirmasi jam selesai dengan klien sebelum deploy.
+      // Kalau klien jadi memberi jam konkret, isi `endTimeLabel` dengan
+      // jam itu (mis. '17.00') supaya halaman dan kalender konsisten.
+      // TODO-KLIEN: nama resmi lokasi, bila ada. Kalau acaranya di
+      // rumah, kosongkan saja: alamat di bawah sudah cukup jelas
+      // tanpa nama bangunan.
       venue: '',
       address: 'Jl. Kuin Selatan RT 12',
       district: 'Kuin Selatan, Banjarmasin Barat',
@@ -120,18 +131,117 @@ export const CONFIG = {
   ],
 
   /* =======================================================
+     GALERI PRE-WEDDING
+     ------------------------------------------------------------
+     Klien meminta galeri pre-wedding ditampilkan lagi.
+
+     CARA MENGISI:
+       1. Simpan foto ke assets-src/ (folder ini tidak masuk Git).
+       2. Jalankan `npm run optimize` untuk membuat varian WebP.
+       3. Update `widths` di bawah dengan lebar varian yang Benar-BENAR
+          ada di disk - tools/check-images.mjs akan gagal kalau meleset,
+          jadi tidak mungkin salah diam-diam.
+
+     `src` masih menunjuk placeholder .svg yang dibuat oleh
+     `npm run placeholders`. Setelah klien mengirim foto asli:
+       1. simpan ke assets-src/,
+       2. jalankan `npm run optimize`,
+       3. ubah `src` di bawah ke .jpg + isi `widths` dengan lebar
+          varian WebP yang benar-benar ada.
+     ======================================================= */
+  gallery: {
+    label: 'Gallery',
+    title: 'Pre-Wedding',
+    caption: 'Detik-detik sebelum hari besar kami.',
+    photos: [
+      { src: './img/gallery-1.svg', alt: 'Foto pre-wedding 1', widths: [] },
+      { src: './img/gallery-2.svg', alt: 'Foto pre-wedding 2', widths: [] },
+      { src: './img/gallery-3.svg', alt: 'Foto pre-wedding 3', widths: [] },
+      { src: './img/gallery-4.svg', alt: 'Foto pre-wedding 4', widths: [] },
+      { src: './img/gallery-5.svg', alt: 'Foto pre-wedding 5', widths: [] },
+      { src: './img/gallery-6.svg', alt: 'Foto pre-wedding 6', widths: [] },
+    ],
+  },
+
+  /* =======================================================
+     TAMU PER-UNDANGAN
+     ------------------------------------------------------------
+     Satu Undangan bisa dikirim ke banyak orang. Parameter ?to= pada
+     URL menyebut nama tamu yang sedang membuka, lalu nama itu
+     dipakai di cover dan di halaman sambutan:
+
+         https://domain/undangan?to=Bapak%20H.%20Rahman
+
+     Tanpa parameter, halaman tetap tampil dengan sapaan umum
+     ("Bapak/Ibu/Saudara/i") - tidak ada elemen kosong.
+
+     modules/guest.js membacanya. Penulisan lewat textContent, bukan
+     innerHTML, jadi nama dari URL tidak bisa disisipkan sebagai HTML.
+     ======================================================= */
+  guest: {
+    queryParam: 'to',
+    // Sapaan umum dipakai kalau tidak ada ?to=.
+    genericSalutation: 'Bapak/Ibu/Saudara/i',
+    // Batas panjang nama: mencegah URL yang sangat panjang merusak
+    // layout, dan menahan nama yang tidak wajar.
+    maxLength: 60,
+  },
+
+  /* =======================================================
      KONTAK
      ------------------------------------------------------------
-     Kosongkan `whatsapp` untuk menyembunyikan tombolnya.
+     Kosongkan `whatsapp` untuk menyembunyikan SELURUH section
+     kontak - bukan cuma tombolnya. Klien meminta judul
+     "Ada pertanyaan?" dihapus, jadi sekarang tidak ada teks
+     yang tampil tanpa tombolnya (dulu leftover "Ada pertanyaan?"
+     dengan section kosong di bawahnya).
+
+     Section-nya sendiri dibangun renderContact() di
+     src/lib/render.js, jadi tidak ada di index.html sama sekali
+     kalau whatsapp kosong.
+
      Format internasional tanpa "+" dan tanpa spasi, contoh:
        6281234567890
      ======================================================= */
   contact: {
+    // Dipakai sebagai judul section kalau whatsapp sudah diisi.
+    title: 'Hubungi Kami',
     label: 'Kontak Pengantin',
     // TODO-KLIEN: nomor WhatsApp pasangan (format internasional).
     whatsapp: '',
     message:
       'Assalamu\'alaikum, saya ingin mengonfirmasi kehadiran untuk pernikahan Muhammad Irfani & Parida Paska.',
+  },
+
+  /* =======================================================
+     BACKDROP COVER
+     ------------------------------------------------------------
+     Klien minta nama pengantin di cover sulit dibaca karena
+     menyatu dengan latar. Solusinya:
+       1. foto jadi latar, diredupkan (opacity) supaya teks
+          tetap jadi elemen utama, dan
+       2. scrim gelap + text-shadow (lihat styles/sections.css).
+
+     WADAH-nya sudah disiapkan (renderHero + CSS ::before),
+     tapi FOTO-nya sengaja dikosongkan buat sekarang - pakai
+     foto mempelai pria cuma untuk prototipe, dan klien belum
+     mengirim foto pre-wedding. Waktu foto datang, isi `src`
+     di bawah (idealnya landscape 1200x1600 atau lebih supaya
+     tidak pecah saat di-cover), lalu jalankan `npm run check`.
+     ======================================================= */
+  hero: {
+    backdrop: {
+      // Kosong = wadah siap, foto belum ada. Cover otomatis
+      // kembali ke gradien solid (tanpa foto).
+      src: '',
+      alt: 'Foto pre-wedding Muhammad Irfani & Parida Paska',
+      // 0..1. Jangan naikkan di atas ~0.45: teks putih di atas
+      // foto terang akan jadi sulit dibaca lagi.
+      opacity: 0.32,
+      // Fokus saat foto dipotong oleh background-size: cover.
+      // '50% 30%' = bagian atas foto, tempat wajah biasanya ada.
+      position: '50% 30%',
+    },
   },
 
   /* =======================================================

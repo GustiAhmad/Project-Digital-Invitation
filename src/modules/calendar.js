@@ -31,15 +31,39 @@
    ========================================================= */
 
 import { CONFIG, eventStartISO, eventEndISO, eventFullAddress, PRIMARY_EVENT } from '../config.js';
-import { formatDateLong, toICSStamp } from '../lib/format.js';
+import { formatDateLong, formatTimeRange, toICSStamp } from '../lib/format.js';
 import { $$, el } from '../lib/dom.js';
 import { icon } from '../lib/icons.js';
+
+/**
+ * Pengingat (reminder) dalam milidetik sebelum acara dimulai.
+ *
+ * PENTING - batasan platform:
+ *   - File .ics BISA membawa pengingat sendiri lewat VALARM.
+ *     Ini yang dipakai di sini (3 hari & 1 hari sebelum).
+ *   - Tombol "Google Calendar" TIDAK bisa. Template URL Google
+ *     (`calendar/render?action=TEMPLATE`) hanya menerima action,
+ *     text, dates, details, location, ctz, sprop, dan
+ *     sprop-date-names - tidak ada parameter reminder. Jadi lewat
+ *     tombol itu, Google selalu memakai default 30 menit (bukan
+ *     10 menit) dan tamu harus mengubahnya manual setelah acara
+ *     muncul di Google Calendar.
+ *
+ *   Kalau pengingat wajib, arahkan tamu ke tombol .ics.
+ */
+const REMINDERS = [
+  { days: 3, label: '3 hari lagi' },
+  { days: 1, label: 'besok' },
+];
 
 /** Ringkasan singkat yang dipakai di deskripsi acara. */
 function eventDetails(event) {
   const { groom, bride } = CONFIG.meta;
   return [
-    `${formatDateLong(event.date)} pukul ${event.startTime.replace(':', '.')} WITA`,
+    // Pakai format yang DIPERLIHATKAN di halaman ("Selesai"), bukan
+    // jam teknis 17:00. Detail ini dibaca manusia di Google
+    // Calendar, jadi harus sama dengan yang tertulis di undangan.
+    `${formatDateLong(event.date)} pukul ${formatTimeRange(event)}`,
     // Pakai event.title, bukan teks hardcoded. Kalau nanti acara
     // dipecah jadi dua, deskripsi kalender ikut berubah sendiri.
     `${event.title} - ${groom} & ${bride}`,
@@ -85,11 +109,18 @@ export function buildIcs(event = PRIMARY_EVENT) {
     `SUMMARY:${escapeIcs(`${event.title} - ${CONFIG.meta.groom} & ${CONFIG.meta.bride}`)}`,
     `DESCRIPTION:${escapeIcs(eventDetails(event))}`,
     `LOCATION:${escapeIcs(eventFullAddress(event))}`,
-    'BEGIN:VALARM',
-    'TRIGGER:-P1D',
-    'ACTION:DISPLAY',
-    `DESCRIPTION:${escapeIcs(event.title)} besok`,
-    'END:VALARM',
+    // VALARM wajib punya ACTION dan TRIGGER. DISPLAY = notifikasi
+    // diam (tanpa bunyi), yang paling tidak mengganggu untuk tamu.
+    // -.P1D = 1 hari sebelum, -P3D = 3 hari sebelum.
+    // Satu VALARM per pengingat; duplikat TRIGGER akan diabaikan
+    // sebagian aplikasi kalender.
+    ...REMINDERS.flatMap((r) => [
+      'BEGIN:VALARM',
+      `TRIGGER:-P${r.days}D`,
+      'ACTION:DISPLAY',
+      `DESCRIPTION:${escapeIcs(`${event.title} - ${r.label}`)}`,
+      'END:VALARM',
+    ]),
     'END:VEVENT',
     'END:VCALENDAR',
   ];

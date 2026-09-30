@@ -11,6 +11,8 @@ import './styles/main.css';
 import { renderAll } from './lib/render.js';
 import { initCountdown } from './modules/countdown.js';
 import { initMusic } from './modules/music.js';
+import { renderGuestName } from './modules/guest.js';
+import { initGallery } from './modules/gallery.js';
 import { initWishes } from './modules/wishes.js';
 import { initRsvp } from './modules/rsvp.js';
 import { initShare, initCharCount, initUnsavedGuard } from './modules/share.js';
@@ -23,6 +25,8 @@ function boot() {
   // 2. Pasang fitur interaktif
   initCountdown();
   initMusic();
+  renderGuestName();
+  initGallery();
   initWishes();
   initRsvp();
   initShare();

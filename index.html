@@ -49,10 +49,20 @@
 <main id="main">
 
   <!-- ============ 1. HERO ============ -->
-  <!-- Klien meminta konsep simpel: tanpa foto cover dan tanpa
-       animasi "Buka Undangan". Langsung menampilkan nama & tanggal.
-       ID tetap "cover" supaya CSS & anchor lama tidak putus, tapi
-       isinya sekarang murni hero teks. -->
+  <!-- Cover punya wadah foto latar (hero.backdrop di config.js diisi
+       renderHero() lewat CSS var --hero-backdrop). Untuk sekarang
+       sengaja KOSONG: klien belum mengirim foto pre-wedding, dan
+       memakai foto mempelai pria cuma untuk prototipe terasa aneh.
+       Di sini juga ada tombol "Buka Undangan" dengan dua fungsi:
+         1. Menggulir ke #intro (sapaan + countdown), BUKAN langsung ke
+            #couple, supaya urutan halaman terasa runtut.
+         2. Membuka musik. Semua browser modern memblokir autoplay
+            bersuara sampai ada interaksi pengguna, jadi klik di sini
+            adalah gesture yang sah. Listener-nya dipasang di
+            modules/music.js (lihat "GATE MUSIK" di sana).
+       Tanpa JS tombol tetap bekerja: href="#intro" adalah anchor biasa.
+       Nama tamu dipersonalisasi oleh modules/guest.js lewat parameter
+       ?to= pada URL, jadi teks sapaan sengaja ditulis umum di sini. -->
   <section id="cover">
     <div class="hero-content">
       <p class="small-title">The Wedding Of</p>
@@ -65,7 +75,20 @@
       <p class="hero-date">
         <time datetime="2026-10-25T08:00:00+08:00">Minggu, 25 Oktober 2026</time>
       </p>
-      <a href="#couple" class="hero-scroll" aria-label="Gulir ke bawah">
+
+      <!-- Sapaan di cover, diisi modules/guest.js dari parameter ?to=.
+           Disembunyikan di HTML supaya tidak ada baris kosong kalau
+           JS belum sempat berjalan atau link tidak punya nama tamu.
+           Tanpa JS nama spesifik mustahil tampil: itu keterbatasan
+           yang disengaja supaya preview WhatsApp tetap terbaca. -->
+      <p class="hero-guest" data-guest="cover" hidden></p>
+
+      <a href="#intro" class="btn btn--open" id="openInvitation">
+        <span>Buka Undangan</span>
+        <span class="btn__icon" data-icon="chevronRight" data-size="18" aria-hidden="true"></span>
+      </a>
+
+      <a href="#intro" class="hero-scroll" aria-label="Lanjut ke sambutan">
         <span data-icon="chevronRight" data-size="20" aria-hidden="true"></span>
       </a>
     </div>
@@ -75,6 +98,10 @@
   <section id="intro" class="intro">
     <div class="container">
       <p class="small-title">Assalamu'alaikum Wr. Wb.</p>
+      <!-- Baris sapaan personal. modules/guest.js mengisinya dari
+           parameter ?to=; kalau kosong, modules/share.js menuliskannya
+           sebagai "Bapak/Ibu/Saudara/i" supaya tidak pernah kosong. -->
+      <p class="guest-line" data-guest="intro"></p>
       <p class="text">
         Dengan penuh rasa bahagia, kami mengundang Bapak/Ibu/Saudara/i
         untuk hadir dalam acara pernikahan kami.
@@ -158,7 +185,10 @@
         <div class="event-icon" data-icon="rings" data-size="34" aria-hidden="true"></div>
         <h3>Akad &amp; Resepsi</h3>
         <p>Minggu, 25 Oktober 2026</p>
-        <p>08.00 &ndash; 13.00 WITA</p>
+        <!-- Jam selesai ditampilkan "Selesai" (src/config.js ->
+             endTimeLabel). Jam konkret 17:00 hanya dipakai di file
+             kalender, tidak pernah ditulis di halaman. -->
+        <p>08.00 &ndash; Selesai WITA</p>
         <p>Jl. Kuin Selatan RT 12, Kuin Selatan, Banjarmasin Barat, Kota Banjarmasin, Kalimantan Selatan</p>
         <a href="#venue-akad-resepsi" class="btn btn--sm event-card__cta">Lihat Lokasi</a>
       </div>
@@ -166,7 +196,42 @@
     </div>
   </section>
 
-  <!-- ============ 5. LOKASI ============ -->
+  <!-- ============ 5. GALERI PRE-WEDDING ============ -->
+  <!-- Klien meminta galeri pre-wedding ditampilkan lagi.
+       Slot dibangun dari array `gallery.photos` di src/config.js, jadi
+       menambah/mengurangi foto cukup lewat config.
+
+       Foto asli belum dikirim klien, jadi yang tampil sekarang masih
+       placeholder bernomor. Setelah klien memberi foto: simpan ke
+       assets-src/, jalankan `npm run optimize`, lalu perbarui `src`
+       dan `widths` di config.js. srcset-nya dipasang oleh
+       src/modules/gallery.js dari `widths` yang sama.
+
+       Slot fallback di dalam ini dipakai tools/check-content.mjs
+       untuk memeriksa jumlah slot selalu sama dengan jumlah foto. -->
+  <section class="gallery" aria-labelledby="gallery-title">
+    <div class="container">
+      <div class="center">
+        <p class="small-title" data-text="gallery.label">Gallery</p>
+        <h2 class="title" id="gallery-title" data-text="gallery.title">Pre-Wedding</h2>
+        <p class="text" data-text="gallery.caption">Detik-detik sebelum hari besar kami.</p>
+      </div>
+
+      <div class="gallery-grid" data-render="gallery">
+        <!-- Fallback statis: 6 slot. tools/check-content.mjs
+             membandingkannya dengan gallery.photos di config.js.
+             src masih placeholder; lihat catatan galeri di config.js. -->
+        <div class="gallery-item"><img src="./img/gallery-1.svg" alt="Foto pre-wedding 1" loading="lazy" decoding="async"></div>
+        <div class="gallery-item"><img src="./img/gallery-2.svg" alt="Foto pre-wedding 2" loading="lazy" decoding="async"></div>
+        <div class="gallery-item"><img src="./img/gallery-3.svg" alt="Foto pre-wedding 3" loading="lazy" decoding="async"></div>
+        <div class="gallery-item"><img src="./img/gallery-4.svg" alt="Foto pre-wedding 4" loading="lazy" decoding="async"></div>
+        <div class="gallery-item"><img src="./img/gallery-5.svg" alt="Foto pre-wedding 5" loading="lazy" decoding="async"></div>
+        <div class="gallery-item"><img src="./img/gallery-6.svg" alt="Foto pre-wedding 6" loading="lazy" decoding="async"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 6. LOKASI ============ -->
   <section id="location" class="location" aria-labelledby="location-title">
     <div class="container">
       <div class="center">
@@ -216,14 +281,15 @@
   </section>
 
   <!-- ============ 6. KONTAK ============ -->
-  <!-- Tombol WhatsApp disembunyikan oleh renderContact() selama
-       contact.whatsapp di config.js masih kosong. -->
-  <section class="contact" aria-labelledby="contact-title">
-    <div class="container center">
-      <h2 class="title" id="contact-title">Ada pertanyaan?</h2>
-      <div class="contact-actions" data-render="contact" hidden></div>
-    </div>
-  </section>
+  <!-- Sengaja TIDAK ada section kontak di sini.
+       contact.whatsapp di config.js masih kosong, dan renderContact()
+       di src/lib/render.js baru membuat section-nya kalau nomor
+       sudah diisi. Kalau section ini ditulis di HTML, yang tampil
+       cuma judulnya sendirian dengan section kosong di bawahnya -
+       persis yang sudah diminta klien dihapus.
+
+       Begitu klien memberi nomor WhatsApp, section ini muncul
+       otomatis tanpa perlu mengedit HTML. -->
 
   <!-- ============ 7. RSVP ============ -->
   <section class="rsvp" id="rsvp" aria-labelledby="rsvp-title">

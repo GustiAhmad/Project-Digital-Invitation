@@ -4,9 +4,10 @@ Web undangan pernikahan interaktif untuk **Muhammad Irfani & Parida Paska**.
 Mobile-first, real-time, dan gratis selamanya (free tier).
 
 Konsepnya sengaja simpel sesuai permintaan klien: satu halaman,
-tanpa foto cover, tanpa galeri, tanpa love story, tanpa donasi.
-Tamu bisa lihat tanggal, buka Google Calendar, simpan `.ics`, dan
-buka Google Maps tanpa signup.
+satu acara - tanpa love story, tanpa donasi, dan tanpa section
+kontak selama nomor WhatsApp belum ada. Tamu bisa lihat tanggal,
+buka Google Calendar, simpan `.ics`, dan buka Google Maps tanpa
+signup.
 
 ---
 
@@ -18,7 +19,7 @@ buka Google Maps tanpa signup.
 | Frontend | Vanilla JS (ES modules) + CSS Custom Properties | Gratis |
 | Backend / DB | Supabase (Postgres + Realtime + Auth + RLS) | Gratis |
 | Hosting | Vercel / Netlify / GitHub Pages | Gratis |
-| Galeri | Swiper 11 + PhotoSwipe 5 | Gratis |
+| Galeri | CSS Grid murni (tanpa library) | Gratis |
 | Ikon | Lucide | Gratis |
 | Anti-spam | Cloudflare Turnstile | Gratis |
 | Font | Google Fonts | Gratis |
@@ -114,13 +115,14 @@ ke `config.js` -> `npm run check:images`.
 | `npm install` gagal / `ETIMEDOUT` | Koneksi lambat. Coba: `npm config set registry https://registry.npmjs.org/` lalu ulangi. |
 | Port 5173 sudah dipakai | Vite otomatis pindah ke 5174. Lihat output terminal. |
 | Halaman kosong, error di console | Tekan `F12` -> tab Console, baca pesan errornya. |
-| Audio tidak berbunyi | Wajib klik dulu (kebijakan autoplay browser). Ada tombol musik. |
+| Audio tidak berbunyi | Wajib klik dulu (kebijakan autoplay browser). Klik tombol "Buka Undangan" di cover. |
+| Nama tamu tidak muncul | Coba URL dengan `?to=Nama+Tamu`, mis. `/?to=Bapak+H.+Rahman`. |
 | `.env` tidak terbaca | Pastikan file bernama persis `.env` (bukan `.env.txt`) di root project. |
 | Tanggal / nama hari di preview WhatsApp berbeda | Jalankan `npm run check` - akan menunjukkan letak masalahnya. |
 | Preview WhatsApp masih nama/tanggal lama | `og-image.png` ikut berubah kalau `config.js` berubah. Jalankan `npm run og`. |
 | Tombol "Simpan (.ics)" tidak muncul | Tombol dibangun JavaScript. Kalau tidak terlihat, cek error di Console. |
 | Section kontak kosong | Itu memang disengaja selama `contact.whatsapp` masih `''`. |
-| `npm run check` gagal soal rekening/galeri/cerita | Section itu dibatalkan klien. Hapus dari `index.html`, jangan diabaikan. |
+| `npm run check` gagal soal rekening/cerita/kontak-statis | Rekening & cerita dibatalkan klien; section kontak statis ("Ada pertanyaan?") juga sudah dihapus atas permintaan klien. Kalau salah satunya muncul lagi, hapus dari `index.html` - jangan diabaikan. |
 
 ---
 
@@ -209,7 +211,12 @@ export const CONFIG = {
     title: 'Akad & Resepsi',
     date: '2026-10-25',      // WAJIB format YYYY-MM-DD
     startTime: '08:00',
-    endTime: '13:00',         // WAJIB - masuk ke DTEND file .ics
+    // endTime = jam konkret untuk file kalender (DTEND .ics, dates
+    // Google Calendar). TIDAK pernah ditampilkan ke tamu.
+    endTime: '17:00',
+    // endTimeLabel = yang DITAMPILKAN di halaman. "Selesai" sesuai
+    // permintaan klien; kalau nanti pasti, isi jam mis. '17.00'.
+    endTimeLabel: 'Selesai',
     venue: '',                // kosong = hanya tampilkan alamat
     address: 'Jl. Kuin Selatan RT 12',
     district: 'Kuin Selatan, Banjarmasin Barat',
@@ -248,21 +255,33 @@ npm run check     # pastikan HTML & config tetap sinkron
 Semua di-generate dari `config.js`, jadi **otomatis ikut berubah**.
 Tidak perlu edit HTML.
 
-Ada dua tombol kalender di setiap kartu acara:
+Ada dua tombol kalender di setiap kartu acara, dan masing-masing
+sudah diberi label perangkat supaya tamu tidak menebak:
 
-| Tombol | Untuk siapa | Cara kerja |
-|---|---|---|
-| **Google Calendar** | Yang pakai Google Calendar / Gmail | Buka tab pratinjau resmi Google, tinggal tekan "Simpan" |
-| **Simpan (.ics)** | Yang pakai iOS Calendar, Outlook, Samsung Calendar | Unduh file `.ics` standar |
+| Tombol | Label | Untuk siapa | Cara kerja |
+|---|---|---|---|
+| **Google Calendar** | Android | Yang pakai Google Calendar / Gmail | Buka tab pratinjau resmi Google, tinggal tekan "Simpan" |
+| **Simpan (.ics)** | iPhone | iOS Calendar, Outlook, Samsung Calendar | Unduh file `.ics` standar |
 
 Kenapa dua-duanya? Kalau cuma ada tombol Google, tamu iPhone akan
 bingung lalu mengetik ulang sendiri. `.ics` dibaca hampir semua
 aplikasi kalender.
 
-> **Jam selesai wajib diisi.** Nilai `endTime` ikut ditulis ke
-> `DTEND` di file `.ics` dan ke parameter `dates` di Google
-> Calendar. Kalau `endTime` salah, semua tamu dapat pengingat yang
-> salah waktunya.
+**Pengingat otomatis** (yang dibawa oleh file `.ics`):
+- 3 hari sebelum acara dan 1 hari sebelum acara (VALARM `-P3D` dan
+  `-P1D` di dalam file).
+- Tombol **Google Calendar tidak bisa membawa pengingat** - URL
+  template Google (`calendar/render?action=TEMPLATE`) tidak
+  menerima parameter reminder, jadi Google selalu memakai default
+  sendiri (30 menit). Kalau pengingat wajib ada, tamu harus pakai
+  tombol "Simpan (.ics)".
+
+> **Jam selesai wajib diisi (konkret).** Nilai `endTime` ikut
+> ditulis ke `DTEND` di file `.ics` dan ke parameter `dates` di
+> Google Calendar. Kalau `endTime` salah, semua tamu dapat
+> pengingat yang salah waktunya. Di halaman, jam yang tampil justru
+> `endTimeLabel` (mis. "Selesai") - dua-duanya di config.js, jadi
+> mustahil tampil beda dari yang dikalenderkan.
 
 ### Mengganti foto potret
 
@@ -334,12 +353,13 @@ terminal, selalu mencerminkan kondisi terbaru.
 | Nama orang tua pihak pria | **Ada** | Bapak Abdul Wahid & Ibu Deti Novia Susanti |
 | Nama orang tua pihak wanita | **Ada** | Bapak Gurda & Ibu Rusimah |
 | Tanggal & jam mulai | **Ada** | Minggu, 25 Oktober 2026, 08.00 WITA |
-| **Jam selesai acara** | **Asumsi** | `13:00`. Wajib dikonfirmasi - ikut masuk file kalender. |
+| **Jam selesai acara** | **Di halaman: "Selesai"; kalender: 17:00** | Sesuai permintaan klien, halaman menulis "08.00 - Selesai". File kalender butuh jam konkret, jadi `endTime: '17:00'` masih asumsi - wajib dikonfirmasi. Sudah dilacak `npm run check:placeholders`. |
 | Alamat acara | **Ada** | Jl. Kuin Selatan RT 12, Kuin Selatan, Banjarmasin Barat, Kota Banjarmasin, Kalimantan Selatan |
 | Koordinat lokasi | **Ada** | `-3.3004753589630127, 114.58055877685547` |
 | Nama resmi venue | Kosong | Klien belum memberi nama bangunan. Halaman tampil alamat saja. |
-| Foto potret pengantin | **Ada** | 2 file (563x751 & 520x693). Resolusi masih kecil, belum di-upscale. |
-| Nomor WhatsApp | Kosong | Sesuai permintaan klien, placeholder dulu. Section kontak disembunyikan. |
+| Foto potret pengantin | **Ada** | 2 file (563x751 & 520x693). Resolusi kecil, belum di-upscale. Backdrop cover sengaja di-kosongkan dulu - menunggu foto pre-wedding klien (lihat tabel di bawah). |
+| Foto pre-wedding galeri | **Belum ada** | 6 slot masih placeholder SVG bernomor. Setelah klien kirim foto: taruh di `assets-src/`, jalankan `npm run optimize`, isi `src` + `widths` di config.js. |
+| Nomor WhatsApp | Kosong | Sesuai permintaan klien, placeholder dulu. **Section kontak tidak dirender sama sekali** sampai nomor diisi (klien minta "Ada pertanyaan?" dihapus). |
 | Lagu pengantin (mp3, 3-5 menit) | **File uji, 55 detik** | Wajib ganti dengan lagu asli klien. |
 | URL domain final | Placeholder | Tahap 7 |
 | QR code | Placeholder | Tahap 7 |
@@ -352,11 +372,45 @@ dari template lama:
 
 | Section | Alasan |
 |---|---|
-| Foto cover (landscape) | Klien minta konsep simpel |
-| Galeri / lightbox | Dihapus |
 | Teks cerita / love story | Dihapus |
 | Donasi / nomor rekening | Dihapus |
-| Tombol "Buka Undangan" | Dihapus, halaman langsung terbuka |
+| Section kontak statis ("Ada pertanyaan?") | Klien minta dihapus. Sebagai gantinya, section kontak dibuat `renderContact()` hanya kalau `contact.whatsapp` sudah diisi - jadi tidak pernah tampil kosong yatim. |
+
+### Section yang dikembalikan klien
+
+| Section | Status |
+|---|---|
+| Galeri pre-wedding | **Kembali.** 6 slot, masih placeholder (lihat tabel data klien di atas). |
+| Tombol "Buka Undangan" | **Kembali.** Dibutuhkan agar musik bisa mulai, karena browser memblokir autoplay. |
+| Foto latar cover | **Kembali (wadahnya).** `hero.backdrop` di config.js + CSS `#cover::before` sudah siap, tapi `src` sengaja KOSONG karena klien belum mengirim foto pre-wedding. Saat foto datang: `npm run optimize`, isi `hero.backdrop.src`, cek kontras. Foto pre-wedding ideal jadi latar. |
+
+Semuanya dijaga `npm run check`:
+- Galeri harus punya jumlah slot yang sama dengan `gallery.photos`.
+- Tombol "Buka Undangan" dan panah harus menuju `#intro`.
+- `hero.backdrop` harus ada; kalau `src` diisi, file-nya harus
+  benar-benar ada; `opacity <= 0.6` supaya teks putih tidak
+  tenggelam. `src` kosong = keadaan sah (menunggu foto).
+- `endTimeLabel` / `endTime` konsisten (halaman vs kalender).
+- Section kontak tidak boleh tertulis statis di `index.html`.
+
+### Personalisasi nama tamu
+
+Nama diambil dari query parameter `?to=`, jadi satu URL untuk semua tamu:
+
+```
+https://domain-anda/?to=Bapak+H.+Rahman
+https://domain-anda/?to=Siti+Aminah
+```
+
+Kalau `?to=` kosong, tidak ada, atau hanya berisi spasi, halaman
+otomatis menampilkan sapaan umum `Bapak/Ibu/Saudara/i` - tidak pernah
+kosong. Nama dibersihkan dari karakter kontrol, dipotong 60 karakter,
+lalu dirender dengan `textContent` (bukan `innerHTML`), jadi
+`?to=<script>` hanya tampil sebagai teks biasa, tidak dieksekusi.
+
+Musik sengaja **tidak** autoplay. Browser memblokir suara yang mulai
+tanpa interaksi, jadi tombol "Buka Undangan" di cover sekaligus
+memulai musik dan menggulir ke `#intro`.
 
 Soal foto: master di `assets-src/` sengaja **tidak** di-upscale.
 `tools/optimize-images.mjs` hanya membuat varian selebar file

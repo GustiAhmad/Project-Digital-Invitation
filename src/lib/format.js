@@ -54,9 +54,21 @@ export function formatTime(time) {
   return String(time).replace(':', '.');
 }
 
-/** "08.00 - 10.00 WITA" */
+/**
+ * Rentang waktu yang DIPERLIHATKAN ke tamu, mis.
+ * "08.00 - Selesai WITA".
+ *
+ * Yang dipakai adalah `endTimeLabel`, bukan `endTime`. Klien
+ * sengaja menulis "Selesai" karena jam berakhirnya belum pasti,
+ * sementara `endTime` tetap berisi jam konkret untuk file
+ * kalender (lihat eventEndISO).
+ *
+ * Kalau `endTimeLabel` tidak diisi, jatuh ke `endTime` supaya
+ * kartu acara tidak pernah tampil "08.00 - undefined".
+ */
 export function formatTimeRange(event) {
-  return `${formatTime(event.startTime)} - ${formatTime(event.endTime)} WITA`;
+  const end = event.endTimeLabel || formatTime(event.endTime);
+  return `${formatTime(event.startTime)} - ${end} WITA`;
 }
 
 /** Nilai untuk atribut HTML datetime="..." */
