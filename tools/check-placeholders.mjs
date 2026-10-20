@@ -75,9 +75,10 @@ const stillPlaceholder = [
   ),
 ];
 
-/* ---------- 3b. Nomor WhatsApp organizer ---------- */
-//Klien minta placeholder dulu. Section kontak disembunyikan selama
-// field ini kosong, jadi tidak tampil tombol yang lead ke nowhere.
+/* ---------- 3b. Nomor WhatsApp organizer ----------
+   Konfirmasi klien: TANPA nomor (privasi pengantin). Section kontak
+   permanen tidak dirender. Tidak lagi jadi item menunggu klien -
+   biarkan `whatsapp` kosong, jangan diisi. */
 const whatsapp = (configSrc.match(/whatsapp:\s*'([^']*)'/) || [])[1];
 const whatsappEmpty = !whatsapp;
 
@@ -85,32 +86,26 @@ const whatsappEmpty = !whatsapp;
 const nullCoords = (configSrc.match(/(lat|lng):\s*null/g) || []).length;
 const venueCount = (configSrc.match(/venue:\s*'/g) || []).length;
 
-/* ---------- 4b. Nama resmi venue ---------- */
-//Alamat sudah pasti dari klien, tapi nama bangunan/gedung belum.
-//Selama kosong, halaman menampilkan alamat saja - itu wajar, tapi
-//harus terlihat di daftar ini supaya tidak dianggap sudah final.
+/* ---------- 4b. Nama resmi venue ----------
+   Konfirmasi klien: acara di gang perumahan, jadi TIDAK ADA nama
+   venue. `venue` memang kosong dengan sengaja; alamat sudah cukup.
+   Tidak lagi jadi item menunggu klien. */
 const venueName = (configSrc.match(/venue:\s*'([^']*)'/) || [])[1];
 const venueNameEmpty = !venueName;
 
 /* ---------- 5. Tanggal & jam selesai acara ---------- */
 const date = (configSrc.match(/date:\s*'(\d{4}-\d{2}-\d{2})'/) || [])[1];
 
-/* Halaman sengaja menulis "08.00 - Selesai" (endTimeLabel),
-   sementara file kalender butuh jam konkret (endTime, mis. 17:00).
-
-   Selama endTimeLabel masih bernilai "Selesai" (bukan jam), berarti
-   klien belum menetapkan jam berakhirnya. Itu perlu tetap terlihat
-   di daftar ini, karena DTEND di .ics / Google Calendar memakai
-   angka yang masih asumsi - kalau salah, tamu bisa datang atau
-   terlewat di jam yang keliru.
-
-   Kenapa tidak lagi membaca komentar TODO-KLIEN? Karena TODO-nya
-   bisa diletakkan di mana pun dan gampang tidak sengaja terhapus.
-   Nilai `endTimeLabel` sendiri lebih jujur: kalau isinya bukan
-   jam, berarti belum final. */
+/* Halaman menulis "08.00 s/d selesai" (endTimeLabel, keputusan
+   klien), sementara file kalender butuh jam konkret (endTime,
+   17:00). DTEND 17:00 adalah ASUMSI TEKNIS - bukan lagi menunggu
+   klien, karena klien sudah memilih tampilan "s/d selesai". Tetap
+   ditampilkan di laporan supaya tidak dilupakan: kalau acara
+   ternyata jauh lebih pagi selesai, blok di kalender tamu akan
+   melebar sampai 17.00. */
 const endTimeLabel = (configSrc.match(/endTimeLabel:\s*'([^']*)'/) || [])[1];
 const endTime = (configSrc.match(/endTime:\s*'([^']*)'/) || [])[1];
-const endTimePending = !endTimeLabel || !/^\d{1,2}[.:]\d{2}$/.test(endTimeLabel);
+const endTimeAssumed = !!endTimeLabel && !/^\d{1,2}[.:]\d{2}$/.test(endTimeLabel);
 
 /* ---------- Laporan ---------- */
 console.log('\n  DATA YANG MENUNGGU KLIEN');
@@ -133,9 +128,9 @@ if (galleryMissingOnDisk.length) {
 } else {
   console.log('        - Semua slot ada, layout siap direview.');
 }
-console.log('        - Isinya masih PLACEHOLDER, bukan foto asli. Minta klien');
-console.log('          mengirim 6 foto pre-wedding, lalu: npm run optimize,');
-console.log('          ubah src di config.js ke .jpg dan isi widths.');
+console.log('        - Isinya masih PLACEHOLDER, bukan foto asli. Konfirmasi');
+console.log('          klien: hanya ADA SATU foto pre-wedding. Keputusan layout');
+console.log('          (satu foto besar vs tanpa section galeri) masih menunggu.');
 
 if (coverPhotoEmpty) {
   console.log('\n  [' + (++group) + '] Foto cover (backdrop)');
@@ -148,40 +143,39 @@ if (coverPhotoEmpty) {
 console.log(`\n  [${++group}] Koordinat venue  (${nullCoords} nilai null dari ${venueCount * 2} slot)`);
 if (nullCoords === 0) console.log('        - Semua koordinat sudah diisi.');
 
-console.log(`\n  [${++group}] Nama resmi venue`);
+console.log(`\n  [${++group}] Nama resmi venue  (KEPUTUSAN KLIEN: tanpa venue)`);
 if (venueNameEmpty) {
-  console.log('        - venue masih kosong di config.js. Saat ini halaman hanya');
-  console.log('          menampilkan alamat, jadi tidak salah - tapi minta nama');
-  console.log('          bangunan/gedung agar tamu tidak bingung.');
+  console.log('        - Tidak ada nama venue (acara di gang perumahan). Alamat');
+  console.log('          sudah cukup - tidak perlu diminta lagi ke klien.');
 } else {
   console.log(`        - Terisi: ${venueName}`);
 }
 
-console.log(`\n  [${++group}] Nomor WhatsApp organizer`);
+console.log(`\n  [${++group}] Nomor WhatsApp  (KEPUTUSAN KLIEN: tanpa nomor)`);
 if (whatsappEmpty) {
-  console.log('        - Kosong sesuai permintaan klien (placeholder dulu).');
-  console.log('          Section kontak disembunyikan sampai nomor diisi.');
+  console.log('        - Tidak ada nomor WhatsApp (privasi pengantin). Section');
+  console.log('          kontak permanen tidak dirender - tidak perlu diminta lagi.');
 } else {
   console.log(`        - Terisi: ${whatsapp}`);
 }
 
-console.log(`\n  [${++group}] Tanggal acara  (${date || 'tidak ditemukan'})`);
-if (endTimePending) {
-  console.log('        - Tanggal & jam mulai sudah dari klien.');
-  console.log(`        - Di halaman ditulis "08.00 - ${endTimeLabel || '?'}".`);
-  console.log(`        - Tapi file kalender memakai DTEND ${endTime || '?'} (masih`);
-  console.log('          asumsi). Konfirmasi jam selesai yang pasti sebelum');
-  console.log('          produksi, lalu samakan endTimeLabel dan endTime.');
-} else {
-  console.log(`        - Lengkap: ${endTimeLabel} (halaman & kalender konsisten).`);
+console.log(`\n  [${++group}] Tanggal acara  (${date || 'tidak ditemukan'})  (KEPUTUSAN KLIEN)`);
+console.log('        - Tanggal & jam mulai sudah dari klien.');
+console.log(`        - Di halaman ditulis "08.00 ${endTimeLabel || '?'}".`);
+if (endTimeAssumed) {
+  console.log(`        - Catatan teknis: file kalender memakai DTEND ${endTime || '?'} (asumsi).`);
+  console.log('          Blok di kalender tamu akan membentang 08.00-17.00. Kalau');
+  console.log('          ternyata acara selesai jauh lebih awal, samakan endTime.');
 }
 
-/* ---------- 7. Musik latar ---------- */
-// Lagu pengantin sungguhan berdurasi 3-5 menit. File uji atau sampel
-// library gratis biasanya di bawah 1 menit. Kalau durasinya mencurigakan
-// pendek, hampir pasti itu belum lagu pilihan klien.
+/* ---------- 7. Musik latar ----------
+   Konfirmasi klien: lagu 55 detik (public/audio/lagu.mp3) DIPAKAI,
+   bukan file uji yang harus diganti. Durasi pendek bukan lagi item
+   menunggu klien - musik diputar dengan atribut `loop`, jadi tidak
+   ada jeda hening. Blok ini tetap membaca bitrate & ukuran supaya
+   file rusak / berubah diam-diam ketahuan. */
 const audioPath = join(ROOT, 'public', 'audio', 'lagu.mp3');
-let audioPending = 0;
+let audioMissing = 0;
 
 if (existsSync(audioPath)) {
   const buf = readFileSync(audioPath);
@@ -207,21 +201,19 @@ if (existsSync(audioPath)) {
     const seconds = (buf.length - audioStart) / (bitrate / 8);
     const mins = Math.floor(seconds / 60);
     const secs = Math.round(seconds % 60);
-    const tooShort = seconds < 120;
-    if (tooShort) audioPending = 1;
 
-    console.log(`\n  [${++group}] Musik latar  (${mins}m ${secs}d, ${bitrate / 1000} kbps, ${(buf.length / 1024).toFixed(0)} KB)`);
-    if (tooShort) {
-      console.log('        - Terlalu pendek untuk lagu pengantin (butuh >= 2 menit).');
-      console.log('          Hampir pasti file uji - minta lagu asli dari klien.');
+    console.log(`\n  [${++group}] Musik latar  (${mins}m ${secs}d, ${bitrate / 1000} kbps, ${(buf.length / 1024).toFixed(0)} KB)  (KEPUTUSAN KLIEN: pakai lagu ini)`);
+    if (seconds < 120) {
+      console.log('        - Durasi pendek, tapi sudah dikonfirmasi klien: lagu ini');
+      console.log('          dipakai apa adanya dan di-loop (atribut loop di <audio>).');
     } else {
-      console.log('        - Durasi wajar. Pastikan ini lagu pilihan klien.');
+      console.log('        - Durasi wajar untuk lagu pengantin.');
     }
     console.log('        - 128 kbps sudah cukup untuk musik latar. Jangan re-encode');
     console.log('          ke bawah: kualitas turun tapi penghematannya sedikit.');
   }
 } else {
-  audioPending = 1;
+  audioMissing = 1;
   console.log(`\n  [${++group}] Musik latar  (TIDAK ADA)`);
   console.log('        ! public/audio/lagu.mp3 tidak ditemukan.');
 }
@@ -243,21 +235,20 @@ if (missingAssets.length) {
 
 console.log('\n  ' + '='.repeat(58));
 
+// Keputusan klien (venue tanpa nama, WhatsApp kosong, lagu 55 dtk,
+// jam selesai "s/d selesai") TIDAK dihitung lagi - semua sudah final.
 const total = todos.length
   + stillPlaceholder.length
   + nullCoords
-  + audioPending
+  + audioMissing
   + (galleryAssets.length ? 1 : 0)
   + galleryMissingOnDisk.length
   + removedSectionAssets.length
-  + (venueNameEmpty ? 1 : 0)
-  + (whatsappEmpty ? 1 : 0)
-  + (endTimePending ? 1 : 0)
   + (coverPhotoEmpty ? 1 : 0);
 if (total === 0) {
   console.log('  SEMUA DATA SUDAH LENGKAP. Siap produksi.\n');
 } else {
-  console.log(`  ${total} item masih menunggu data klien.\n`);
+  console.log(`  ${total} item masih menunggu (data klien / keputusan layout).\n`);
   console.log('  Lihat tabel "Data yang Masih Menunggu Klien" di README.md.\n');
   process.exit(0); // bukan error - ini pengingat, bukan kegagalan
 }

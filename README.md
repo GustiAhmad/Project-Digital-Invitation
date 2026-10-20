@@ -353,14 +353,14 @@ terminal, selalu mencerminkan kondisi terbaru.
 | Nama orang tua pihak pria | **Ada** | Bapak Abdul Wahid & Ibu Deti Novia Susanti |
 | Nama orang tua pihak wanita | **Ada** | Bapak Gurda & Ibu Rusimah |
 | Tanggal & jam mulai | **Ada** | Minggu, 25 Oktober 2026, 08.00 WITA |
-| **Jam selesai acara** | **Di halaman: "Selesai"; kalender: 17:00** | Sesuai permintaan klien, halaman menulis "08.00 - Selesai". File kalender butuh jam konkret, jadi `endTime: '17:00'` masih asumsi - wajib dikonfirmasi. Sudah dilacak `npm run check:placeholders`. |
+| **Jam selesai acara** | **Selesai** | Konfirmasi klien: halaman menulis "08.00 s/d selesai WITA". `endTime: '17:00'` tetap dipakai untuk `DTEND` kalender (asumsi teknis). |
 | Alamat acara | **Ada** | Jl. Kuin Selatan RT 12, Kuin Selatan, Banjarmasin Barat, Kota Banjarmasin, Kalimantan Selatan |
 | Koordinat lokasi | **Ada** | `-3.3004753589630127, 114.58055877685547` |
-| Nama resmi venue | Kosong | Klien belum memberi nama bangunan. Halaman tampil alamat saja. |
-| Foto potret pengantin | **Ada** | 2 file (563x751 & 520x693). Resolusi kecil, belum di-upscale. Backdrop cover sengaja di-kosongkan dulu - menunggu foto pre-wedding klien (lihat tabel di bawah). |
-| Foto pre-wedding galeri | **Belum ada** | 6 slot masih placeholder SVG bernomor. Setelah klien kirim foto: taruh di `assets-src/`, jalankan `npm run optimize`, isi `src` + `widths` di config.js. |
-| Nomor WhatsApp | Kosong | Sesuai permintaan klien, placeholder dulu. **Section kontak tidak dirender sama sekali** sampai nomor diisi (klien minta "Ada pertanyaan?" dihapus). |
-| Lagu pengantin (mp3, 3-5 menit) | **File uji, 55 detik** | Wajib ganti dengan lagu asli klien. |
+| Nama resmi venue | **Tidak ada** | Konfirmasi klien: acara di gang perumahan, tanpa nama bangunan. Alamat sudah cukup. |
+| Foto potret pengantin | **Final** | 2 file (563x751 & 520x693). Konfirmasi klien: pakai yang sudah ada. |
+| Foto pre-wedding galeri | **1 foto** | Konfirmasi klien: hanya ada SATU foto. Keputusan layout (satu foto besar vs tanpa section galeri) masih menunggu. |
+| Nomor WhatsApp | **Tidak ada** | Konfirmasi klien: privasi pengantin. **Section kontak permanen tidak dirender.** |
+| Lagu pengantin | **Final** | Konfirmasi klien: lagu 55 detik dipakai apa adanya, diputar loop. |
 | URL domain final | Placeholder | Tahap 7 |
 | QR code | Placeholder | Tahap 7 |
 

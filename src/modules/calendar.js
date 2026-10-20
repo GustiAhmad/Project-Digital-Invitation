@@ -60,9 +60,9 @@ const REMINDERS = [
 function eventDetails(event) {
   const { groom, bride } = CONFIG.meta;
   return [
-    // Pakai format yang DIPERLIHATKAN di halaman ("Selesai"), bukan
-    // jam teknis 17:00. Detail ini dibaca manusia di Google
-    // Calendar, jadi harus sama dengan yang tertulis di undangan.
+    // Pakai format yang DIPERLIHATKAN di halaman ("08.00 s/d selesai
+    // WITA"), bukan jam teknis 17:00. Detail ini dibaca manusia di
+    // Google Calendar, jadi harus sama dengan yang tertulis di undangan.
     `${formatDateLong(event.date)} pukul ${formatTimeRange(event)}`,
     // Pakai event.title, bukan teks hardcoded. Kalau nanti acara
     // dipecah jadi dua, deskripsi kalender ikut berubah sendiri.

@@ -56,19 +56,24 @@ export function formatTime(time) {
 
 /**
  * Rentang waktu yang DIPERLIHATKAN ke tamu, mis.
- * "08.00 - Selesai WITA".
+ * "08.00 s/d selesai WITA" atau "08.00 - 14.00 WITA".
  *
- * Yang dipakai adalah `endTimeLabel`, bukan `endTime`. Klien
- * sengaja menulis "Selesai" karena jam berakhirnya belum pasti,
- * sementara `endTime` tetap berisi jam konkret untuk file
- * kalender (lihat eventEndISO).
+ * Yang dipakai adalah `endTimeLabel`, bukan `endTime`. Konfirmasi
+ * klien: acara ditulis "s/d selesai" karena jam berakhirnya memang
+ * sengaja tidak ditetapkan, sementara `endTime` tetap berisi jam
+ * konkret (17:00) untuk file kalender (lihat eventEndISO).
+ *
+ * Kalau `endTimeLabel` diawali "s/d", pemisahnya spasi biasa supaya
+ * tidak jadi "08.00 - s/d selesai" (ganda). Kalau label berupa jam
+ * (mis. "14.00"), pemisahnya " - " biasa.
  *
  * Kalau `endTimeLabel` tidak diisi, jatuh ke `endTime` supaya
  * kartu acara tidak pernah tampil "08.00 - undefined".
  */
 export function formatTimeRange(event) {
   const end = event.endTimeLabel || formatTime(event.endTime);
-  return `${formatTime(event.startTime)} - ${end} WITA`;
+  const sep = /^\s*s\/d/i.test(end) ? ' ' : ' - ';
+  return `${formatTime(event.startTime)}${sep}${end} WITA`;
 }
 
 /** Nilai untuk atribut HTML datetime="..." */

@@ -386,9 +386,10 @@ for (const [label, needle] of [
 }
 
 /* ---------- 4. Alamat acara ----------
-   Venue resmi belum diberikan klien, jadi field `venue` masih kosong
-   dan yang tampil hanya alamat. Checker ini mengikuti config:
-   kalau nanti venue diisi, nilainya otomatis ikut di-check.
+   Konfirmasi klien: TANPA nama venue (acara di gang perumahan),
+   jadi field `venue` memang kosong dan yang tampil hanya alamat.
+   Checker ini mengikuti config: kalau suatu saat venue diisi,
+   nilainya otomatis ikut di-check.
    ------------------------------------------------------------ */
 const eventBlock = cfgArrayBlock('events:');
 

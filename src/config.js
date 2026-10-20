@@ -105,18 +105,22 @@ export const CONFIG = {
       // adalah `endTimeLabel` di bawah.
       //
       // Dipakai 17:00 karena kalender butuh jam konkret: kalau
-      // acaranya diisi "08:00 - Selesai", Google Calendar tidak bisa
+      // acaranya diisi "08.00 s/d selesai", Google Calendar tidak bisa
       // mengaturnya dan akan membuat acara 0 menit.
       endTime: '17:00',
-      // Yang benar-benar ditulis di halaman. Klien meminta ditulis
-      // "08.00 - Selesai" karena jamンドanya memang belum pasti.
-      endTimeLabel: 'Selesai',
-      // TODO-KLIEN: konfirmasi jam selesai dengan klien sebelum deploy.
-      // Kalau klien jadi memberi jam konkret, isi `endTimeLabel` dengan
-      // jam itu (mis. '17.00') supaya halaman dan kalender konsisten.
-      // TODO-KLIEN: nama resmi lokasi, bila ada. Kalau acaranya di
-      // rumah, kosongkan saja: alamat di bawah sudah cukup jelas
-      // tanpa nama bangunan.
+      // Yang ditulis di halaman. Konfirmasi klien: cukup "s/d selesai"
+      // (jam berakhirnya memang sengaja tidak ditetapkan - acara
+      // sampai selesai). formatTimeRange() otomatis memakai spasi
+      // biasa (bukan " - ") supaya hasilnya "08.00 s/d selesai WITA".
+      endTimeLabel: 's/d selesai',
+      // Asumsi teknis, bukan tunggu klien: `endTime` (17:00) hanya
+      // dipakai untuk DTEND di .ics & Google Calendar. Klien sudah
+      // memilih tampilan "s/d selesai", jadi jangan ubah endTimeLabel
+      // jadi jam. Kalau klien nanti memberi jam pasti, barulah samakan
+      // keduanya.
+      // Konfirmasi klien: TANPA nama venue. Acara digelar di gang
+      // perumahan, jadi alamat di bawah sudah cukup jelas tanpa
+      // nama bangunan.
       venue: '',
       address: 'Jl. Kuin Selatan RT 12',
       district: 'Kuin Selatan, Banjarmasin Barat',
@@ -134,6 +138,11 @@ export const CONFIG = {
      GALERI PRE-WEDDING
      ------------------------------------------------------------
      Klien meminta galeri pre-wedding ditampilkan lagi.
+
+     KONFIRMASI KLIEN: hanya ADA SATU foto pre-wedding. Keputusan
+     tata letaknya (satu foto besar vs tanpa section galeri, foto
+     juga dipakai sebagai latar cover) masih menunggu - ubah daftar
+     `photos` di bawah mengikuti keputusan itu.
 
      CARA MENGISI:
        1. Simpan foto ke assets-src/ (folder ini tidak masuk Git).
@@ -207,7 +216,10 @@ export const CONFIG = {
     // Dipakai sebagai judul section kalau whatsapp sudah diisi.
     title: 'Hubungi Kami',
     label: 'Kontak Pengantin',
-    // TODO-KLIEN: nomor WhatsApp pasangan (format internasional).
+    // Konfirmasi klien: TANPA nomor WhatsApp (privasi pengantin).
+    // Artinya section kontak "Hubungi Kami" permanen TIDAK dirender -
+    // biarkan baris ini kosong, jangan diisi kecuali klien berubah
+    // pikiran.
     whatsapp: '',
     message:
       'Assalamu\'alaikum, saya ingin mengonfirmasi kehadiran untuk pernikahan Muhammad Irfani & Parida Paska.',
@@ -223,9 +235,10 @@ export const CONFIG = {
        2. scrim gelap + text-shadow (lihat styles/sections.css).
 
      WADAH-nya sudah disiapkan (renderHero + CSS ::before),
-     tapi FOTO-nya sengaja dikosongkan buat sekarang - pakai
-     foto mempelai pria cuma untuk prototipe, dan klien belum
-     mengirim foto pre-wedding. Waktu foto datang, isi `src`
+     tapi FOTO-nya sengaja dikosongkan buat sekarang. Klien hanya
+     punya SATU foto pre-wedding, dan foto itu kandidat kuat untuk
+     dijadikan latar cover ini. Keputusan layoutnya masih menunggu
+     (lihat catatan galeri di atas). Waktu foto datang, isi `src`
      di bawah (idealnya landscape 1200x1600 atau lebih supaya
      tidak pecah saat di-cover), lalu jalankan `npm run check`.
      ======================================================= */
