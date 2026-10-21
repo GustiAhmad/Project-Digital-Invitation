@@ -121,16 +121,22 @@ stillPlaceholder.forEach((t) => console.log(`        - "${t}"`));
 console.log(`\n  [${++group}] Aset gambar placeholder  (${placeholderAssets.length})`);
 placeholderAssets.forEach((t) => console.log(`        - ${t}`));
 
+// Foto galeri nyata (bukan placeholder .svg) = sudah final. Hanya
+// hitung yang MASIH placeholder supaya tidak jadi item tunggu.
+const galleryPlaceholders = galleryAssets.filter((a) => /\.svg$/i.test(a));
+const galleryDone = galleryAssets.length > 0 && galleryPlaceholders.length === 0;
+
 console.log(`\n  [${++group}] Foto galeri pre-wedding  (${galleryAssets.length} slot)`);
 if (galleryMissingOnDisk.length) {
   console.log('        ! Slot galeri hilang dari disk:');
   galleryMissingOnDisk.forEach((t) => console.log(`          ! ${t}`));
+} else if (galleryDone) {
+  console.log('        - Foto asli sudah dipasang (bukan placeholder). Final.');
 } else {
   console.log('        - Semua slot ada, layout siap direview.');
+  console.log('        - Isinya masih PLACEHOLDER. Konfirmasi klien: hanya ADA');
+  console.log('          SATU foto pre-wedding (opsi A+B: cover + foto fitur).');
 }
-console.log('        - Isinya masih PLACEHOLDER, bukan foto asli. Konfirmasi');
-console.log('          klien: hanya ADA SATU foto pre-wedding. Keputusan layout');
-console.log('          (satu foto besar vs tanpa section galeri) masih menunggu.');
 
 if (coverPhotoEmpty) {
   console.log('\n  [' + (++group) + '] Foto cover (backdrop)');
@@ -237,11 +243,12 @@ console.log('\n  ' + '='.repeat(58));
 
 // Keputusan klien (venue tanpa nama, WhatsApp kosong, lagu 55 dtk,
 // jam selesai "s/d selesai") TIDAK dihitung lagi - semua sudah final.
+// Foto galeri hanya dihitung kalau masih placeholder .svg.
 const total = todos.length
   + stillPlaceholder.length
   + nullCoords
   + audioMissing
-  + (galleryAssets.length ? 1 : 0)
+  + (galleryAssets.length && !galleryDone ? 1 : 0)
   + galleryMissingOnDisk.length
   + removedSectionAssets.length
   + (coverPhotoEmpty ? 1 : 0);

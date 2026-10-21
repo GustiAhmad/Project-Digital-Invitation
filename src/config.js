@@ -168,7 +168,11 @@ export const CONFIG = {
     title: 'Pre-Wedding',
     caption: 'Detik-detik sebelum hari besar kami.',
     photos: [
-      { src: './img/gallery-1.svg', alt: 'Foto pre-wedding Muhammad Irfani & Parida Paska', widths: [] },
+      {
+        src: './img/gallery-1.jpg',
+        alt: 'Foto pre-wedding Muhammad Irfani & Parida Paska',
+        widths: [320, 480, 768, 853],
+      },
     ],
   },
 
@@ -244,9 +248,10 @@ export const CONFIG = {
      ======================================================= */
   hero: {
     backdrop: {
-      // Kosong = wadah siap, foto belum ada. Cover otomatis
-      // kembali ke gradien solid (tanpa foto).
-      src: '',
+      // SATU foto pre-wedding yang sama dengan galeri (opsi A+B):
+      // di sini dipakai sebagai latar yang diredupkan, dan di
+      // section galeri tampil jelas sebagai foto fitur.
+      src: './img/gallery-1.jpg',
       alt: 'Foto pre-wedding Muhammad Irfani & Parida Paska',
       // 0..1. Jangan naikkan di atas ~0.45: teks putih di atas
       // foto terang akan jadi sulit dibaca lagi.
