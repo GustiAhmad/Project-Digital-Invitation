@@ -553,23 +553,71 @@
 }
 
 /* =========================================================
-   7. RSVP
+   7. DOA & UCAPAN  (gabungan RSVP + Ucapan)
+   ------------------------------------------------------------
+   KEPUTUSAN KLIEN: RSVP dan Ucapan digabung. Section lama
+   ".rsvp" sudah dihapus dari index.html; tinggal section ini.
    ========================================================= */
-.rsvp { background: var(--bg-alt); }
+.wishes { background: var(--bg-page); }
 
-.rsvp-form,
 .wish-form {
   max-width: var(--container-form);
   margin: var(--sp-8) auto 0;
   text-align: left;
 }
 
-/* =========================================================
-   8. UCAPAN
-   ------------------------------------------------------------
-   (nomor urut mengikuti urutan section di index.html)
-   ========================================================= */
-.wishes { background: var(--bg-page); }
+/* ---- Pilihan kehadiran (radiogroup) ---- */
+.field--status {
+  border: 0;
+  padding: 0;
+  margin: 0 0 var(--sp-5);
+}
+
+.status-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.status-opt {
+  flex: 1 1 0;
+  min-width: 110px;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Radio disembunyikan secara visual, tapi tetap fokusabel
+   (bukan display:none) supaya keyboard & screen reader tetap bisa. */
+.status-opt input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.status-opt span {
+  display: block;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--bg-card);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-body);
+  transition: background .18s, border-color .18s, color .18s;
+}
+
+.status-opt input:checked + span {
+  background: var(--olive);
+  border-color: var(--olive);
+  color: var(--cream);
+}
+
+.status-opt input:focus-visible + span {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
 
 .wish-list {
   max-width: var(--container-narrow);
@@ -613,18 +661,42 @@
   letter-spacing: .5px;
 }
 
-.wish__meta { min-width: 0; }
+.wish__meta { min-width: 0; flex: 1; }
+
+.wish__meta-top {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
 
 .wish__name {
-  display: block;
   font-size: var(--fs-base);
   font-weight: 600;
   color: var(--forest);
   overflow-wrap: anywhere;
 }
 
+/* ---- Badge status kehadiran ---- */
+.wish__status {
+  flex: 0 0 auto;
+  padding: 1px var(--sp-2);
+  border-radius: var(--r-pill);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: var(--sand);
+  color: var(--olive);
+}
+
+.wish__status--hadir { background: #dcebdd; color: #2f6b3a; }
+.wish__status--tidak { background: #f3dcdc; color: #8a3b3b; }
+.wish__status--ragu  { background: #f5e9d4; color: #8a6a2f; }
+
 .wish__time {
   display: block;
+  margin-top: 1px;
   font-size: 11px;
   color: var(--text-muted);
 }
@@ -658,39 +730,7 @@
 }
 
 /* =========================================================
-   9. BAGIKAN + QR
-   ========================================================= */
-.qr { background: var(--bg-alt); text-align: center; }
-
-.share-url {
-  display: inline-block;
-  margin: var(--sp-4) auto var(--sp-6);
-  padding: var(--sp-2) var(--sp-4);
-  background: var(--bg-card);
-  border-radius: var(--r-pill);
-  font-size: var(--fs-sm);
-  color: var(--olive);
-  word-break: break-all;
-}
-
-.qr-image {
-  display: block;
-  width: 190px;
-  height: 190px;
-  margin: 0 auto var(--sp-5);
-  border-radius: var(--r-md);
-  background: var(--white);
-  padding: var(--sp-2);
-  box-shadow: var(--sh-sm);
-}
-
-.qr__caption {
-  font-size: var(--fs-sm);
-  color: var(--text-muted);
-}
-
-/* =========================================================
-   10. FOOTER
+   FOOTER
    ========================================================= */
 footer {
   padding: var(--sp-16) var(--sp-5);

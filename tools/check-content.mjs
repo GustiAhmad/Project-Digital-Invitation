@@ -284,6 +284,42 @@ if (galleryConfigCount < 0) {
     + 'tidak tampil atau slot kosong.');
 }
 
+/* ---------- 3b-2. RSVP & Ucapan sudah DIGABUNG ----------
+   KEPUTUSAN KLIEN: RSVP dan Ucapan jadi satu section "Doa & Ucapan".
+   Undangan ini murni undangan, bukan alat mempersiapkan acara. Kalau
+   salah satu sisa template lama muncul lagi (mis. select jumlah
+   tamu, section RSVP terpisah), tamu menulis nama dua kali dan
+   jumlah tamu mulai dihitung lagi - persis yang dibatalkan klien.
+   ------------------------------------------------------------ */
+add('Section RSVP terpisah sudah dihapus',
+  !/<section[^>]*class="[^"]*rsvp/.test(htmlNoCommentLike)
+    && !/id="rsvpForm"/.test(htmlNoCommentLike),
+  /<section[^>]*class="[^"]*rsvp/.test(htmlNoCommentLike)
+    || /id="rsvpForm"/.test(htmlNoCommentLike)
+    ? 'RSVP harus menyatu di section #wishes, bukan section sendiri.'
+    : 'OK');
+
+add('Tidak ada input jumlah tamu',
+  !/name="guest_count"/.test(htmlNoCommentLike),
+  /name="guest_count"/.test(htmlNoCommentLike)
+    ? 'Klien tidak mau menghitung jumlah tamu. Hapus field ini.'
+    : 'OK');
+
+add('RSVP: ada 3 pilihan kehadiran',
+  (htmlNoCommentLike.match(/name="status"/g) || []).length === 3,
+  `${(htmlNoCommentLike.match(/name="status"/g) || []).length} radio status `
+  + '(harus 3: Hadir / Tidak Hadir / Belum Pasti)');
+
+/* Nama hanya boleh muncul sekali di seluruh form: satu input nama
+   di #wishes. Kalau ada input nama kedua, berarti RSVP terpisah
+   kembali - tamu diminta menulis nama dua kali. */
+const formNameInputs = (htmlNoCommentLike.match(/id="namaUcapan"|id="rsvpName"/g) || []).length;
+add('Tamu menulis nama sekali saja',
+  formNameInputs === 1 && htmlNoCommentLike.includes('id="namaUcapan"'),
+  formNameInputs === 1 && htmlNoCommentLike.includes('id="namaUcapan"')
+    ? 'OK'
+    : `Ditemukan ${formNameInputs} input nama di form. Harus satu saja (id="namaUcapan").`);
+
 /* ---------- 3c. Tombol "Buka Undangan" ----------
    Tombol ini yang memulai musik, jadi harus ada dan harus menuju
    ke #intro. Kalau href-nya #couple, pengunjung melompati

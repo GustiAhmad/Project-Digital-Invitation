@@ -38,41 +38,16 @@ const write = (dir, name, content) => {
   console.log('  +', name);
 };
 
-/* ---------- gradient yang dipakai bersama ---------- */
-const defs = (id) => `
-  <defs>
-    <linearGradient id="goldGrad" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%"   stop-color="${C.goldLight}"/>
-      <stop offset="50%"  stop-color="${C.gold}"/>
-      <stop offset="100%" stop-color="${C.goldLight}"/>
-    </linearGradient>
-    <linearGradient id="bgGrad" x1="0" y1="0" x2="0.6" y2="1">
-      <stop offset="0%"   stop-color="${C.olive}"/>
-      <stop offset="55%"  stop-color="${C.forest}"/>
-      <stop offset="100%" stop-color="#2e332b"/>
-    </linearGradient>
-    <linearGradient id="softGrad" x1="0" y1="0" x2="0.7" y2="1">
-      <stop offset="0%"   stop-color="${C.cream}"/>
-      <stop offset="100%" stop-color="${C.sand}"/>
-    </linearGradient>
-    <radialGradient id="vignette" cx="50%" cy="45%" r="75%">
-      <stop offset="55%"  stop-color="#000" stop-opacity="0"/>
-      <stop offset="100%" stop-color="#000" stop-opacity=".28"/>
-    </radialGradient>
-  </defs>`;
-
 /* =============================================================
    1. GALLERY PLACEHOLDER
    ------------------------------------------------------------
-   KEPUTUSAN KLIEN: hanya SATU foto pre-wedding, dan foto itu belum
-   ada di repo. Satu placeholder tetap dibuat supaya tata letak
-   foto fitur bisa direview, dan supaya tidak ada gambar rusak
-   (ikon ?) di halaman.
+   Hanya dibuat untuk foto yang `src`-nya MASIH .svg (foto asli
+   belum ada). KEPUTUSAN KLIEN: satu foto pre-wedding. Begitu
+   foto asli dipasang (src .jpg), placeholder tidak dibuat lagi -
+   itu tanda galeri sudah final.
 
    Placeholder sengaja diberi garis putus-putus + label
    "PLACEHOLDER" supaya tidak mungkin tertukar dengan foto asli.
-   Setelah foto asli ada: jalankan `npm run optimize`, lalu ubah
-   `src` di config.js dari .svg ke .jpg dan isi `widths`.
    ============================================================= */
 
 const GALLERY_PLACEHOLDER_W = 400;
@@ -81,9 +56,10 @@ const GALLERY_PLACEHOLDER_H = 600; // rasio 2:3, sama dengan .gallery-item
 console.log('Membuat placeholder...');
 
 CONFIG.gallery.photos.forEach((photo, i) => {
-  const name = i === 0
-    ? 'gallery-1.svg'
-    : `gallery-${i + 1}.svg`;
+  // Lewati foto yang sudah punya file asli (bukan .svg).
+  if (!/\.svg$/i.test(photo.src)) return;
+
+  const name = `gallery-${i + 1}.svg`;
 
   write(IMG, name, `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${GALLERY_PLACEHOLDER_W} ${GALLERY_PLACEHOLDER_H}"
@@ -101,46 +77,15 @@ CONFIG.gallery.photos.forEach((photo, i) => {
 });
 
 /* =============================================================
-   2. QR PLACEHOLDER (400x400)
-   ============================================================= */
-
-write(IMG, 'qr-placeholder.svg', `
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400" role="img" aria-label="Placeholder QR code">
-  ${defs()}
-  <rect width="400" height="400" fill="${C.white}"/>
-  <g fill="${C.forest}" opacity=".14">
-    ${(() => {
-      let out = '';
-      for (let r = 0; r < 21; r++) {
-        for (let c = 0; c < 21; c++) {
-          if ((r * 7 + c * 13 + r * c) % 5 < 2) out += `<rect x="${24 + c * 17}" y="${24 + r * 17}" width="13" height="13"/>`;
-        }
-      }
-      return out;
-    })()}
-  </g>
-  <g fill="${C.forest}">
-    <rect x="24"  y="24"  width="88" height="88" rx="8"/>
-    <rect x="40"  y="40"  width="56" height="56" rx="4" fill="${C.white}"/>
-    <rect x="54"  y="54"  width="28" height="28" rx="3"/>
-    <rect x="288" y="24"  width="88" height="88" rx="8"/>
-    <rect x="304" y="40"  width="56" height="56" rx="4" fill="${C.white}"/>
-    <rect x="318" y="54"  width="28" height="28" rx="3"/>
-    <rect x="24"  y="288" width="88" height="88" rx="8"/>
-    <rect x="40"  y="304" width="56" height="56" rx="4" fill="${C.white}"/>
-    <rect x="54"  y="318" width="28" height="28" rx="3"/>
-  </g>
-  <text x="200" y="418" text-anchor="middle" font-family="${FONT_SANS}" font-size="15"
-        letter-spacing="3" fill="${C.olive}">PLACEHOLDER</text>
-</svg>`);
-
-/* =============================================================
-   3. FAVICON (64x64)
+   2. FAVICON (64x64)
    ------------------------------------------------------------
    Inisial diambil dari config.js supaya otomatis ikut nama
    pasangan yang baru. Kalau lupa diubah, favicon akan masih
    menampilkan inisial pasangan lama - itu sulit terdeteksi
    karena favicon kecil dan jarang dibuka developer.
+
+   Catatan: placeholder QR SUDAH DIHAPUS (keputusan klien -
+   section "Bagikan Undangan" tidak dipakai lagi).
    ============================================================= */
 const INITIALS = `${CONFIG.meta.groom.charAt(0)}${CONFIG.meta.bride.charAt(0)}`.toUpperCase();
 

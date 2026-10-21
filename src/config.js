@@ -165,8 +165,9 @@ export const CONFIG = {
      ======================================================= */
   gallery: {
     label: 'Gallery',
-    title: 'Pre-Wedding',
-    caption: 'Detik-detik sebelum hari besar kami.',
+    // KEPUTUSAN KLIEN: hanya satu foto, jadi cukup label "Gallery"
+    // saja. Judul "Pre-Wedding" dan deskripsi "Detik-detik sebelum
+    // hari besar kami" dihapus agar tidak berlebihan.
     photos: [
       {
         src: './img/gallery-1.jpg',
@@ -263,46 +264,41 @@ export const CONFIG = {
   },
 
   /* =======================================================
-     BAGIKAN / QR
+     BAGIKAN / QR  -- DIHAPUS (keputusan klien)
+     ------------------------------------------------------------
+     Section "Bagikan Undangan" dihapus: tamu tidak perlu
+     membagikan undangannya. Klien yang akan menyebar satu link
+     umum ke setiap tamu. Placeholder QR di public/img ikut tidak
+     dipakai lagi.
      ======================================================= */
-  share: {
-    label: 'Digital Invitation',
-    title: 'Bagikan Undangan',
-    caption: 'Scan QR Code untuk membuka undangan.',
-    // TODO-KLIEN: QR asli akan dibuat di Tahap 7 dari URL produksi.
-    qrPlaceholder: './img/qr-placeholder.svg',
-  },
 
   /* =======================================================
-     UCAPAN
+     DOA & UCAPAN  (gabungan RSVP + Ucapan)
+     ------------------------------------------------------------
+     KEPUTUSAN KLIEN: RSVP dan Ucapan digabung jadi SATU form.
+     Undangan ini murni undangan, bukan alat mempersiapkan acara,
+     jadi:
+       - tamu menulis nama SEKALI saja,
+       - tidak ada penghitungan jumlah tamu,
+       - konfirmasi kehadiran cukup 3 pilihan (hadir/tidak/belum pasti),
+       - begitu dikirim, ucapan langsung tampil di papan.
+     Semua data masih lokal (localStorage) sampai Tahap 5/6.
      ======================================================= */
   wishes: {
-    label: 'Wishes',
-    title: 'Ucapan & Doa',
-    namePlaceholder: 'Nama',
-    messagePlaceholder: 'Tulis ucapan dan doa...',
-    submitLabel: 'Kirim Ucapan',
+    label: 'Doa & Ucapan',
+    title: 'Doa & Ucapan',
+    text: 'Sampaikan doa dan konfirmasi kehadiran Anda.',
+    namePlaceholder: 'Masukkan Nama',
+    messagePlaceholder: 'Masukkan Pesan',
+    submitLabel: 'Kirim',
     nameMaxLength: 60,
     messageMaxLength: 500,
-  },
-
-  /* =======================================================
-     RSVP
-     ======================================================= */
-  rsvp: {
-    label: 'RSVP',
-    title: 'Konfirmasi Kehadiran',
-    text: 'Mohon konfirmasi kehadiran Anda untuk membantu kami mempersiapkan acara.',
-    namePlaceholder: 'Nama Lengkap',
-    guestPlaceholder: 'Jumlah Tamu',
-    submitLabel: 'Kirim Konfirmasi',
-    // Opsi select. `value` = data yang dikirim ke database.
-    statusOptions: [
-      { value: 'hadir', label: 'Hadir' },
-      { value: 'tidak_hadir', label: 'Tidak Hadir' },
-    ],
-    placeholder: 'Pilih konfirmasi',
-    maxGuest: 10,
+    // Label singkat untuk tiap status (dipakai di papan ucapan).
+    statusLabel: {
+      hadir: 'Hadir',
+      tidak_hadir: 'Tidak Hadir',
+      belum_pasti: 'Belum Pasti',
+    },
   },
 };
 

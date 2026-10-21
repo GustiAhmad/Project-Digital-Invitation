@@ -1,87 +1,17 @@
 /* =========================================================
    src/modules/share.js
    ---------------------------------------------------------------
-   Tombol "Bagikan Undangan".
-   Memakai Web Share API bila tersedia (native di HP), jatuh ke
-   salin tautan bila tidak.
+   Berisi dua util kecil yang memang TIDAK terkait "bagikan":
+     - initCharCount()     : penghitung karakter textarea ucapan.
+     - initUnsavedGuard()  : konfirmasi sebelum menutup tab.
+
+   Fungsi "Bagikan Undangan" + tombol salin tautan sudah DIHAPUS
+   (keputusan klien: tamu tidak perlu membagikan undangan - klien
+   menyebar satu link umum sendiri). Sisa util di bawah tetap
+   dipakai RSVP & ucapan, jadi file ini tidak dihapus.
    ========================================================= */
 
 import { $$ } from '../lib/dom.js';
-import { toastSuccess, toastError } from '../lib/toast.js';
-import { CONFIG } from '../config.js';
-
-/* ---------- Salin ke clipboard ----------
-   Dipisah dari share.js supaya modul ini tidak perlu
-   initialize sendiri: dipakai juga oleh tombol salin URL di
-   section QR. Timeout dipakai karena navigator.clipboard
-   menolak promise yang menggantung di tab non-HTTPS (mis.
-   dibuka dari IP lokal tanpa HTTPS), dan penolakan itu
-   akan menggantung await selamanya.
-   ------------------------------------------------------------ */
-async function copyText(text) {
-  if (navigator.clipboard?.writeText) {
-    try {
-      await Promise.race([
-        navigator.clipboard.writeText(text),
-        new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), 1500)),
-      ]);
-      return true;
-    } catch {
-      // Lanjut ke fallback di bawah.
-    }
-  }
-
-  // Fallback untuk HTTP non-secure & browser lama.
-  // execCommand deprecated, tapi satu-satunya cara tanpa HTTPS.
-  try {
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.setAttribute('readonly', '');
-    ta.style.cssText = 'position:fixed;top:0;left:-9999px;opacity:0';
-    document.body.appendChild(ta);
-    ta.select();
-    ta.setSelectionRange(0, text.length);
-    const ok = document.execCommand('copy');
-    ta.remove();
-    return ok;
-  } catch {
-    return false;
-  }
-}
-
-export function initShare() {
-  const buttons = $$('[data-share]');
-  if (!buttons.length) return;
-
-  const url = CONFIG.meta.siteUrl || window.location.href;
-  const shareData = {
-    title: CONFIG.meta.title,
-    text: CONFIG.meta.description,
-    url,
-  };
-
-  buttons.forEach((btn) => {
-    btn.addEventListener('click', async () => {
-      // Web Share API hanya ada di HP / browser modern
-      if (navigator.share) {
-        try {
-          await navigator.share(shareData);
-          return;
-        } catch (err) {
-          // User menekan "Batal" - bukan error, jangan tampilkan apa-apa
-          if (err?.name === 'AbortError') return;
-        }
-      }
-
-      // Fallback: salin tautan
-      const ok = await copyText(url);
-      if (ok) toastSuccess('Tautan undangan berhasil disalin');
-      else toastError('Gagal menyalin tautan. Silakan salin dari address bar.');
-    });
-  });
-}
-
-/* ---------- Penghitung karakter textarea ---------- */
 export function initCharCount() {
   const field = document.getElementById('isiUcapan');
   const counter = document.getElementById('wishCount');
@@ -101,7 +31,7 @@ export function initCharCount() {
 
 /* ---------- Peringatan sebelum menutup tab saat ada isian ---------- */
 export function initUnsavedGuard() {
-  const forms = $$('#wishForm, #rsvpForm');
+  const forms = $$('#wishForm');
   let dirty = false;
 
   forms.forEach((form) => {

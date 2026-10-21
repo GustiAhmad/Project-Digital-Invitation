@@ -197,25 +197,24 @@
     </div>
   </section>
 
-  <!-- ============ 5. GALERI PRE-WEDDING ============ -->
-  <!-- Klien meminta galeri pre-wedding ditampilkan lagi.
+  <!-- ============ 5. GALERI ============ -->
+  <!-- KEPUTUSAN KLIEN: hanya satu foto, jadi cukup label "Gallery".
+       Judul "Pre-Wedding" dan deskripsi dihapus agar tidak berlebihan.
+       Sectinya tanpa <h2>, jadi diberi aria-label langsung.
+
        Slot dibangun dari array `gallery.photos` di src/config.js, jadi
        menambah/mengurangi foto cukup lewat config.
 
-       Foto asli belum dikirim klien, jadi yang tampil sekarang masih
-       placeholder bernomor. Setelah klien memberi foto: simpan ke
-       assets-src/, jalankan `npm run optimize`, lalu perbarui `src`
-       dan `widths` di config.js. srcset-nya dipasang oleh
+       Foto asli: simpan ke assets-src/, jalankan `npm run optimize`,
+       lalu perbarui `src` + `widths` di config.js. srcset dipasang oleh
        src/modules/gallery.js dari `widths` yang sama.
 
        Slot fallback di dalam ini dipakai tools/check-content.mjs
        untuk memeriksa jumlah slot selalu sama dengan jumlah foto. -->
-  <section class="gallery" aria-labelledby="gallery-title">
+  <section class="gallery" aria-label="Gallery">
     <div class="container">
       <div class="center">
         <p class="small-title" data-text="gallery.label">Gallery</p>
-        <h2 class="title" id="gallery-title" data-text="gallery.title">Pre-Wedding</h2>
-        <p class="text" data-text="gallery.caption">Detik-detik sebelum hari besar kami.</p>
       </div>
 
       <div class="gallery-grid gallery-grid--single" data-render="gallery">
@@ -290,117 +289,62 @@
        Begitu klien memberi nomor WhatsApp, section ini muncul
        otomatis tanpa perlu mengedit HTML. -->
 
-  <!-- ============ 7. RSVP ============ -->
-  <section class="rsvp" id="rsvp" aria-labelledby="rsvp-title">
-    <div class="container center">
-      <p class="small-title">RSVP</p>
-      <h2 class="title" id="rsvp-title">Konfirmasi Kehadiran</h2>
-      <p class="text">
-        Mohon konfirmasi kehadiran Anda untuk membantu kami mempersiapkan acara.
-      </p>
+  <!-- ============ 7. DOA & UCAPAN (gabungan RSVP + Ucapan) ============ -->
+  <!-- KEPUTUSAN KLIEN: RSVP dan Ucapan digabung jadi SATU form.
+       Undangan ini murni undangan, bukan alat mempersiapkan acara.
+       Jadi: nama ditulis SEKALI, tanpa penghitungan jumlah tamu,
+       konfirmasi kehadiran 3 pilihan (hadir/tidak/belum pasti), dan
+       begitu dikirim ucapan langsung tampil di papan.
 
-      <form class="rsvp-form" id="rsvpForm" novalidate>
-        <div class="field">
-          <label class="field__label" for="rsvpName">Nama Lengkap</label>
-          <input id="rsvpName" name="name" type="text" placeholder="Nama Lengkap"
-                 autocomplete="name" maxlength="80" required>
-        </div>
-
-        <div class="field">
-          <label class="field__label" for="rsvpStatus">Konfirmasi Kehadiran</label>
-          <select id="rsvpStatus" name="status" required>
-            <option value="" selected disabled>Pilih konfirmasi</option>
-            <option value="hadir">Hadir</option>
-            <option value="tidak_hadir">Tidak Hadir</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label class="field__label" for="rsvpGuest">Jumlah Tamu</label>
-          <input id="rsvpGuest" name="guest_count" type="number"
-                 min="1" max="10" value="1" inputmode="numeric" required>
-          <span class="field__hint">Termasuk Anda sendiri. Maksimal 10 orang.</span>
-        </div>
-
-        <button type="submit" class="btn btn--block">Kirim Konfirmasi</button>
-
-        <p class="form-note" id="rsvpNote" hidden></p>
-      </form>
-    </div>
-  </section>
-
-  <!-- ============ 8. UCAPAN ============ -->
+       Kartu di wish-list cuma CONTOH statis. wishes.js menghapus
+       semuanya saat load dan menggantinya dengan data asli. -->
   <section class="wishes" id="wishes" aria-labelledby="wishes-title">
     <div class="container center">
-      <p class="small-title">Wishes</p>
-      <h2 class="title" id="wishes-title">Ucapan &amp; Doa</h2>
+      <p class="small-title" data-text="wishes.label">Doa &amp; Ucapan</p>
+      <h2 class="title" id="wishes-title" data-text="wishes.title">Doa &amp; Ucapan</h2>
+      <p class="text" data-text="wishes.text">Sampaikan doa dan konfirmasi kehadiran Anda.</p>
 
       <form class="wish-form" id="wishForm" novalidate>
         <div class="field">
           <label class="field__label" for="namaUcapan">Nama</label>
-          <input id="namaUcapan" name="name" type="text" placeholder="Nama"
+          <input id="namaUcapan" name="name" type="text" placeholder="Masukkan Nama"
                  autocomplete="name" maxlength="60" required>
         </div>
 
         <div class="field">
-          <label class="field__label" for="isiUcapan">Ucapan dan Doa</label>
+          <label class="field__label" for="isiUcapan">Pesan</label>
           <textarea id="isiUcapan" name="message" rows="4"
-                    placeholder="Tulis ucapan dan doa..." maxlength="500" required></textarea>
+                    placeholder="Masukkan Pesan" maxlength="500" required></textarea>
           <span class="field__hint">
             <span id="wishCount">0</span>/500 karakter
           </span>
         </div>
 
+        <fieldset class="field field--status">
+          <legend class="field__label">Kamu akan hadir?</legend>
+          <div class="status-options" id="wishStatus" role="radiogroup">
+            <label class="status-opt">
+              <input type="radio" name="status" value="hadir" required>
+              <span>Hadir</span>
+            </label>
+            <label class="status-opt">
+              <input type="radio" name="status" value="tidak_hadir">
+              <span>Tidak Hadir</span>
+            </label>
+            <label class="status-opt">
+              <input type="radio" name="status" value="belum_pasti">
+              <span>Belum Pasti</span>
+            </label>
+          </div>
+        </fieldset>
+
         <button type="submit" class="btn btn--block">
           <span data-icon="send" aria-hidden="true"></span>
-          Kirim Ucapan
+          Kirim
         </button>
       </form>
 
-      <div class="wish-list" id="wishList" aria-live="polite">
-        <div class="wish">
-          <header class="wish__head">
-            <span class="wish__avatar" aria-hidden="true">AI</span>
-            <div class="wish__meta">
-              <strong class="wish__name">Aisyah</strong>
-              <span class="wish__time">contoh</span>
-            </div>
-          </header>
-          <p class="wish__message">Semoga menjadi keluarga yang sakinah, mawaddah, warahmah. Aamiin.</p>
-        </div>
-        <div class="wish">
-          <header class="wish__head">
-            <span class="wish__avatar" aria-hidden="true">RA</span>
-            <div class="wish__meta">
-              <strong class="wish__name">Rani</strong>
-              <span class="wish__time">contoh</span>
-            </div>
-          </header>
-          <p class="wish__message">Selamat menempuh hidup baru. Semoga selalu diberikan kebahagiaan.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ 9. BAGIKAN + QR ============ -->
-  <section class="qr" aria-labelledby="qr-title">
-    <div class="container center">
-      <p class="small-title">Digital Invitation</p>
-      <h2 class="title" id="qr-title">Bagikan Undangan</h2>
-
-      <p class="share-url" data-render="share-url">undangan-contoh.vercel.app</p>
-
-      <img class="qr-image" data-render="qr" src="./img/qr-placeholder.svg"
-           alt="QR Code undangan" width="400" height="400" loading="lazy" decoding="async">
-
-      <p class="qr__caption">Scan QR Code untuk membuka undangan.</p>
-
-      <div class="map-actions">
-        <button class="btn btn--ghost" type="button" data-share>
-          <span data-icon="share" aria-hidden="true"></span>
-          Bagikan Undangan
-        </button>
-      </div>
+      <div class="wish-list" id="wishList" aria-live="polite"></div>
     </div>
   </section>
 

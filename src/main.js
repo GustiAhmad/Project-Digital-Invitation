@@ -14,8 +14,7 @@ import { initMusic } from './modules/music.js';
 import { renderGuestName } from './modules/guest.js';
 import { initGallery } from './modules/gallery.js';
 import { initWishes } from './modules/wishes.js';
-import { initRsvp } from './modules/rsvp.js';
-import { initShare, initCharCount, initUnsavedGuard } from './modules/share.js';
+import { initCharCount, initUnsavedGuard } from './modules/share.js';
 import { initCalendar } from './modules/calendar.js';
 
 function boot() {
@@ -28,8 +27,6 @@ function boot() {
   renderGuestName();
   initGallery();
   initWishes();
-  initRsvp();
-  initShare();
   initCharCount();
   initUnsavedGuard();
   initCalendar();

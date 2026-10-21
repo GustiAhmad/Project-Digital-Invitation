@@ -262,22 +262,11 @@ function mapsDirectionsUrl(ev) {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(dest)}&travelmode=driving`;
 }
 
-/* ---------- RSVP ---------- */
-function renderRsvp() {
-  const select = $('#rsvpStatus');
-  if (!select) return;
-
-  select.textContent = '';
-  select.append(el('option', { value: '', text: CONFIG.rsvp.placeholder, disabled: true, selected: true }));
-  CONFIG.rsvp.statusOptions.forEach((opt) => {
-    select.append(el('option', { value: opt.value, text: opt.label }));
-  });
-
-  const guest = $('#rsvpGuest');
-  if (guest) guest.max = String(CONFIG.rsvp.maxGuest);
-}
-
-/* ---------- UCAPAN ---------- */
+/* ---------- DOA & UCAPAN (gabungan) ----------
+ * Isi placeholder & batas karakter dari config. Teks label/judul
+ * sudah diisi oleh bindText() lewat `data-text` di HTML. Opsi status
+ * kehadiran sengaja statis di index.html (3 label tetap).
+ */
 function renderWishes() {
   const name = $('#namaUcapan');
   const msg = $('#isiUcapan');
@@ -287,6 +276,14 @@ function renderWishes() {
   name.maxLength = CONFIG.wishes.nameMaxLength;
   msg.placeholder = CONFIG.wishes.messagePlaceholder;
   msg.maxLength = CONFIG.wishes.messageMaxLength;
+
+  const submit = $('#wishForm button[type="submit"]');
+  if (submit) {
+    const icon = submit.querySelector('[data-icon]');
+    submit.textContent = '';
+    if (icon) submit.append(icon);
+    submit.append(document.createTextNode(' ' + CONFIG.wishes.submitLabel));
+  }
 }
 
 /* ---------- KONTAK / WHATSAPP ----------
@@ -328,18 +325,6 @@ function renderContact() {
   // lokasi -> kontak -> RSVP.
   const rsvp = $('#rsvp');
   if (rsvp) rsvp.before(host);
-}
-
-/* ---------- SHARE + QR ---------- */
-function renderShare() {
-  const urlNode = $('[data-render="share-url"]');
-  if (!urlNode) return;
-
-  const url = CONFIG.meta.siteUrl || window.location.origin;
-  urlNode.textContent = url.replace(/^https?:\/\//, '');
-
-  const img = $('[data-render="qr"]');
-  if (img) img.src = CONFIG.share.qrPlaceholder;
 }
 
 /* ---------- GALERI ---------- */
@@ -439,9 +424,7 @@ export function renderAll() {
   renderLocation();
   renderGallery();
   renderContact();
-  renderRsvp();
   renderWishes();
-  renderShare();
 
   // Terakhir: isi sisa `data-icon` yang ada di HTML statis.
   renderStaticIcons();}

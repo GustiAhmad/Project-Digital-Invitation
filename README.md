@@ -163,9 +163,8 @@ ke `config.js` -> `npm run check:images`.
 |   |   |-- calendar.js     # Google Calendar + unduh .ics
 |   |   |-- countdown.js
 |   |   |-- music.js
-|   |   |-- wishes.js
-|   |   |-- rsvp.js
-|   |   `-- share.js        # Web Share API + salin tautan
+|   |   |-- wishes.js       # Doa & Ucapan (gabungan RSVP + ucapan)
+|   |   `-- share.js        # util: penghitung karakter + unsaved guard
 |   `-- lib/supabase.js     # (Tahap 3)
 |
 |-- admin/
@@ -187,8 +186,8 @@ ke `config.js` -> `npm run check:images`.
 **90% kebutuhan klien cukup lewat satu file: `src/config.js`.**
 
 Di file itu tersimpan: nama pengantin, nama orang tua, tanggal & jam
-acara, alamat & koordinat lokasi, nomor WhatsApp, teks RSVP, dan
-pengaturan bagikan/QR.
+acara, alamat & koordinat lokasi, dan teks Doa & Ucapan (gabungan
+RSVP + ucapan).
 
 ```js
 export const CONFIG = {
@@ -358,11 +357,10 @@ terminal, selalu mencerminkan kondisi terbaru.
 | Koordinat lokasi | **Ada** | `-3.3004753589630127, 114.58055877685547` |
 | Nama resmi venue | **Tidak ada** | Konfirmasi klien: acara di gang perumahan, tanpa nama bangunan. Alamat sudah cukup. |
 | Foto potret pengantin | **Final** | 2 file (563x751 & 520x693). Konfirmasi klien: pakai yang sudah ada. |
-| Foto pre-wedding galeri | **1 foto** | Konfirmasi klien: hanya ada SATU foto. Keputusan layout (satu foto besar vs tanpa section galeri) masih menunggu. |
+| Foto pre-wedding galeri | **Final** | Konfirmasi klien: hanya SATU foto. Layout satu foto besar (`gallery-grid--single`). Judul "Pre-Wedding" & deskripsi dihapus - cukup label "Gallery". |
 | Nomor WhatsApp | **Tidak ada** | Konfirmasi klien: privasi pengantin. **Section kontak permanen tidak dirender.** |
 | Lagu pengantin | **Final** | Konfirmasi klien: lagu 55 detik dipakai apa adanya, diputar loop. |
 | URL domain final | Placeholder | Tahap 7 |
-| QR code | Placeholder | Tahap 7 |
 
 ### Section yang dibatalkan klien
 
@@ -374,15 +372,17 @@ dari template lama:
 |---|---|
 | Teks cerita / love story | Dihapus |
 | Donasi / nomor rekening | Dihapus |
+| Bagikan Undangan / QR | Dihapus. Klien menyebar satu link umum sendiri, jadi tamu tidak perlu membagikannya. `src/modules/share.js` tetap ada untuk `initCharCount()` & `initUnsavedGuard()` yang dipakai form Doa & Ucapan. |
+| RSVP terpisah | Digabung ke **Doa & Ucapan** (keputusan klien). Undangan murni undangan: nama ditulis sekali, tanpa penghitungan jumlah tamu. `src/modules/rsvp.js` dihapus. |
 | Section kontak statis ("Ada pertanyaan?") | Klien minta dihapus. Sebagai gantinya, section kontak dibuat `renderContact()` hanya kalau `contact.whatsapp` sudah diisi - jadi tidak pernah tampil kosong yatim. |
 
 ### Section yang dikembalikan klien
 
 | Section | Status |
 |---|---|
-| Galeri pre-wedding | **Kembali.** 6 slot, masih placeholder (lihat tabel data klien di atas). |
+| Galeri pre-wedding | **Kembali & Final.** Satu foto asli (`gallery-1.jpg`), layout `gallery-grid--single`. Hanya label "Gallery"; judul & deskripsi dihapus. |
 | Tombol "Buka Undangan" | **Kembali.** Dibutuhkan agar musik bisa mulai, karena browser memblokir autoplay. |
-| Foto latar cover | **Kembali (wadahnya).** `hero.backdrop` di config.js + CSS `#cover::before` sudah siap, tapi `src` sengaja KOSONG karena klien belum mengirim foto pre-wedding. Saat foto datang: `npm run optimize`, isi `hero.backdrop.src`, cek kontras. Foto pre-wedding ideal jadi latar. |
+| Foto latar cover | **Final.** `hero.backdrop.src` = `gallery-1.jpg` (opacity 0.32), foto pre-wedding yang sama dengan galeri. |
 
 Semuanya dijaga `npm run check`:
 - Galeri harus punya jumlah slot yang sama dengan `gallery.photos`.
