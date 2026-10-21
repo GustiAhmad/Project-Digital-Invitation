@@ -65,19 +65,20 @@
   z-index: -2;
 }
 
-/* Scrim: paling gelap di tengah, agak longgar di tepi. Area
-   tengah-tengah halaman bukan kebetulan - di situlah nama
-   dan tombol berada, jadi bagian yang paling butuh kontras. */
+/* Scrim: cukup gelap di tengah supaya teks tetap kontras, tapi
+   tepinya dibiarkan lebih terang supaya FOTO tetap terlihat.
+   Sebelumnya scrim terlalu pekat (radial .82) sehingga foto
+   tenggelam dan cover terlihat seperti gradien gelap biasa. */
 #cover::after {
   background:
-    radial-gradient(ellipse 70% 55% at 50% 46%,
-      rgba(20, 24, 19, .82) 0%,
-      rgba(20, 24, 19, .62) 55%,
-      rgba(20, 24, 19, .34) 100%),
+    radial-gradient(ellipse 68% 54% at 50% 47%,
+      rgba(20, 24, 19, .72) 0%,
+      rgba(20, 24, 19, .40) 55%,
+      rgba(20, 24, 19, .10) 100%),
     linear-gradient(to bottom,
-      rgba(20, 24, 19, .55) 0%,
-      rgba(20, 24, 19, .28) 30%,
-      rgba(20, 24, 19, .38) 100%);
+      rgba(20, 24, 19, .38) 0%,
+      rgba(20, 24, 19, .12) 35%,
+      rgba(20, 24, 19, .30) 100%);
   z-index: -1;
 }
 
@@ -90,14 +91,20 @@
 
 /* ---------- Kontras teks di atas foto ----------
    Nama pengantin sebelumnya dianggap "terlalu menyatu dengan
-   background". Tiga lapis sekarang: scrim ::after di atas,
-   text-shadow berlapis di sini, dan font tetap putih penuh. */
+   background". Beberapa lapis sekarang: scrim ::after di atas,
+   foto yang tidak terlalu redup, color putih EKSPLISIT (jangan
+   hanya mengandalkan warisan, supaya tetap putih di browser yang
+   agresif menurunkan kontras), text-shadow berlapis, dan
+   font-weight lebih tebal. */
 .hero-content h1 {
+  color: var(--white);
+  font-weight: 600;
   font-size: var(--fs-h1);
+  line-height: 1.15;
   text-shadow:
-    0 1px 2px rgba(0, 0, 0, .55),
-    0 2px 18px rgba(0, 0, 0, .65),
-    0 4px 40px rgba(0, 0, 0, .5);
+    0 1px 3px rgba(0, 0, 0, .75),
+    0 3px 22px rgba(0, 0, 0, .8),
+    0 6px 48px rgba(0, 0, 0, .6);
 }
 
 .hero-content .small-title {

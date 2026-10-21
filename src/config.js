@@ -254,9 +254,11 @@ export const CONFIG = {
       // section galeri tampil jelas sebagai foto fitur.
       src: './img/gallery-1.jpg',
       alt: 'Foto pre-wedding Muhammad Irfani & Parida Paska',
-      // 0..1. Jangan naikkan di atas ~0.45: teks putih di atas
-      // foto terang akan jadi sulit dibaca lagi.
-      opacity: 0.32,
+      // 0..1. Nilai ini di-set ke CSS var dan DI-redupkan lagi oleh
+      // scrim #cover::after. 0.32 ternyata membuat foto praktis tak
+      // terlihat di bawah scrim yang pekat; 0.62 membuat foto jelas
+      // tampil tanpa mengalahkan teks (renderHero membatasi maks 0.6).
+      opacity: 0.6,
       // Fokus saat foto dipotong oleh background-size: cover.
       // '50% 30%' = bagian atas foto, tempat wajah biasanya ada.
       position: '50% 30%',
