@@ -1,0 +1,337 @@
+/* =========================================================
+   src/styles/components.css
+   ---------------------------------------------------------------
+   Komponen yang dipakai lebih dari satu section:
+   tombol, form, card, toast, ikon.
+   ========================================================= */
+
+/* =========================================================
+   TOMBOL
+   ========================================================= */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: var(--btn-height);
+  padding: 12px 28px;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--white);
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  font-weight: 500;
+  line-height: 1.2;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+
+  transition: transform var(--t-base), background var(--t-base), opacity var(--t-base);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.btn:hover {
+  background: var(--accent-hover);
+  color: var(--white);
+  transform: translateY(-2px);
+}
+
+.btn:active { transform: translateY(0); }
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  opacity: .55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn--sm {
+  min-height: 38px;
+  padding: 9px 20px;
+  font-size: var(--fs-sm);
+}
+
+.btn--block { display: flex; width: 100%; }
+
+.btn--ghost {
+  background: transparent;
+  color: var(--olive);
+  box-shadow: inset 0 0 0 1px var(--olive);
+}
+
+.btn--ghost:hover {
+  background: rgba(104, 116, 93, .08);
+  color: var(--olive-dark);
+}
+
+.btn__icon {
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+
+.btn__label {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TOMBOL SALIN
+   =========================================================
+   Tombol ini punya pekerjaan yang tidak selalu "--ah, itu tombol
+   copy" bagi pengunjung yang baru pertama kali melihat. Jadi
+   label teksnya dibuat eksplisit ("Salin Nomor Rekening") dan
+   ukurannya dinaikkan ke 44px, meets kiosk pointer guidelines
+   dari WCAG 2.5.5.
+   ========================================================= */
+.btn--copy {
+  width: 100%;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 18px;
+  /* Ikon dicetak tebal supaya tidak tenggelam di layar kecil */
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+
+.btn--copy .btn__icon {
+  color: var(--olive);
+  transition: color var(--t-fast, .18s) ease;
+}
+
+.btn--copy:hover .btn__icon { color: var(--gold); }
+
+/* Keadaan "sudah tersalin" */
+.btn--copy.btn--done {
+  background: var(--success);
+  color: #fff;
+  box-shadow: none;
+  opacity: 1;
+  cursor: default;
+}
+
+.btn--copy.btn--done .btn__icon { color: #fff; }
+
+/* =========================================================
+   FORM
+   ========================================================= */
+.field { margin-bottom: var(--sp-3); }
+
+.field__label {
+  display: block;
+  margin-bottom: var(--sp-1);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  letter-spacing: .5px;
+  color: var(--ink-soft);
+}
+
+.field__hint {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+}
+
+.field__error {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  font-weight: 500;
+  color: var(--danger);
+}
+
+input,
+textarea,
+select {
+  display: block;
+  width: 100%;
+  min-height: var(--btn-height);
+  padding: 12px var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--bg-card);
+  color: var(--text-strong);
+  font-family: var(--font-sans);
+  /* Minimal 16px: di bawah itu iOS auto-zoom saat field difokus
+     sehingga halaman ikut ter-zoom dan sulit dikembalikan. */
+  font-size: var(--fs-md);
+  line-height: 1.5;
+  transition: border-color var(--t-fast), box-shadow var(--t-fast);
+  appearance: none;
+}
+
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+input::placeholder,
+textarea::placeholder { color: var(--muted); }
+
+input:hover,
+textarea:hover,
+select:hover { border-color: var(--gold); }
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--olive);
+  box-shadow: 0 0 0 3px var(--gold-soft);
+}
+
+input[aria-invalid='true'],
+textarea[aria-invalid='true'],
+select[aria-invalid='true'] {
+  border-color: var(--danger);
+}
+
+select {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2368745d' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right var(--sp-4) center;
+  padding-right: 42px;
+}
+
+.form-note {
+  margin-top: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: rgba(184, 150, 79, .1);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 var(--r-sm) var(--r-sm) 0;
+  font-size: var(--fs-sm);
+  color: var(--ink-soft);
+}
+
+.form-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-sm);
+  color: var(--olive);
+}
+
+/* =========================================================
+   IKON
+   ========================================================= */
+.event-icon,
+.venue__icon {
+  display: grid;
+  place-items: center;
+  color: var(--olive);
+}
+
+/* =========================================================
+   TOMBOL MUSIK (mengambang)
+   ========================================================= */
+.music-btn {
+  position: fixed;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--accent);
+  color: var(--white);
+  box-shadow: var(--sh-float);
+  cursor: pointer;
+  z-index: var(--z-float);
+  transition: transform var(--t-base), background var(--t-base);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.music-btn:hover {
+  background: var(--accent-hover);
+  transform: scale(1.06);
+}
+
+.music-btn:active { transform: scale(.96); }
+
+.music-btn.is-playing {
+  background: var(--forest);
+  animation: music-pulse 2.4s ease-in-out infinite;
+}
+
+.music-btn__icon {
+  display: grid;
+  place-items: center;
+}
+
+@keyframes music-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(104, 116, 93, .45); }
+  50%      { box-shadow: 0 0 0 10px rgba(104, 116, 93, 0); }
+}
+
+/* Jangan berdenyut untuk pengguna yang mengurangi animasi */
+@media (prefers-reduced-motion: reduce) {
+  .music-btn.is-playing { animation: none; }
+}
+
+/* =========================================================
+   SECTION CARD
+   ========================================================= */
+.event-card {
+  background: var(--bg-card);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-sm);
+  text-align: center;
+}
+
+/* ---------- Tombol kalender di dalam kartu acara ----------
+   Sebelumnya cuma dua tombol berdampingan tanpa keterangan, dan
+   tamu tidak tahu mana yang untuk hapenya. Sekarang ada:
+     judul kecil  -> apa fungsi tombolnya
+     tiap baris   -> satu tombol + label perangkatnya
+   Susunannya kolom supaya label perangkat tetap menempel pada
+   tombolnya saat layar sempit (tidak terpisah ke baris lain). */
+.event-card__calendar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  /* Dulu `var(--border)` yang tidak pernah didefinisikan di
+     tokens.css, jadi aturan ini sebenarnya tidak berefek. Var
+     yang benar `--line`. */
+  border-top: 1px solid var(--line);
+}
+
+.event-card__calendar-hint {
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  opacity: .75;
+}
+
+.event-card__calendar-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+/* Label perangkat. Dibuat pill kecil supaya terbaca sebagai
+   "keterangan yang menempel", bukan teks bebas yang bisa
+   disalahartikan sebagai bagian dari nama tombol. */
+.event-card__calendar-for {
+  min-width: 4.5rem;
+  padding: .2rem .55rem;
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--olive);
+  background: color-mix(in srgb, var(--olive) 12%, transparent);
+  border-radius: 999px;
+}

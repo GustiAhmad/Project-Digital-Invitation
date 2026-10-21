@@ -1,0 +1,113 @@
+/* =========================================================
+   src/modules/music.js
+   ---------------------------------------------------------------
+   Audio background.
+
+   MASALAH YANG DISELESAIKAN:
+     Tombol musik di kode lama memanggil `toggleMusic()` yang TIDAK
+     PERNAH didefinisikan -> ReferenceError, tombol mati total.
+     Selain itu ikon tidak pernah berubah, tidak ada kontrol volume,
+     dan `alert()` muncul saat autoplay ditolak.
+
+   CARA KERJA AUTOPLAY:
+     Semua browser modern memblokir autoplay bersuara sampai ada
+     interaksi pengguna. Karena itu musik HANYA mulai setelah
+     pengunjung menekan "Buka Undangan" - itu juga gesture pertama
+     yang sah. Tidak ada cara sah untuk melewati ini.
+   ========================================================= */
+
+import { $ } from '../lib/dom.js';
+import { icon } from '../lib/icons.js';
+
+const DEFAULT_VOLUME = 0.45;
+
+export function initMusic() {
+  const audio = $('#music');
+  const btn = $('#musicButton');
+  if (!audio || !btn) return;
+
+  let playing = false;
+  let userStopped = false; // tamu sengaja mematikan -> jangan hidupkan lagi
+
+  function paint() {
+    const iconBox = btn.querySelector('.music-btn__icon');
+    if (iconBox) {
+      iconBox.textContent = '';
+      iconBox.append(icon(playing ? 'pause' : 'music', { size: 20, stroke: 1.8 }));
+    }
+    btn.setAttribute('aria-pressed', String(playing));
+    btn.setAttribute('aria-label', playing ? 'Jeda musik' : 'Putar musik');
+    btn.title = playing ? 'Jeda musik' : 'Putar musik';
+    btn.classList.toggle('is-playing', playing);
+  }
+
+  async function play() {
+    try {
+      audio.volume = DEFAULT_VOLUME;
+      await audio.play();
+      playing = true;
+    } catch {
+      // Autoplay diblokir, atau format tidak didukung di perangkat ini.
+      // Tidak perlu alert - tombol tetap bisa diklik pengguna.
+      playing = false;
+    }
+    paint();
+  }
+
+  function pause() {
+    audio.pause();
+    playing = false;
+    paint();
+  }
+
+  function toggle() {
+    if (audio.paused) {
+      userStopped = false;
+      play();
+    } else {
+      userStopped = true;
+      pause();
+    }
+  }
+
+  // ---- GATE MUSIK ----
+  // Klien meminta musik TIDAK mulai saat cover dibuka. Semua browser
+  // modern juga memblokir autoplay bersuara, jadi tidak ada cara sah
+  // untuk memaksa suara tanpa gesture pengguna.
+  //
+  // Klik "Buka Undangan" adalah gesture yang tepat: pengguna sudah
+  // menyatakan niat membuka undangan, dan ini sekaligus memberi tahu
+  // browser bahwa audio boleh diputar (user activation).
+  //
+  // Anchor ke #intro tetap dipakai (href di index.html) supaya
+  //Undangan tetap bisa dibuka tanpa JavaScript.
+  const openBtn = $('#openInvitation');
+  if (openBtn) {
+    openBtn.addEventListener('click', () => {
+      // Jangan hidupkan lagi kalau tamu sudah sengaja mematikan -
+      // menghormati pilihan mereka lebih penting.
+      if (!userStopped && audio.paused) play();
+    });
+  }
+
+  // Tombol musik
+  btn.addEventListener('click', toggle);
+
+  // Keadaan playback bisa berubah dari luar (mis. perangkat lain
+  // menghentikan audio karena ada telepon masuk).
+  audio.addEventListener('play', () => { playing = true; paint(); });
+  audio.addEventListener('pause', () => { playing = false; paint(); });
+  audio.addEventListener('ended', () => { playing = false; paint(); });
+  audio.addEventListener('error', () => {
+    playing = false;
+    paint();
+    btn.title = 'Audio tidak dapat dimuat';
+  });
+
+  // Jeda otomatis saat pindah tab / layar mati.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && !audio.paused) pause();
+  });
+
+  paint();
+}

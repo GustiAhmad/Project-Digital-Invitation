@@ -1,0 +1,817 @@
+/* =========================================================
+   src/styles/sections.css
+   ---------------------------------------------------------------
+   Gaya per section. Diurutkan sesuai urutan di halaman.
+   ========================================================= */
+
+/* =========================================================
+   1. HERO
+   ------------------------------------------------------------
+   Klien awalnya meminta konsep simpel tanpa foto cover, lalu
+   berubah pikiran: nama pengantin di cover dinilai terlalu menyatu
+   dengan latar sehingga sulit dibaca. Solusinya dua lapis:
+
+     1. foto sebagai latar, diredupkan (--hero-backdrop-opacity),
+        supaya teks tetap jadi elemen utama - bukan foto yang
+        mencolok dan teks yang jadi samar; dan
+     2. scrim gelap berlapis (#cover::after) plus text-shadow.
+
+   `--hero-backdrop` diisi dari CONFIG.hero.backdrop di
+   src/lib/render.js (renderHero). Kalau var itu belum diisi -
+   mis. JS mati - cover tetap pakai gradien solid seperti dulu,
+   jadi tidak pernah jadi background kosong.
+   ========================================================= */
+#cover {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  min-height: 100svh; /* lebih akurat di HP dengan address bar */
+  padding: var(--sp-8) var(--sp-5);
+  text-align: center;
+  color: var(--white);
+  background-color: var(--forest-deep);
+
+  /* Ornamen: dua lingkaran samar sebagai tekstur, digambar
+     sepenuhnya dengan CSS. Tidak menambah request jaringan. */
+  background-image:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, .07), transparent 55%),
+    radial-gradient(circle at 50% 42%, transparent 58%, rgba(201, 162, 39, .16) 59%, transparent 61%);
+}
+
+/* ---------- Foto latar + scrim ----------
+   Dua pseudo-element, bukan background-image langsung, karena
+   keduanya butuh opacity DAN z-index yang berbeda:
+     ::before = foto (di redupkan)
+     ::after  = scrim gelap (menjaga kontras teks)
+   Kalau digabung ke background-image, opacity foto akan ikut
+   meredupkan warna solid di belakanganya juga. */
+#cover::before,
+#cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+#cover::before {
+  background-image: var(--hero-backdrop, none);
+  background-size: cover;
+  background-position: var(--hero-backdrop-position, 50% 30%);
+  background-repeat: no-repeat;
+  opacity: var(--hero-backdrop-opacity, 0);
+  z-index: -2;
+}
+
+/* Scrim: cukup gelap di tengah supaya teks tetap kontras, tapi
+   tepinya dibiarkan lebih terang supaya FOTO tetap terlihat.
+   Sebelumnya scrim terlalu pekat (radial .82) sehingga foto
+   tenggelam dan cover terlihat seperti gradien gelap biasa. */
+#cover::after {
+  background:
+    radial-gradient(ellipse 68% 54% at 50% 47%,
+      rgba(20, 24, 19, .72) 0%,
+      rgba(20, 24, 19, .40) 55%,
+      rgba(20, 24, 19, .10) 100%),
+    linear-gradient(to bottom,
+      rgba(20, 24, 19, .38) 0%,
+      rgba(20, 24, 19, .12) 35%,
+      rgba(20, 24, 19, .30) 100%);
+  z-index: -1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 1;
+  max-width: 720px;
+  animation: fade-up .9s cubic-bezier(.2, .7, .3, 1) both;
+}
+
+/* ---------- Kontras teks di atas foto ----------
+   Nama pengantin sebelumnya dianggap "terlalu menyatu dengan
+   background". Beberapa lapis sekarang: scrim ::after di atas,
+   foto yang tidak terlalu redup, color putih EKSPLISIT (jangan
+   hanya mengandalkan warisan, supaya tetap putih di browser yang
+   agresif menurunkan kontras), text-shadow berlapis, dan
+   font-weight lebih tebal. */
+.hero-content h1 {
+  color: var(--white);
+  font-weight: 600;
+  font-size: var(--fs-h1);
+  line-height: 1.15;
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, .75),
+    0 3px 22px rgba(0, 0, 0, .8),
+    0 6px 48px rgba(0, 0, 0, .6);
+}
+
+.hero-content .small-title {
+  color: var(--gold-light);
+  letter-spacing: var(--tracking-widest);
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, .6),
+    0 2px 14px rgba(0, 0, 0, .6);
+}
+
+.hero-date {
+  margin-block: var(--sp-6);
+  font-size: var(--fs-md);
+  letter-spacing: 2px;
+  text-shadow:
+    0 1px 2px rgba(0, 0, 0, .6),
+    0 2px 14px rgba(0, 0, 0, .65);
+}
+
+/* ---------- TOMBOL "BUKA UNDANGAN" ----------
+   Klien meminta tombol ini ada. Fungsinya nyata, bukan hiasan:
+   mengarahkan ke #intro sekaligus menjadi gesture yang sah untuk
+   memulai musik (browser memblokir autoplay bersuara).
+   Karena itu targetnya Sapaan + countdown, BUKAN langsung ke
+   profil pengantin - halaman jadi terasa runtut. */
+.btn--open {
+  margin-top: var(--sp-5);
+  padding: var(--sp-4) var(--sp-8);
+  font-size: var(--fs-sm);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  background: var(--gold);
+  color: var(--forest-deep);
+  border: 1px solid var(--gold);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .28);
+}
+
+.btn--open:hover,
+.btn--open:focus-visible {
+  background: var(--gold-light);
+  border-color: var(--gold-light);
+  transform: translateY(-2px);
+}
+
+.btn--open .btn__icon {
+  transition: transform .2s ease;
+}
+
+.btn--open:hover .btn__icon {
+  transform: translateX(3px);
+}
+
+/* Sapaan personal di cover. Default disembunyikan di HTML supaya
+   tidak ada baris kosong saat JS belum sempat berjalan. */
+.hero-guest {
+  margin-top: var(--sp-4);
+  font-family: var(--font-script);
+  font-size: clamp(1.25rem, 5.5vw, 1.75rem);
+  color: var(--gold-light);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, .55);
+}
+
+/* Sapaan personal di halaman sambutan. */
+.guest-line {
+  margin-top: var(--sp-3);
+  font-family: var(--font-script);
+  font-size: clamp(1.375rem, 6vw, 1.875rem);
+  color: var(--forest);
+}
+
+/* Panah "lanjut ke bawah" - penanda bahwa masih ada isi di bawah.
+   Dipakai bersama tombol Buka Undangan, bukan menggantikannya. */
+.hero-scroll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-top: var(--sp-4);
+  color: var(--gold-light);
+  opacity: .8;
+  transform: rotate(90deg);
+  transition: opacity .2s ease, transform .2s ease;
+}
+
+.hero-scroll:hover,
+.hero-scroll:focus-visible {
+  opacity: 1;
+  transform: rotate(90deg) translateX(3px);
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* =========================================================
+   2. INTRO
+   ========================================================= */
+.intro {
+  background: var(--bg-alt);
+  text-align: center;
+  /* Tombol "Buka Undangan" dan panah sama-sama menuju ke sini.
+     Tanpa scroll-margin-top, header fixed akan menutupi baris
+     pertama ("Assalamu'alaikum") tepat setelah lompat. */
+  scroll-margin-top: 90px;
+}
+
+/* =========================================================
+   4. MEMPELAI
+   ========================================================= */
+.couple { background: var(--bg-page); }
+
+.couple-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(24px, 6vw, 40px);
+  margin-top: var(--sp-10);
+}
+
+.person { text-align: center; }
+
+.person img {
+  width: min(220px, 58vw);
+  height: auto;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  border-radius: 110px 110px 20px 20px;
+  background: var(--bg-alt);
+  box-shadow: var(--sh-sm);
+  margin-bottom: var(--sp-5);
+}
+
+.person h3 { font-size: var(--fs-2xl); }
+
+.person__parents {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   4. ACARA
+   ========================================================= */
+.events { background: var(--bg-alt); }
+
+.event-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--sp-6);
+  margin-top: var(--sp-10);
+}
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(24px, 5vw, 36px) var(--sp-5);
+}
+
+.event-icon {
+  width: 44px;
+  height: 44px;
+  margin-bottom: var(--sp-3);
+}
+
+.event-card h3 {
+  font-size: var(--fs-2xl);
+  margin-bottom: var(--sp-4);
+}
+
+.event-card p {
+  font-size: var(--fs-sm);
+  margin-bottom: var(--sp-2);
+  color: var(--text-body);
+}
+
+.event-line {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.event-line__icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--gold);
+  flex: 0 0 auto;
+}
+
+/* Jam dan nama venue diberi warna aksen supaya mata langsung
+   menangkap dua hal yang paling dicari tamu: kapan & di mana.
+   Tanggal dibiarkan warna body supaya hierarkinya jelas: jam dan
+   lokasi menonjol, tanggal lebih redup. */
+.event-date { color: var(--text-body) !important; }
+
+.event-time {
+  font-weight: 600;
+  color: var(--forest) !important;
+}
+
+.event-venue {
+  font-weight: 600;
+  color: var(--olive) !important;
+}
+
+.event-address { color: var(--text-muted) !important; }
+
+.event-card__cta {
+  margin-top: var(--sp-5);
+}
+
+.event-card__cta svg { transition: transform var(--t-base); }
+.event-card__cta:hover svg { transform: translateX(3px); }
+
+/* =========================================================
+   5. GALERI PRE-WEDDING
+   ------------------------------------------------------------
+   Grid murni CSS, tanpa library. Jumlah kolom menyesuaikan lebar
+   layar supaya tidak perlu JavaScript sama sekali.
+   ========================================================= */
+.gallery {
+  background: var(--bg-alt);
+  padding-block: var(--sp-16);
+}
+
+.gallery-grid {
+  display: grid;
+  /* auto-fit + minmax: 2 kolom di HP, bertambah otomatis di tablet
+     dan desktop tanpa breakpoint tambahan. */
+  grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr));
+  gap: var(--sp-3);
+  margin-top: var(--sp-8);
+}
+
+/* Satu foto (keputusan klien): jangan biarkan foto 2:3 direntangkan
+   selebar container jadi raksasa. Batasi lebar, pusatkan, dan
+   biarkan rasio aslinya menonjol sebagai "foto fitur". */
+.gallery-grid--single {
+  grid-template-columns: minmax(0, 420px);
+  justify-content: center;
+  gap: 0;
+}
+
+.gallery-grid--single .gallery-item {
+  box-shadow: var(--sh-md);
+}
+
+.gallery-item {
+  /* Rasio 2:3 dijaga di semua ukuran kolom, jadi grid tidak
+     melompat saat gambar dimuat. */
+  position: relative;
+  aspect-ratio: 2 / 3;
+  overflow: hidden;
+  border-radius: var(--r-md);
+  background: var(--bg-card);
+  box-shadow: var(--sh-xs);
+}
+
+.gallery-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform .35s ease;
+}
+
+.gallery-item:hover img {
+  transform: scale(1.04);
+}
+
+/* Placeholder bernomor - dipakai selama foto asli belum dikirim
+   klien, supaya tata letak galeri tetap bisa direview. */
+.gallery-item--empty {
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--gold-soft);
+  box-shadow: none;
+}
+
+.gallery-item__num {
+  font-family: var(--font-serif);
+  font-size: var(--fs-lg);
+  color: var(--gold);
+  opacity: .5;
+}
+
+.countdown.is-finished { opacity: .55; }
+
+.intro .script {
+  font-size: var(--fs-script);
+  margin-block: var(--sp-5);
+  color: var(--forest);
+}
+
+/* ---------- COUNTDOWN ---------- */
+.countdown {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: clamp(6px, 2.5vw, 14px);
+  margin-top: var(--sp-8);
+}
+
+.count-box {
+  /* flex-basis, bukan width tetap: mencegah luapan di layar 320px */
+  flex: 1 1 76px;
+  min-width: 0;
+  max-width: 96px;
+  padding: var(--sp-3) 2px;
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-xs);
+}
+
+.count-box strong {
+  display: block;
+  font-family: var(--font-serif);
+  font-style: normal;
+  font-size: clamp(1.25rem, 6vw, 1.5625rem);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--forest);
+}
+
+.count-box span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.countdown.is-finished { opacity: .55; }
+
+.countdown-note {
+  margin-top: var(--sp-5);
+  font-family: var(--font-script);
+  font-size: var(--fs-script-sm);
+  color: var(--olive);
+}
+
+/* =========================================================
+   6. LOKASI
+   ========================================================= */
+.location { background: var(--bg-page); text-align: center; }
+
+.venue-list {
+  display: grid;
+  gap: var(--sp-3);
+  max-width: 520px;
+  margin: var(--sp-6) auto 0;
+  text-align: left;
+}
+
+.venue {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  background: var(--bg-card);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-xs);
+}
+
+.venue__icon {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(104, 116, 93, .1);
+  color: var(--olive);
+}
+
+.venue strong {
+  display: block;
+  font-size: var(--fs-base);
+  font-weight: 600;
+}
+
+.venue span:not(.venue__icon) {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.map-box {
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  height: clamp(260px, 46vh, 350px);
+  background: var(--bg-alt);
+  box-shadow: var(--sh-sm);
+}
+
+.map-box iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.map-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  justify-content: center;
+  margin-top: var(--sp-4);
+}
+
+/* =========================================================
+   KARTU PETA (satu per acara)
+   =========================================================
+   Akad nikah dan resepsi bisa di tempat berbeda, jadi tiap
+   acara punya kartu + peta + tombol navigasinya sendiri.
+   ========================================================= */
+.map-list {
+  display: grid;
+  gap: var(--sp-6);
+  margin-top: var(--sp-8);
+}
+
+.map-card {
+  background: var(--bg-card);
+  border-radius: var(--r-xl);
+  padding: var(--sp-4);
+  box-shadow: var(--sh-sm);
+  /* Kalau pengunjung tombol "Lihat Lokasi" di kartu acara, kartu
+     ini tidak boleh tertutup header fixed. */
+  scroll-margin-top: 90px;
+}
+
+.map-card__head {
+  text-align: center;
+  margin-bottom: var(--sp-4);
+}
+
+.map-card__head h3 {
+  font-family: var(--font-serif);
+  font-size: clamp(1.35rem, 5.5vw, 1.75rem);
+  font-weight: 600;
+  color: var(--forest);
+  line-height: 1.2;
+}
+
+.map-card__head p {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.map-card__address {
+  font-size: var(--fs-xs) !important;
+  letter-spacing: .04em;
+}
+
+/* =========================================================
+   7. DOA & UCAPAN  (gabungan RSVP + Ucapan)
+   ------------------------------------------------------------
+   KEPUTUSAN KLIEN: RSVP dan Ucapan digabung. Section lama
+   ".rsvp" sudah dihapus dari index.html; tinggal section ini.
+   ========================================================= */
+.wishes { background: var(--bg-page); }
+
+.wish-form {
+  max-width: var(--container-form);
+  margin: var(--sp-8) auto 0;
+  text-align: left;
+}
+
+/* Saat mengirim: tombol sedang menunggu jawaban server.
+   [aria-busy] ditulis JS lewat class is-sending. */
+.wish-form.is-sending {
+  cursor: progress;
+}
+.wish-form.is-sending button[type="submit"] {
+  opacity: .7;
+  cursor: progress;
+}
+
+/* ---- Pilihan kehadiran (radiogroup) ---- */
+.field--status {
+  border: 0;
+  padding: 0;
+  margin: 0 0 var(--sp-5);
+}
+
+.status-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.status-opt {
+  flex: 1 1 0;
+  min-width: 110px;
+  position: relative;
+  cursor: pointer;
+}
+
+/* Radio disembunyikan secara visual, tapi tetap fokusabel
+   (bukan display:none) supaya keyboard & screen reader tetap bisa. */
+.status-opt input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+
+.status-opt span {
+  display: block;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  background: var(--bg-card);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-body);
+  transition: background .18s, border-color .18s, color .18s;
+}
+
+.status-opt input:checked + span {
+  background: var(--olive);
+  border-color: var(--olive);
+  color: var(--cream);
+}
+
+.status-opt input:focus-visible + span {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.wish-list {
+  max-width: var(--container-narrow);
+  margin: var(--sp-8) auto 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+
+.wish {
+  padding: var(--sp-4) var(--sp-5);
+  background: var(--bg-card);
+  border-radius: var(--r-lg);
+  box-shadow: var(--sh-xs);
+  text-align: left;
+  animation: wish-in .4s cubic-bezier(.2, .7, .3, 1) both;
+  transition: box-shadow var(--t-base), transform var(--t-base);
+}
+
+.wish:hover {
+  box-shadow: var(--sh-sm);
+  transform: translateY(-2px);
+}
+
+@keyframes wish-in {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wish { animation: none; transition: none; }
+  .wish:hover { transform: none; }
+}
+
+.wish__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
+.wish__avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--olive), var(--forest));
+  color: var(--cream);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  letter-spacing: .5px;
+  box-shadow: inset 0 0 0 1px rgba(247, 243, 235, .12);
+}
+
+.wish__meta { min-width: 0; flex: 1; }
+
+.wish__meta-top {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+
+.wish__name {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--forest);
+  overflow-wrap: anywhere;
+}
+
+/* ---- Badge status kehadiran ---- */
+.wish__status {
+  flex: 0 0 auto;
+  padding: 1px var(--sp-2);
+  border-radius: var(--r-pill);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  background: var(--sand);
+  color: var(--olive);
+}
+
+.wish__status--hadir { background: #dcebdd; color: #2f6b3a; }
+.wish__status--tidak { background: #f3dcdc; color: #8a3b3b; }
+.wish__status--ragu  { background: #f5e9d4; color: #6d511f; }
+
+.wish__time {
+  display: block;
+  margin-top: 1px;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.wish__message {
+  font-size: var(--fs-base);
+  line-height: 1.65;
+  color: var(--text-body);
+  white-space: pre-wrap; /* pertahankan baris baru dari pengguna */
+  overflow-wrap: anywhere;
+}
+
+.wish-list__empty {
+  padding: var(--sp-8) var(--sp-4);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* =========================================================
+   8. KONTAK
+   ------------------------------------------------------------
+   Tombol WhatsApp. `hidden` di HTML awal, lalu dihapus oleh
+   renderContact() hanya kalau nomor sudah diisi di config.js.
+   ========================================================= */
+.contact { background: var(--bg-page); }
+
+.contact-actions {
+  max-width: var(--container-form);
+  margin: var(--sp-6) auto 0;
+}
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+footer {
+  padding: var(--sp-16) var(--sp-5);
+  text-align: center;
+  background: var(--forest);
+  color: var(--cream);
+}
+
+footer .script {
+  font-size: var(--fs-script);
+  margin-block: var(--sp-4);
+  color: var(--cream);
+}
+
+footer p { font-size: var(--fs-sm); opacity: .8; }
+
+/* Baris kredit pembuat: lebih kecil & lebih redup dari baris lain
+   supaya tidak bersaing dengan nama pengantin, tapi tetap terbaca. */
+footer .footer-credit {
+  margin-top: var(--sp-5);
+  font-size: var(--fs-xs, .72rem);
+  letter-spacing: .03em;
+  opacity: .6;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ------------------------------------------------------------
+   Mobile-first: gaya dasar sudah untuk layar kecil, query di
+   bawah ini hanya MENAMBAH ukuran untuk layar yang lebih lebar.
+   ========================================================= */
+@media (min-width: 380px) {
+  .count-box { flex-basis: 82px; }
+}
+
+@media (max-width: 700px) {
+  :root { --section-py: 60px; --section-px: var(--sp-4); }
+
+  .couple-grid,
+  .event-grid { grid-template-columns: 1fr; }
+
+  .map-actions .btn { width: 100%; }
+}
+
+@media (min-width: 700px) {
+  .event-card--offset { margin-top: 0; }
+}
+
+/* Layar sangat kecil (iPhone SE generasi 1 = 320px) */
+@media (max-width: 360px) {
+  .countdown { gap: 5px; }
+  .count-box { flex-basis: 70px; padding: 10px 1px; }
+  .count-box span { font-size: 8px; letter-spacing: 0; }
+}

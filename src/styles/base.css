@@ -1,0 +1,263 @@
+/* =========================================================
+   src/styles/base.css
+   ---------------------------------------------------------------
+   Reset + elemen dasar + utilitas.
+   ========================================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Cegah konten meluber horizontal di layar sempit */
+  overflow-x: hidden;
+  /* Cegah scrollIntoView tertutup elemen fixed */
+  scroll-padding-top: 16px;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--fs-base);
+  line-height: 1.7;
+  background: var(--bg-page);
+  color: var(--text-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* Hormati preferensi pengguna yang ingin mengurangi animasi.
+   Ini juga lembroukan untuk pengguna yang sensitif terhadap motion. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- TIPOGRAFI ---------- */
+h1, h2, h3, h4 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.15;
+  color: var(--text-strong);
+  /* Cegah judul panjang meluber di layar sempit */
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+p { overflow-wrap: break-word; }
+
+.script { font-family: var(--font-script); font-weight: 400; }
+
+.small-title {
+  font-size: var(--fs-xs);
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--olive);
+  margin-bottom: var(--sp-3);
+}
+
+.title {
+  font-size: var(--fs-title);
+  margin-bottom: var(--sp-5);
+}
+
+.text {
+  max-width: 560px;
+  margin-inline: auto;
+  color: var(--text-body);
+}
+
+.amp {
+  display: inline-block;
+  font-size: 1.1em;
+  line-height: .6;
+  color: var(--gold-light);
+}
+
+/* ---------- LAYOUT ---------- */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-inline: auto;
+}
+
+.center { text-align: center; }
+
+section {
+  padding-block: var(--section-py);
+  padding-inline: var(--section-px);
+}
+
+/* ---------- AKSESIBILITAS ---------- */
+
+/* Link lompat: tersembunyi sampai di-fokus keyboard.
+   Tanpa ini, pengguna keyboard harus Menelusuri seluruh header
+   sebelum menemukan konten utama. */
+.skip-link {
+  position: absolute;
+  top: -100px;
+  left: var(--sp-4);
+  z-index: var(--z-toast);
+  padding: var(--sp-3) var(--sp-5);
+  background: var(--forest);
+  color: var(--cream);
+  border-radius: 0 0 var(--r-md) var(--r-md);
+  text-decoration: none;
+  font-size: var(--fs-sm);
+  transition: top var(--t-base);
+}
+
+.skip-link:focus {
+  top: 0;
+  color: var(--cream);
+}
+
+/* Hanya untuk screen reader */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Fokus keyboard harus selalu kelihatan */
+:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
+
+/* Jangan tampilkan cincin fokus untuk klik mouse */
+:focus:not(:focus-visible) { outline: none; }
+
+/* Hormati setting pengguna: kurangi animasi di perangkat */
+@media (prefers-reduced-transparency: reduce) {
+  * { backdrop-filter: none !important; }
+}
+
+/* Link di dalam teks */
+a {
+  color: var(--olive);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  transition: color var(--t-fast);
+}
+
+a:hover { color: var(--olive-dark); }
+
+/* Tandai elemen yang baru ditambahkan JS, untuk animasi masuk */
+[hidden] { display: none !important; }
+
+/* Cegah lompatan layout saat gambar dimuat */
+img, svg, video, iframe {
+  max-width: 100%;
+}
+
+/* =======================================================================
+   TOAST (pengganti alert)
+   ======================================================================= */
+.toast-region {
+  position: fixed;
+  left: 50%;
+  bottom: max(20px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: center;
+  width: min(420px, calc(100vw - 32px));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--forest);
+  color: var(--cream);
+  border-radius: var(--r-md);
+  box-shadow: var(--sh-lg);
+  font-size: var(--fs-base);
+  line-height: 1.45;
+  pointer-events: auto;
+
+  opacity: 0;
+  transform: translateY(12px) scale(.97);
+  animation: toast-in .32s cubic-bezier(.34, 1.4, .64, 1) forwards;
+}
+
+.toast.is-out {
+  animation: toast-out .28s ease forwards;
+}
+
+.toast--success { background: var(--forest); }
+.toast--error { background: #7d3f2e; }
+.toast--info { background: var(--forest-deep); }
+
+.toast__icon {
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  color: var(--forest);
+  background: var(--gold-light);
+}
+
+.toast--error .toast__icon { color: #7d3f2e; background: #f0d9d1; }
+
+.toast__text { flex: 1 1 auto; }
+
+.toast__close {
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: inherit;
+  opacity: .65;
+  cursor: pointer;
+  transition: opacity var(--t-fast), background var(--t-fast);
+}
+
+.toast__close:hover {
+  opacity: 1;
+  background: rgba(255, 255, 255, .12);
+}
+
+@keyframes toast-in {
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes toast-out {
+  to { opacity: 0; transform: translateY(8px) scale(.97); }
+}
