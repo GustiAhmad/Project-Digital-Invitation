@@ -159,6 +159,26 @@ if (!brideName || !groomName) {
     found.length ? `Masih muncul: ${found.join(', ')}` : 'OK');
 }
 
+/* ---------- 1b. og:image harus ABSOLUT ----------
+   Crawler WhatsApp/Facebook TIDAK menjalankan JS dan MENGABAIKAN
+   og:image relatif. Kalau nilainya "./og-image.png", link yang
+   di-share ke grup WhatsApp muncul tanpa gambar - keluhan yang
+   baru terasa setelah undangan disebar.
+
+   Nilai boleh memakai placeholder %SITE_URL% (diganti plugin Vite
+   saat build), TAPI tidak boleh dimulai dengan "./" atau "/".
+   ------------------------------------------------------------ */
+const ogImage = (html.match(/<meta\s+property="og:image"\s+content="([^"]*)"/) || [])[1];
+const ogImageAbsolute =
+  typeof ogImage === 'string'
+  && (ogImage.startsWith('%SITE_URL%/') || /^https?:\/\//i.test(ogImage));
+
+add('og:image absolut (bukan relatif)', ogImageAbsolute,
+  ogImageAbsolute
+    ? ogImage
+    : `Nilai: ${ogImage === undefined ? 'tidak ditemukan' : ogImage}. `
+      + 'Harus absolut, mis. https://domain/og-image.png atau %SITE_URL%/og-image.png.');
+
 /* ---------- 2. Tanggal & nama hari di <time datetime> ---------- */
 const date = (configSrc.match(/date:\s*'(\d{4}-\d{2}-\d{2})'/) || [])[1];
 const time = (configSrc.match(/startTime:\s*'(\d{2}:\d{2})'/) || [])[1];

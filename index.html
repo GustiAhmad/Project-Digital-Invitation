@@ -26,11 +26,15 @@
   <meta property="og:site_name" content="Digital Invitation">
   <meta property="og:title" content="The Wedding of Muhammad Irfani &amp; Parida Paska">
   <meta property="og:description" content="Undangan pernikahan digital. Kami menanti kehadiran Bapak/Ibu/Saudara/i.">
-  <meta property="og:image" content="./og-image.png">
+  <!-- %SITE_URL% diganti URL absolut oleh plugin di vite.config.js.
+       Crawler WhatsApp/Facebook menolak og:image yang relatif. -->
+  <meta property="og:url" content="%SITE_URL%/">
+  <meta property="og:image" content="%SITE_URL%/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="Undangan pernikahan Muhammad Irfani &amp; Parida Paska">
   <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="%SITE_URL%/">
 
   <link rel="icon" type="image/svg+xml" href="./icons/favicon.svg">
   <link rel="apple-touch-icon" href="./icons/favicon.svg">

@@ -138,3 +138,4 @@ service-account*.json
 # daftar tamu (bisa dipakai untuk penipuan/phishing keluarga).
 # Dipakai lokal oleh tools/generate-guest-links.mjs (Tahap berikutnya).
 data_tamu/
+.vercel

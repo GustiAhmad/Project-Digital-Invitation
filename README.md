@@ -18,7 +18,7 @@ signup.
 | Build | Vite 8 | Gratis |
 | Frontend | Vanilla JS (ES modules) + CSS Custom Properties | Gratis |
 | Backend / DB | Supabase (Postgres + Realtime + Auth + RLS) | Gratis |
-| Hosting | Vercel / Netlify / GitHub Pages | Gratis |
+| Hosting | Vercel (Produksi: `undangan-irfani-parida.vercel.app`) | Gratis |
 | Galeri | CSS Grid murni (tanpa library) | Gratis |
 | Ikon | Lucide | Gratis |
 | Anti-spam | Cloudflare Turnstile | Gratis |
