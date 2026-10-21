@@ -290,6 +290,7 @@ export const CONFIG = {
     label: 'Doa & Ucapan',
     title: 'Doa & Ucapan',
     text: 'Sampaikan doa dan konfirmasi kehadiran Anda.',
+    emptyText: 'Jadilah yang pertama mengirim doa & ucapan.',
     namePlaceholder: 'Masukkan Nama',
     messagePlaceholder: 'Masukkan Pesan',
     submitLabel: 'Kirim',

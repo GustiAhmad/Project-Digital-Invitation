@@ -343,7 +343,7 @@ export function initWishes() {
     if (list.querySelector('.wish-list__empty')) return;
     list.append(el('p', {
       class: 'wish-list__empty',
-      text: 'Jadilah yang pertama mengirim doa & ucapan.',
+      text: CONFIG.wishes.emptyText || 'Jadilah yang pertama mengirim doa & ucapan.',
     }));
   }
 
