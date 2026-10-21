@@ -333,6 +333,19 @@
   margin-top: var(--sp-8);
 }
 
+/* Satu foto (keputusan klien): jangan biarkan foto 2:3 direntangkan
+   selebar container jadi raksasa. Batasi lebar, pusatkan, dan
+   biarkan rasio aslinya menonjol sebagai "foto fitur". */
+.gallery-grid--single {
+  grid-template-columns: minmax(0, 420px);
+  justify-content: center;
+  gap: 0;
+}
+
+.gallery-grid--single .gallery-item {
+  box-shadow: var(--sh-md);
+}
+
 .gallery-item {
   /* Rasio 2:3 dijaga di semua ukuran kolom, jadi grid tidak
      melompat saat gambar dimuat. */

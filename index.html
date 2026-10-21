@@ -218,16 +218,14 @@
         <p class="text" data-text="gallery.caption">Detik-detik sebelum hari besar kami.</p>
       </div>
 
-      <div class="gallery-grid" data-render="gallery">
-        <!-- Fallback statis: 6 slot. tools/check-content.mjs
-             membandingkannya dengan gallery.photos di config.js.
-             src masih placeholder; lihat catatan galeri di config.js. -->
-        <div class="gallery-item"><img src="./img/gallery-1.svg" alt="Foto pre-wedding 1" loading="lazy" decoding="async"></div>
-        <div class="gallery-item"><img src="./img/gallery-2.svg" alt="Foto pre-wedding 2" loading="lazy" decoding="async"></div>
-        <div class="gallery-item"><img src="./img/gallery-3.svg" alt="Foto pre-wedding 3" loading="lazy" decoding="async"></div>
-        <div class="gallery-item"><img src="./img/gallery-4.svg" alt="Foto pre-wedding 4" loading="lazy" decoding="async"></div>
-        <div class="gallery-item"><img src="./img/gallery-5.svg" alt="Foto pre-wedding 5" loading="lazy" decoding="async"></div>
-        <div class="gallery-item"><img src="./img/gallery-6.svg" alt="Foto pre-wedding 6" loading="lazy" decoding="async"></div>
+      <div class="gallery-grid gallery-grid--single" data-render="gallery">
+        <!-- Fallback statis: SATU foto (keputusan klien A+B). Class
+             --single dikunci di sini dan ditambahkan lagi oleh
+             renderGallery() supaya tetap benar walau JS gagal.
+             tools/check-content.mjs membandingkannya dengan
+             gallery.photos di config.js. src masih placeholder;
+             lihat catatan galeri di config.js. -->
+        <div class="gallery-item"><img src="./img/gallery-1.svg" alt="Foto pre-wedding Muhammad Irfani &amp; Parida Paska" loading="lazy" decoding="async"></div>
       </div>
     </div>
   </section>

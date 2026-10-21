@@ -64,14 +64,15 @@ const defs = (id) => `
 /* =============================================================
    1. GALLERY PLACEHOLDER
    ------------------------------------------------------------
-   Klien meminta galeri pre-wedding, tapi foto aslinya belum
-   dikirim. Slot galeri tetap perlu ADA supaya tata letaknya bisa
-   direview, dan supaya tidak ada gambar rusak (ikon ?) di halaman.
+   KEPUTUSAN KLIEN: hanya SATU foto pre-wedding, dan foto itu belum
+   ada di repo. Satu placeholder tetap dibuat supaya tata letak
+   foto fitur bisa direview, dan supaya tidak ada gambar rusak
+   (ikon ?) di halaman.
 
-   Placeholder sengaja diberi garis putus-putus + nomor + label
+   Placeholder sengaja diberi garis putus-putus + label
    "PLACEHOLDER" supaya tidak mungkin tertukar dengan foto asli.
-   Setelah klien mengirim foto: jalankan `npm run optimize`, lalu
-   ubah `src` di config.js dari .svg ke .jpg dan isi `widths`.
+   Setelah foto asli ada: jalankan `npm run optimize`, lalu ubah
+   `src` di config.js dari .svg ke .jpg dan isi `widths`.
    ============================================================= */
 
 const GALLERY_PLACEHOLDER_W = 400;
@@ -80,22 +81,21 @@ const GALLERY_PLACEHOLDER_H = 600; // rasio 2:3, sama dengan .gallery-item
 console.log('Membuat placeholder...');
 
 CONFIG.gallery.photos.forEach((photo, i) => {
-  const n = i + 1;
-  const name = `gallery-${n}.svg`;
+  const name = i === 0
+    ? 'gallery-1.svg'
+    : `gallery-${i + 1}.svg`;
 
   write(IMG, name, `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${GALLERY_PLACEHOLDER_W} ${GALLERY_PLACEHOLDER_H}"
      width="${GALLERY_PLACEHOLDER_W}" height="${GALLERY_PLACEHOLDER_H}" role="img"
-     aria-label="Placeholder foto pre-wedding ${n}">
+     aria-label="Placeholder foto pre-wedding">
   <rect width="${GALLERY_PLACEHOLDER_W}" height="${GALLERY_PLACEHOLDER_H}" fill="${C.cream}"/>
   <rect x="10" y="10" width="${GALLERY_PLACEHOLDER_W - 20}" height="${GALLERY_PLACEHOLDER_H - 20}"
         fill="none" stroke="${C.gold}" stroke-width="2" stroke-dasharray="10 8" opacity=".55"/>
   <circle cx="200" cy="250" r="46" fill="none" stroke="${C.olive}" stroke-width="2.5" opacity=".35"/>
   <path d="M170 285c0-16 13-29 30-29s30 13 30 29" fill="none" stroke="${C.olive}"
         stroke-width="2.5" stroke-linecap="round" opacity=".35"/>
-  <text x="200" y="360" text-anchor="middle" font-family="Georgia,serif"
-        font-size="46" fill="${C.gold}" opacity=".75">${n}</text>
-  <text x="200" y="392" text-anchor="middle" font-family="${FONT_SANS}" font-size="14"
+  <text x="200" y="392" text-anchor="middle" font-family="${FONT_SANS}" font-size="16"
         letter-spacing="3" fill="${C.olive}" opacity=".6">PLACEHOLDER</text>
 </svg>`);
 });

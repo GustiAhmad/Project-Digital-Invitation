@@ -137,12 +137,17 @@ export const CONFIG = {
   /* =======================================================
      GALERI PRE-WEDDING
      ------------------------------------------------------------
-     Klien meminta galeri pre-wedding ditampilkan lagi.
+     KEPUTUSAN KLIEN: klien hanya punya SATU foto pre-wedding,
+     dan foto itu dipakai untuk DUA peran (opsi A + B):
+       1. backdrop cover (hero.backdrop, diredupkan - lihat
+          catatan BACKDROP COVER di atas), dan
+       2. satu foto fitur yang jelas di section ini.
 
-     KONFIRMASI KLIEN: hanya ADA SATU foto pre-wedding. Keputusan
-     tata letaknya (satu foto besar vs tanpa section galeri, foto
-     juga dipakai sebagai latar cover) masih menunggu - ubah daftar
-     `photos` di bawah mengikuti keputusan itu.
+     Karena jumlahnya cuma satu, renderGallery() menambahkan
+     class `gallery-grid--single` supaya foto tampil satu kolom
+     terpusat, bukan grid kecil.
+
+     Yang menunggu sekarang cuma FILE-nya dari klien.
 
      CARA MENGISI:
        1. Simpan foto ke assets-src/ (folder ini tidak masuk Git).
@@ -152,7 +157,7 @@ export const CONFIG = {
           jadi tidak mungkin salah diam-diam.
 
      `src` masih menunjuk placeholder .svg yang dibuat oleh
-     `npm run placeholders`. Setelah klien mengirim foto asli:
+     `npm run placeholders`. Setelah foto asli datang:
        1. simpan ke assets-src/,
        2. jalankan `npm run optimize`,
        3. ubah `src` di bawah ke .jpg + isi `widths` dengan lebar
@@ -163,12 +168,7 @@ export const CONFIG = {
     title: 'Pre-Wedding',
     caption: 'Detik-detik sebelum hari besar kami.',
     photos: [
-      { src: './img/gallery-1.svg', alt: 'Foto pre-wedding 1', widths: [] },
-      { src: './img/gallery-2.svg', alt: 'Foto pre-wedding 2', widths: [] },
-      { src: './img/gallery-3.svg', alt: 'Foto pre-wedding 3', widths: [] },
-      { src: './img/gallery-4.svg', alt: 'Foto pre-wedding 4', widths: [] },
-      { src: './img/gallery-5.svg', alt: 'Foto pre-wedding 5', widths: [] },
-      { src: './img/gallery-6.svg', alt: 'Foto pre-wedding 6', widths: [] },
+      { src: './img/gallery-1.svg', alt: 'Foto pre-wedding Muhammad Irfani & Parida Paska', widths: [] },
     ],
   },
 

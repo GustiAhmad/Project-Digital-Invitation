@@ -365,6 +365,10 @@ function renderGallery() {
   }
 
   host.hidden = false;
+  // Satu foto = tampilkan sebagai foto fitur terpusat, bukan grid
+  // kecil. KEPUTUSAN KLIEN: hanya ada satu foto pre-wedding, dan
+  // foto itu juga dipakai sebagai backdrop cover.
+  host.classList.toggle('gallery-grid--single', photos.length === 1);
   photos.forEach((photo, i) => {
     host.append(el('div', { class: 'gallery-item' }, [
       el('img', {
