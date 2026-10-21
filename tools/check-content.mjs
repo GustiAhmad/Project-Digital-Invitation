@@ -151,12 +151,12 @@ if (!brideName || !groomName) {
     }
   }
 
-  // Nama lama harus benar-benar hilang dari HTML, kalau tidak maka
-  // preview WhatsApp masih menampilkan pasangan sebelumnya.
-  const stale = ['Uswatun', 'Hasanah'];
-  const found = stale.filter((s) => html.includes(s));
-  add('Nama pasangan lama dihapus', found.length === 0,
-    found.length ? `Masih muncul: ${found.join(', ')}` : 'OK');
+  // CATATAN: dulu di sini ada cek "nama pasangan lama dihapus" dengan
+  // penanda 'Uswatun'/'Hasanah'. Penanda itu sudah TIDAK VALID karena
+  // sekarang 'Uswatun Hasanah' adalah nama PEMBUAT yang muncul sah di
+  // kredit footer. Yang penting bukan "nama itu tidak ada", tapi
+  // "nama pengantin yang benar ada di title & og". Itu sudah dijaga
+  // oleh cek nama di <title> dan <meta> di atas.
 }
 
 /* ---------- 1b. og:image harus ABSOLUT ----------
@@ -178,6 +178,18 @@ add('og:image absolut (bukan relatif)', ogImageAbsolute,
     ? ogImage
     : `Nilai: ${ogImage === undefined ? 'tidak ditemukan' : ogImage}. `
       + 'Harus absolut, mis. https://domain/og-image.png atau %SITE_URL%/og-image.png.');
+
+/* ---------- 1c. Kredit pembuat di footer ----------
+   Klien ingin footer memuat tanda pembuat. Ini bukan bagian dari
+   "nama pengantin", jadi diperiksa terpisah supaya tidak tertukar
+   dengan cek nama di <title>/OG di atas.
+   ------------------------------------------------------------ */
+const creatorLine = /Dibuat oleh\s+Uswatun Hasanah\s*(&amp;|&)\s*Gusti Ahmad/;
+add('Kredit pembuat di footer', creatorLine.test(html),
+  creatorLine.test(html)
+    ? 'OK'
+    : 'Baris "Dibuat oleh Uswatun Hasanah & Gusti Ahmad" tidak '
+      + 'ditemukan di index.html (footer).');
 
 /* ---------- 2. Tanggal & nama hari di <time datetime> ---------- */
 const date = (configSrc.match(/date:\s*'(\d{4}-\d{2}-\d{2})'/) || [])[1];

@@ -754,6 +754,15 @@ footer .script {
 
 footer p { font-size: var(--fs-sm); opacity: .8; }
 
+/* Baris kredit pembuat: lebih kecil & lebih redup dari baris lain
+   supaya tidak bersaing dengan nama pengantin, tapi tetap terbaca. */
+footer .footer-credit {
+  margin-top: var(--sp-5);
+  font-size: var(--fs-xs, .72rem);
+  letter-spacing: .03em;
+  opacity: .6;
+}
+
 /* =========================================================
    RESPONSIVE
    ------------------------------------------------------------
