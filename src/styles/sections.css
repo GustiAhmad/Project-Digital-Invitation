@@ -709,7 +709,7 @@
 
 .wish__status--hadir { background: #dcebdd; color: #2f6b3a; }
 .wish__status--tidak { background: #f3dcdc; color: #8a3b3b; }
-.wish__status--ragu  { background: #f5e9d4; color: #8a6a2f; }
+.wish__status--ragu  { background: #f5e9d4; color: #6d511f; }
 
 .wish__time {
   display: block;

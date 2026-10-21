@@ -628,6 +628,60 @@ add('append() tanpa nilai kosong', suspects.length === 0,
       + `Perbaiki di: ${suspects.join(', ')}`
     : 'OK');
 
+/* ---------- 8. Kontras warna teks (WCAG AA) ----------
+   Teks abu (--muted) dipakai di banyak tempat kecil. Dulu nilainya
+   #8b8d84, yang kontrasnya hanya 2.78:1 di latar sand - jauh di
+   bawah ambang WCAG AA (4.5:1 untuk teks normal). Sulit dibaca,
+   terutama di HP di bawah sinar matahari. Nilai sekarang #686a5c.
+
+   Rasio dihitung di sini supaya kalau ada yang mengubah token atau
+   warna badge, checker langsung menangkapnya - bukan setelah tamu
+   mengeluh tidak bisa membaca.
+   ------------------------------------------------------------ */
+
+/** Luminance relatif menurut rumus WCAG. */
+function luminance(hex) {
+  const h = hex.replace('#', '');
+  const chan = (i) => {
+    const v = parseInt(h.substr(i, 2), 16) / 255;
+    return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  return 0.2126 * chan(0) + 0.7152 * chan(2) + 0.0722 * chan(4);
+}
+
+function contrast(a, b) {
+  const l1 = luminance(a);
+  const l2 = luminance(b);
+  const hi = Math.max(l1, l2);
+  const lo = Math.min(l1, l2);
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+const tokensSrc = readFileSync(join(ROOT, 'src', 'styles', 'tokens.css'), 'utf8');
+const sectionsSrc = readFileSync(join(ROOT, 'src', 'styles', 'sections.css'), 'utf8');
+
+const muted = (tokensSrc.match(/--muted:\s*(#[0-9a-fA-F]{6})/) || [])[1];
+const raguFg = (sectionsSrc.match(/wish__status--ragu\s*\{[^}]*color:\s*(#[0-9a-fA-F]{6})/) || [])[1];
+
+if (!muted) {
+  add('Warna --muted terbaca', false, 'Tidak menemukan --muted: #...... di tokens.css');
+} else {
+  const worst = Math.min(
+    contrast(muted, '#eee9df'), // sand (bg-page)
+    contrast(muted, '#ffffff'), // white (bg-card)
+    contrast(muted, '#f7f3eb'), // cream (bg-alt)
+  );
+  add('Kontras teks abu (--muted) >= 4.5:1', worst >= 4.5,
+    `${muted} rasio terburuk ${worst.toFixed(2)}:1 `
+    + '(target 4.5:1 untuk teks normal).');
+}
+
+if (raguFg) {
+  const r = contrast(raguFg, '#f5e9d4');
+  add('Kontras badge "Belum Pasti" >= 4.5:1', r >= 4.5,
+    `${raguFg} pada #f5e9d4 = ${r.toFixed(2)}:1`);
+}
+
 /* ---------- Laporan ---------- */
 const failed = checks.filter((c) => !c.ok);
 const passed = checks.length - failed.length;
