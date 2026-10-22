@@ -147,21 +147,12 @@ export const CONFIG = {
      class `gallery-grid--single` supaya foto tampil satu kolom
      terpusat, bukan grid kecil.
 
-     Yang menunggu sekarang cuma FILE-nya dari klien.
-
-     CARA MENGISI:
+     CARA MENGGANTI FOTO (mis. klien kirim versi baru):
        1. Simpan foto ke assets-src/ (folder ini tidak masuk Git).
        2. Jalankan `npm run optimize` untuk membuat varian WebP.
        3. Update `widths` di bawah dengan lebar varian yang Benar-BENAR
           ada di disk - tools/check-images.mjs akan gagal kalau meleset,
           jadi tidak mungkin salah diam-diam.
-
-     `src` masih menunjuk placeholder .svg yang dibuat oleh
-     `npm run placeholders`. Setelah foto asli datang:
-       1. simpan ke assets-src/,
-       2. jalankan `npm run optimize`,
-       3. ubah `src` di bawah ke .jpg + isi `widths` dengan lebar
-          varian WebP yang benar-benar ada.
      ======================================================= */
   gallery: {
     label: 'Gallery',
@@ -172,7 +163,7 @@ export const CONFIG = {
       {
         src: './img/gallery-1.jpg',
         alt: 'Foto pre-wedding Muhammad Irfani & Parida Paska',
-        widths: [320, 480, 768, 853],
+        widths: [320, 480, 768, 1120],
       },
     ],
   },
@@ -240,12 +231,10 @@ export const CONFIG = {
        2. scrim gelap + text-shadow (lihat styles/sections.css).
 
      WADAH-nya sudah disiapkan (renderHero + CSS ::before),
-     tapi FOTO-nya sengaja dikosongkan buat sekarang. Klien hanya
-     punya SATU foto pre-wedding, dan foto itu kandidat kuat untuk
-     dijadikan latar cover ini. Keputusan layoutnya masih menunggu
-     (lihat catatan galeri di atas). Waktu foto datang, isi `src`
-     di bawah (idealnya landscape 1200x1600 atau lebih supaya
-     tidak pecah saat di-cover), lalu jalankan `npm run check`.
+     dan FOTO-nya sudah terisi: file yang sama dengan galeri
+     (lihat catatan galeri di atas). Kalau klien mengganti foto,
+     jalankan `npm run optimize` lalu ikut perbarui `widths` di
+     blok galeri - checker akan gagal kalau sampai meleset.
      ======================================================= */
   hero: {
     backdrop: {

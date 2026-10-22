@@ -104,8 +104,97 @@ if (!srcsetRefs.length) {
     `${new Set(srcsetRefs).size} file, semua ada`);
 }
 
-/* ---------- 3. Dimensi HTML cocok dengan file asli ---------- */
+/* ---------- 2b. Varian dari config.js benar-benar ada ----------
+   srcset gallery & foto pengantin disusun SAAT JALAN dari array
+   `widths` di src/config.js (lihat src/lib/responsive.js). Jadi
+   kalau array itu meleset, file yang hilang tidak akan ketahuan
+   oleh pemeriksaan srcset di atas - yang hanya membaca HTML statis.
 
+   Contoh nyata: master foto diganti (853 -> 1120 px) dan `widths`
+   di config.js masih menunjuk varian lama. Gallery di HP Mode
+   "high DPI" diam-diam gagal karena file 853.webp sudah dihapus.
+
+   Yang diperiksa:
+     1. file master (src) ada,
+     2. tiap lebar di `widths` punya file .webp yang ada,
+     3. lebar terbesar tidak melebihi master asli (dilarang
+        upscale - hasil jadi pecah dan bikin file membesar),
+     4. tidak ada varian yatim di disk yang tidak dipakai
+        (mubazir bandwidth).
+   ------------------------------------------------------------ */
+const configSrc = readFileSync(join(ROOT, 'src', 'config.js'), 'utf8');
+
+// Pasangkan setiap `src:` dengan `widths:` yang menyusulnya
+// (keduanya berada di dalam satu blok objek foto).
+const photoPairs = [];
+const photoRe = /src:\s*'(\.\/img\/[^']+)'\s*,\s*([\s\S]{0,220}?)widths:\s*\[([\d,\s]+)\]/g;
+for (const m of configSrc.matchAll(photoRe)) {
+  const widths = m[3].split(',').map((s) => Number(s.trim())).filter(Boolean);
+  photoPairs.push({ src: m[1], widths });
+}
+
+const cfgProblems = [];
+const orphans = [];
+
+for (const { src, widths } of photoPairs) {
+  const rel = src.replace(/^\.\//, '');
+  const masterPath = join(ROOT, 'public', rel);
+
+  if (!existsSync(masterPath)) {
+    cfgProblems.push(`${src}: file master tidak ada`);
+    continue;
+  }
+
+  const stem = rel.replace(/\.[^.]+$/, '');
+
+  // (2) tiap lebar harus punya file webp
+  for (const w of widths) {
+    const variant = `${stem}-${w}.webp`;
+    if (!existsSync(join(ROOT, 'public', variant))) {
+      cfgProblems.push(`${src}: varian ${w}w tidak ada (${variant})`);
+    }
+  }
+
+  // (3) tidak boleh lebih lebar dari master asli
+  const meta = await sharp(masterPath).metadata();
+  const maxW = Math.max(...widths);
+  if (maxW > meta.width) {
+    cfgProblems.push(
+      `${src}: lebar terbesar ${maxW}px melebihi master ${meta.width}px `
+      + '(harus regenerate dengan npm run optimize)',
+    );
+  }
+
+  // (4) varian yatim: file webp yang lebarnya tidak dipakai
+  const onDisk = readdirSync(join(ROOT, 'public', 'img')).filter(
+    (f) => f.startsWith(`${stem.split('/').pop()}-`) && f.endsWith('.webp'),
+  );
+  for (const f of onDisk) {
+    const w = Number(f.match(/-(\d+)\.webp$/)?.[1]);
+    if (Number.isFinite(w) && !widths.includes(w)) {
+      orphans.push(`${f} (${w}w tidak ada di widths)`);
+    }
+  }
+}
+
+if (!photoPairs.length) {
+  add('Varian foto di config.js', false,
+    'Tidak menemukan pasangan src + widths di src/config.js');
+} else if (cfgProblems.length) {
+  add('Varian foto di config.js', false,
+    `${cfgProblems.join(' | ')}. Jalankan npm run optimize lalu perbarui widths di src/config.js`);
+} else {
+  const n = photoPairs.reduce((s, p) => s + p.widths.length, 0);
+  add('Varian foto di config.js', true,
+    `${photoPairs.length} foto, ${n} varian semua ada`);
+}
+
+add('Tidak ada varian yatim di public/img', orphans.length === 0,
+  orphans.length
+    ? `${orphans.join(', ')}. Hapus manual atau regenerate.`
+    : 'OK');
+
+/* ---------- 3. Dimensi HTML cocok dengan file asli ---------- */
 // <img src="couple-groom.jpg" ... width="1200" height="1594">
 const imgTags = [...html.matchAll(/<img\b[^>]*>/g)].map((m) => m[0]);
 const dimProblems = [];
